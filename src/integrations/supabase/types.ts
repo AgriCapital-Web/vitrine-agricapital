@@ -69,8 +69,10 @@ export type Database = {
           email: string | null
           first_name: string
           id: string
+          is_agricapital_subscriber: boolean | null
           last_name: string
           photo_url: string | null
+          status: string | null
           testimonial: string
           updated_at: string
         }
@@ -80,8 +82,10 @@ export type Database = {
           email?: string | null
           first_name: string
           id?: string
+          is_agricapital_subscriber?: boolean | null
           last_name: string
           photo_url?: string | null
+          status?: string | null
           testimonial: string
           updated_at?: string
         }
@@ -91,8 +95,10 @@ export type Database = {
           email?: string | null
           first_name?: string
           id?: string
+          is_agricapital_subscriber?: boolean | null
           last_name?: string
           photo_url?: string | null
+          status?: string | null
           testimonial?: string
           updated_at?: string
         }

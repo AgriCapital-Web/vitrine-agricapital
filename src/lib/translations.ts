@@ -218,6 +218,9 @@ const fr = {
       changePhoto: "Changer la photo",
       clickToAdd: "Cliquez pour ajouter une photo",
       maxSize: "Max 5MB",
+      status: "Statut",
+      statusPlaceholder: "Sélectionnez votre statut",
+      subscriberQuestion: "Êtes-vous souscripteur AgriCapital ?",
     },
   },
   newsletter: {
@@ -235,6 +238,8 @@ const fr = {
   },
   common: {
     close: "Fermer",
+    yes: "Oui",
+    no: "Non",
   },
 };
 
@@ -447,6 +452,9 @@ const en = {
       changePhoto: "Change photo",
       clickToAdd: "Click to add a photo",
       maxSize: "Max 5MB",
+      status: "Status",
+      statusPlaceholder: "Select your status",
+      subscriberQuestion: "Are you an AgriCapital subscriber?",
     },
   },
   newsletter: {
@@ -464,6 +472,8 @@ const en = {
   },
   common: {
     close: "Close",
+    yes: "Yes",
+    no: "No",
   },
 };
 
@@ -676,6 +686,9 @@ const ar = {
       changePhoto: "تغيير الصورة",
       clickToAdd: "انقر لإضافة صورة",
       maxSize: "الحد الأقصى ٥ ميجابايت",
+      status: "الحالة",
+      statusPlaceholder: "اختر حالتك",
+      subscriberQuestion: "هل أنت مشترك في أغريكابيتال؟",
     },
   },
   newsletter: {
@@ -693,6 +706,8 @@ const ar = {
   },
   common: {
     close: "إغلاق",
+    yes: "نعم",
+    no: "لا",
   },
 };
 
@@ -905,6 +920,9 @@ const es = {
       changePhoto: "Cambiar foto",
       clickToAdd: "Haz clic para añadir una foto",
       maxSize: "Máx 5MB",
+      status: "Estado",
+      statusPlaceholder: "Selecciona tu estado",
+      subscriberQuestion: "¿Eres suscriptor de AgriCapital?",
     },
   },
   newsletter: {
@@ -922,6 +940,8 @@ const es = {
   },
   common: {
     close: "Cerrar",
+    yes: "Sí",
+    no: "No",
   },
 };
 
@@ -1134,6 +1154,9 @@ const de = {
       changePhoto: "Foto ändern",
       clickToAdd: "Klicken Sie, um ein Foto hinzuzufügen",
       maxSize: "Max 5MB",
+      status: "Status",
+      statusPlaceholder: "Wählen Sie Ihren Status",
+      subscriberQuestion: "Sind Sie ein AgriCapital-Abonnent?",
     },
   },
   newsletter: {
@@ -1151,6 +1174,8 @@ const de = {
   },
   common: {
     close: "Schließen",
+    yes: "Ja",
+    no: "Nein",
   },
 };
 
@@ -1363,6 +1388,9 @@ const zh = {
       changePhoto: "更换照片",
       clickToAdd: "点击添加照片",
       maxSize: "最大5MB",
+      status: "状态",
+      statusPlaceholder: "选择您的状态",
+      subscriberQuestion: "您是AgriCapital订户吗？",
     },
   },
   newsletter: {
@@ -1380,6 +1408,8 @@ const zh = {
   },
   common: {
     close: "关闭",
+    yes: "是",
+    no: "否",
   },
 };
 
