@@ -1,14 +1,49 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-interface NewsletterWelcomeRequest {
-  firstName: string;
-  lastName: string;
-  email: string;
+// Input validation schema
+const newsletterSchema = z.object({
+  firstName: z.string().trim().min(1, "First name is required").max(50, "First name too long"),
+  lastName: z.string().trim().min(1, "Last name is required").max(50, "Last name too long"),
+  email: z.string().trim().email("Invalid email address").max(255, "Email too long"),
+});
+
+// Rate limiting: max 3 requests per email per hour
+const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
+
+function checkRateLimit(identifier: string): boolean {
+  const now = Date.now();
+  const hourInMs = 60 * 60 * 1000;
+  const existing = rateLimitMap.get(identifier);
+
+  if (!existing || now > existing.resetTime) {
+    rateLimitMap.set(identifier, { count: 1, resetTime: now + hourInMs });
+    return true;
+  }
+
+  if (existing.count >= 3) {
+    return false;
+  }
+
+  existing.count++;
+  return true;
+}
+
+// HTML escape function to prevent XSS
+function escapeHtml(text: string): string {
+  const htmlEntities: Record<string, string> = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;',
+  };
+  return text.replace(/[&<>"']/g, (char) => htmlEntities[char] || char);
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -17,10 +52,32 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { firstName, lastName, email }: NewsletterWelcomeRequest = await req.json();
+    const body = await req.json();
+    
+    // Validate input
+    const parseResult = newsletterSchema.safeParse(body);
+    if (!parseResult.success) {
+      console.error("Validation error:", parseResult.error.errors);
+      return new Response(
+        JSON.stringify({ success: false, error: "Invalid input data" }),
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+    
+    const { firstName, lastName, email } = parseResult.data;
+
+    // Check rate limit
+    if (!checkRateLimit(email)) {
+      console.warn(`Rate limit exceeded for email: ${email}`);
+      return new Response(
+        JSON.stringify({ success: false, error: "Too many requests. Please try again later." }),
+        { status: 429, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
     const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 
-    console.log("Sending welcome email to:", email, firstName, lastName);
+    console.log("Sending welcome email to:", email);
 
     if (!RESEND_API_KEY) {
       console.log("RESEND_API_KEY not configured, skipping email");
@@ -30,6 +87,9 @@ const handler = async (req: Request): Promise<Response> => {
       });
     }
 
+    // Sanitize user inputs for HTML
+    const safeFirstName = escapeHtml(firstName);
+    const safeLastName = escapeHtml(lastName);
     const currentYear = new Date().getFullYear();
 
     const emailResponse = await fetch("https://api.resend.com/emails", {
@@ -69,7 +129,7 @@ const handler = async (req: Request): Promise<Response> => {
                     <tr>
                       <td style="padding: 40px;">
                         <h2 style="color: #1a5d3a; font-size: 24px; margin: 0 0 20px; font-weight: 600;">
-                          Bienvenue ${firstName} ${lastName} ! 🎉
+                          Bienvenue ${safeFirstName} ${safeLastName} ! 🎉
                         </h2>
                         
                         <p style="color: #333; font-size: 16px; line-height: 1.7; margin: 0 0 20px;">
@@ -169,7 +229,7 @@ const handler = async (req: Request): Promise<Response> => {
   } catch (error: any) {
     console.error("Error sending newsletter welcome email:", error);
     return new Response(
-      JSON.stringify({ error: error.message, success: false }),
+      JSON.stringify({ error: "An error occurred", success: false }),
       {
         status: 500,
         headers: { "Content-Type": "application/json", ...corsHeaders },
