@@ -16,11 +16,25 @@ serve(async (req) => {
   }
 
   try {
-    // Verify admin secret
+    // Verify admin secret from environment variable
+    const expectedSecret = Deno.env.get("ADMIN_INIT_SECRET");
     const authHeader = req.headers.get("x-admin-secret");
-    console.log("Auth header received:", authHeader ? "present" : "missing");
     
-    if (authHeader !== "agricapital-init-2025") {
+    console.log("Auth header received:", authHeader ? "present" : "missing");
+    console.log("Expected secret configured:", expectedSecret ? "yes" : "no");
+    
+    if (!expectedSecret) {
+      console.log("ADMIN_INIT_SECRET not configured");
+      return new Response(
+        JSON.stringify({ error: "Admin initialization not configured", success: false }),
+        { 
+          status: 503, 
+          headers: { ...corsHeaders, "Content-Type": "application/json" } 
+        }
+      );
+    }
+    
+    if (authHeader !== expectedSecret) {
       console.log("Unauthorized access attempt");
       return new Response(
         JSON.stringify({ error: "Unauthorized", success: false }),
@@ -48,8 +62,20 @@ serve(async (req) => {
       },
     });
 
-    const adminEmail = "admin@agricapital.ci";
-    const adminPassword = "@AgriCapital2025";
+    // Get admin credentials from environment variables
+    const adminEmail = Deno.env.get("ADMIN_EMAIL");
+    const adminPassword = Deno.env.get("ADMIN_PASSWORD");
+    
+    if (!adminEmail || !adminPassword) {
+      console.log("Admin credentials not configured");
+      return new Response(
+        JSON.stringify({ error: "Admin credentials not configured", success: false }),
+        { 
+          status: 503, 
+          headers: { ...corsHeaders, "Content-Type": "application/json" } 
+        }
+      );
+    }
 
     // Check if admin user exists
     console.log("Checking if admin exists...");
@@ -96,8 +122,7 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({ 
           message: "Admin already exists", 
-          success: true,
-          email: adminEmail 
+          success: true
         }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
@@ -136,17 +161,15 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         message: "Admin created successfully", 
-        success: true,
-        email: adminEmail 
+        success: true
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
 
   } catch (error) {
     console.error("Function error:", error);
-    const errorMessage = error instanceof Error ? error.message : "Unknown error";
     return new Response(
-      JSON.stringify({ error: errorMessage, success: false }),
+      JSON.stringify({ error: "An error occurred", success: false }),
       {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
