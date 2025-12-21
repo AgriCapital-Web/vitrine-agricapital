@@ -376,21 +376,29 @@ const AIChatbot = () => {
       {/* Floating button */}
       <button
         onClick={() => setIsOpen(true)}
-        className={`fixed bottom-6 ${isRTL ? 'left-6' : 'right-6'} z-[99990] w-16 h-16 rounded-full shadow-2xl flex items-center justify-center transition-all hover:scale-110 animate-bounce`}
+        className={`fixed bottom-4 sm:bottom-6 ${isRTL ? 'left-4 sm:left-6' : 'right-4 sm:right-6'} z-[99990] w-14 h-14 sm:w-16 sm:h-16 rounded-full shadow-2xl flex items-center justify-center transition-all hover:scale-110 animate-bounce`}
         style={{
           background: 'linear-gradient(135deg, #166534 0%, #14532d 100%)',
           boxShadow: '0 8px 32px rgba(22, 101, 52, 0.4)',
         }}
         aria-label="Open chat"
       >
-        <MessageCircle className="w-7 h-7 text-white" />
-        <span className="absolute -top-1 -right-1 w-4 h-4 bg-amber-400 rounded-full animate-ping" />
+        <MessageCircle className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
+        <span className="absolute -top-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 bg-amber-400 rounded-full animate-ping" />
       </button>
 
-      {/* Chat window */}
+      {/* Chat window - Fully responsive */}
       {isOpen && (
         <div
-          className={`fixed bottom-24 ${isRTL ? 'left-4' : 'right-4'} z-[99995] w-[380px] max-w-[calc(100vw-2rem)] h-[550px] max-h-[75vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-scale-in`}
+          className={`fixed z-[99995] flex flex-col overflow-hidden animate-scale-in
+            /* Mobile: Full screen minus safe areas */
+            inset-2 sm:inset-auto
+            /* Tablet and up: Positioned bottom-right */
+            sm:bottom-20 md:bottom-24 
+            ${isRTL ? 'sm:left-4' : 'sm:right-4'} 
+            sm:w-[380px] sm:max-w-[calc(100vw-2rem)] 
+            sm:h-[500px] md:h-[550px] sm:max-h-[75vh]
+            rounded-2xl sm:rounded-2xl shadow-2xl`}
           style={{ background: 'linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)' }}
           dir={isRTL ? 'rtl' : 'ltr'}
         >

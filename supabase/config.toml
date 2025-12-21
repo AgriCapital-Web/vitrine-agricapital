@@ -1,1 +1,25 @@
 project_id = "iwfbmnnvjkdptfxvnveu"
+
+[functions.create-admin]
+verify_jwt = false
+
+[functions.ai-chat]
+verify_jwt = false
+
+[functions.send-contact-email]
+verify_jwt = false
+
+[functions.send-email]
+verify_jwt = false
+
+[functions.send-newsletter-batch]
+verify_jwt = false
+
+[functions.send-newsletter-welcome]
+verify_jwt = false
+
+[functions.og-meta]
+verify_jwt = false
+
+[functions.prerender]
+verify_jwt = false
