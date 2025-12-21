@@ -7,11 +7,10 @@ const corsHeaders = {
 };
 
 // Rate limiting configuration
-const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute window
-const MAX_REQUESTS_PER_WINDOW = 10; // 10 requests per minute per IP
-const MAX_MESSAGE_LENGTH = 2000; // Maximum characters per message
+const RATE_LIMIT_WINDOW_MS = 60 * 1000;
+const MAX_REQUESTS_PER_WINDOW = 15;
+const MAX_MESSAGE_LENGTH = 5000;
 
-// In-memory rate limiting store (resets on function cold start)
 const rateLimitStore = new Map<string, { count: number; resetAt: number }>();
 
 const isRateLimited = (ip: string): boolean => {
@@ -19,7 +18,6 @@ const isRateLimited = (ip: string): boolean => {
   const record = rateLimitStore.get(ip);
   
   if (!record || now > record.resetAt) {
-    // Create new record or reset expired one
     rateLimitStore.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
     return false;
   }
@@ -32,7 +30,6 @@ const isRateLimited = (ip: string): boolean => {
   return false;
 };
 
-// Clean up old entries periodically (basic garbage collection)
 const cleanupRateLimitStore = () => {
   const now = Date.now();
   for (const [ip, record] of rateLimitStore.entries()) {
@@ -42,9 +39,15 @@ const cleanupRateLimitStore = () => {
   }
 };
 
-// Site content for AI context
+// Site context for AI
 const SITE_CONTEXT = `
 Tu es KAPITA, l'assistant virtuel intelligent d'AgriCapital. Tu es professionnel, chaleureux et expert en agriculture, particulièrement en culture de palmiers à huile en Côte d'Ivoire.
+
+Tu peux:
+- Analyser des images (photos de plantations, sols, maladies des plantes, documents)
+- Lire et analyser des documents (PDF, textes)
+- Comprendre et répondre aux messages vocaux
+- Générer des réponses vocales si demandé
 
 À PROPOS D'AGRICAPITAL:
 - AGRICAPITAL SARL est immatriculée au RCCM CI-DAL-01-2025-B12-13435 avec un capital de 5 000 000 FCFA
@@ -74,37 +77,13 @@ OFFRES PRINCIPALES:
    - Droit d'accès: 10 000F/ha (ancien prix: 15 000F/ha) - Paiement unique
    - Avantages: Gestion complète assurée par AgriCapital et l'exploitant avant l'entrée en production, 50% de la plantation dès l'entrée en production
 
-SERVICES INCLUS:
-- Plants certifiés de palmiers à huile de haute qualité
-- Fourniture d'intrants agricoles
-- Encadrement technique par des experts
-- Formation des planteurs
-- Suivi régulier des plantations
-- Garantie de rachat sur 20 ans
-
-AVANTAGES CLÉS:
-- Aucune barrière financière pour démarrer
-- Rendement garanti sur le long terme
-- Expertise technique reconnue
-- Accompagnement personnalisé
-- Transparence totale dans la gestion
-- Modèle de partenariat gagnant-gagnant
-
-PROCESSUS D'INSCRIPTION:
-1. Contact initial via téléphone, email ou site web
-2. Évaluation des besoins et choix de l'offre adaptée
-3. Signature du contrat de partenariat
-4. Mise en place de la plantation
-5. Suivi et accompagnement continu
-
-INSTRUCTIONS POUR L'ASSISTANT:
+INSTRUCTIONS:
 - Réponds toujours de manière professionnelle et amicale
-- Propose de mettre en contact avec l'équipe AgriCapital pour les questions complexes
-- Si tu ne connais pas une information spécifique, dis-le et propose de contacter l'équipe
+- Si on t'envoie une image, analyse-la en détail et fournis des conseils pertinents
+- Si on t'envoie un document, lis-le et réponds aux questions le concernant
+- Si on t'envoie un message vocal, traite-le comme un texte normal
 - Utilise la langue de l'utilisateur (français par défaut)
 - Termine souvent en proposant de l'aide supplémentaire ou de contacter l'équipe
-- Mets en avant les avantages des offres selon le profil du visiteur
-- Encourage les visiteurs à rejoindre le programme de partenariat
 `;
 
 serve(async (req) => {
@@ -112,15 +91,12 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  // Cleanup old rate limit entries periodically
   cleanupRateLimitStore();
 
-  // Get client IP for rate limiting
   const clientIP = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || 
                    req.headers.get("x-real-ip") || 
                    "unknown";
 
-  // Check rate limit
   if (isRateLimited(clientIP)) {
     console.log(`Rate limited IP: ${clientIP}`);
     return new Response(JSON.stringify({ 
@@ -136,9 +112,8 @@ serve(async (req) => {
   }
 
   try {
-    const { messages, visitorId, language = 'fr' } = await req.json();
+    const { messages, visitorId, language = 'fr', attachment } = await req.json();
     
-    // Validate messages array
     if (!messages || !Array.isArray(messages) || messages.length === 0) {
       return new Response(JSON.stringify({ error: "Messages requis" }), {
         status: 400,
@@ -146,7 +121,6 @@ serve(async (req) => {
       });
     }
 
-    // Validate and limit message content
     for (const msg of messages) {
       if (typeof msg.content !== 'string') {
         return new Response(JSON.stringify({ error: "Format de message invalide" }), {
@@ -164,8 +138,7 @@ serve(async (req) => {
       }
     }
 
-    // Limit conversation history to prevent abuse
-    const limitedMessages = messages.slice(-10); // Keep only last 10 messages
+    const limitedMessages = messages.slice(-10);
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     
@@ -173,15 +146,88 @@ serve(async (req) => {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
-    // Store chat in database for reporting
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Sanitize visitor ID (server-generated would be better, but log for now)
     const sanitizedVisitorId = (visitorId || 'anonymous').slice(0, 100).replace(/[^a-zA-Z0-9-_]/g, '');
 
-    const systemPrompt = SITE_CONTEXT + `\n\nLangue de l'utilisateur: ${language}\nID visiteur: ${sanitizedVisitorId}`;
+    // Build messages with multimodal content if attachment exists
+    const apiMessages: any[] = [
+      { role: "system", content: `${SITE_CONTEXT}\n\nLangue de l'utilisateur: ${language}\nID visiteur: ${sanitizedVisitorId}` }
+    ];
+
+    // Add previous messages
+    for (let i = 0; i < limitedMessages.length - 1; i++) {
+      apiMessages.push({
+        role: limitedMessages[i].role,
+        content: limitedMessages[i].content
+      });
+    }
+
+    // Handle the last message with potential attachment
+    const lastMessage = limitedMessages[limitedMessages.length - 1];
+    
+    if (attachment && attachment.content) {
+      // Build multimodal content for Gemini Vision
+      const contentParts: any[] = [];
+      
+      if (attachment.type === 'image') {
+        // Handle image - extract base64 data
+        const base64Data = attachment.content.includes(',') 
+          ? attachment.content.split(',')[1] 
+          : attachment.content;
+        
+        const mimeType = attachment.content.includes('data:') 
+          ? attachment.content.split(';')[0].split(':')[1] 
+          : 'image/jpeg';
+
+        contentParts.push({
+          type: "image_url",
+          image_url: {
+            url: `data:${mimeType};base64,${base64Data}`
+          }
+        });
+        
+        contentParts.push({
+          type: "text",
+          text: `L'utilisateur a envoyé cette image (${attachment.name || 'image'}). Analyse-la en détail et fournis des conseils pertinents en agriculture si applicable, sinon réponds de manière appropriée. ${lastMessage.content || 'Que peux-tu me dire sur cette image ?'}`
+        });
+      } else if (attachment.type === 'document') {
+        // Handle document - extract text or base64
+        const base64Data = attachment.content.includes(',') 
+          ? attachment.content.split(',')[1] 
+          : attachment.content;
+        
+        contentParts.push({
+          type: "text",
+          text: `L'utilisateur a envoyé un document (${attachment.name || 'document'}). Contenu encodé en base64: ${base64Data.substring(0, 1000)}... Analyse ce document et réponds aux questions le concernant. ${lastMessage.content || 'Que contient ce document ?'}`
+        });
+      } else if (attachment.type === 'audio') {
+        // Handle audio message
+        contentParts.push({
+          type: "text",
+          text: `L'utilisateur a envoyé un message vocal. Malheureusement, je ne peux pas encore traiter directement l'audio, mais je suis prêt à aider avec toute question textuelle. Pouvez-vous reformuler votre demande par écrit ?`
+        });
+      }
+
+      apiMessages.push({
+        role: lastMessage.role,
+        content: contentParts
+      });
+    } else {
+      apiMessages.push({
+        role: lastMessage.role,
+        content: lastMessage.content
+      });
+    }
+
+    // Use Gemini Pro for vision/multimodal, Flash for text-only
+    const model = attachment && attachment.type === 'image' 
+      ? "google/gemini-2.5-pro" 
+      : "google/gemini-2.5-flash";
+
+    console.log(`Using model: ${model}, has attachment: ${!!attachment}`);
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -190,11 +236,8 @@ serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
-        messages: [
-          { role: "system", content: systemPrompt },
-          ...limitedMessages,
-        ],
+        model,
+        messages: apiMessages,
         stream: true,
       }),
     });
@@ -226,8 +269,8 @@ serve(async (req) => {
       if (lastUserMessage) {
         await supabase.from('ai_chat_logs').insert({
           session_id: sanitizedVisitorId,
-          user_message: lastUserMessage.content.slice(0, 5000), // Limit stored content
-          assistant_response: 'streaming', // Will be updated or logged separately
+          user_message: lastUserMessage.content.slice(0, 5000),
+          assistant_response: attachment ? `[${attachment.type}] streaming` : 'streaming',
           language: language,
         });
       }
