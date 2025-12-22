@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { MessageCircle, X, Send, User, Bot, Loader2, Phone, Mic, MicOff, Image, FileText, Paperclip, StopCircle } from "lucide-react";
+import { MessageCircle, X, Send, User, Bot, Loader2, Phone, Mic, MicOff, Image, FileText, Paperclip, StopCircle, Volume2, VolumeX } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { toast } from "sonner";
@@ -10,6 +10,7 @@ interface Message {
   type?: "text" | "image" | "document" | "audio";
   fileName?: string;
   fileUrl?: string;
+  audioUrl?: string; // For TTS audio
 }
 
 const translations = {
@@ -112,6 +113,7 @@ const translations = {
 };
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-chat`;
+const TTS_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/elevenlabs-tts`;
 
 const AIChatbot = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -120,11 +122,14 @@ const AIChatbot = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessingVoice, setIsProcessingVoice] = useState(false);
+  const [isTTSEnabled, setIsTTSEnabled] = useState(true);
+  const [isPlayingAudio, setIsPlayingAudio] = useState(false);
   const [visitorId] = useState(() => `visitor_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const { language } = useLanguage();
   const t = translations[language] || translations.fr;
   const isRTL = language === "ar";
@@ -138,6 +143,63 @@ const AIChatbot = () => {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  // Text-to-Speech function
+  const speakText = useCallback(async (text: string) => {
+    if (!isTTSEnabled || !text || text.length < 10) return;
+    
+    try {
+      setIsPlayingAudio(true);
+      
+      // Stop any currently playing audio
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+
+      const response = await fetch(TTS_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        },
+        body: JSON.stringify({ text: text.slice(0, 500), language }),
+      });
+
+      if (!response.ok) {
+        console.error("TTS request failed:", response.status);
+        return;
+      }
+
+      const audioBlob = await response.blob();
+      const audioUrl = URL.createObjectURL(audioBlob);
+      const audio = new Audio(audioUrl);
+      audioRef.current = audio;
+      
+      audio.onended = () => {
+        setIsPlayingAudio(false);
+        URL.revokeObjectURL(audioUrl);
+      };
+      
+      audio.onerror = () => {
+        setIsPlayingAudio(false);
+        URL.revokeObjectURL(audioUrl);
+      };
+
+      await audio.play();
+    } catch (error) {
+      console.error("TTS error:", error);
+      setIsPlayingAudio(false);
+    }
+  }, [isTTSEnabled, language]);
+
+  const stopAudio = useCallback(() => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+      setIsPlayingAudio(false);
+    }
+  }, []);
 
   const streamChat = useCallback(async (userMessages: Message[], attachedFile?: { type: string; content: string; name: string }) => {
     const resp = await fetch(CHAT_URL, {
@@ -199,7 +261,14 @@ const AIChatbot = () => {
         }
       }
     }
-  }, [visitorId, language]);
+
+    // Speak the response if TTS is enabled
+    if (assistantContent && isTTSEnabled) {
+      speakText(assistantContent);
+    }
+
+    return assistantContent;
+  }, [visitorId, language, isTTSEnabled, speakText]);
 
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
@@ -416,13 +485,37 @@ const AIChatbot = () => {
                 <p className="text-white/80 text-xs">{t.subtitle}</p>
               </div>
             </div>
-            <button
-              onClick={() => setIsOpen(false)}
-              className="p-2 rounded-full hover:bg-white/20 transition-colors"
-              aria-label={t.close}
-            >
-              <X className="w-5 h-5 text-white" />
-            </button>
+            <div className="flex items-center gap-1">
+              {/* TTS Toggle */}
+              <button
+                onClick={() => {
+                  if (isPlayingAudio) {
+                    stopAudio();
+                  } else {
+                    setIsTTSEnabled(!isTTSEnabled);
+                  }
+                }}
+                className={`p-2 rounded-full transition-colors ${
+                  isTTSEnabled ? 'bg-white/20 hover:bg-white/30' : 'hover:bg-white/20'
+                }`}
+                title={isTTSEnabled ? "Désactiver la voix" : "Activer la voix"}
+              >
+                {isPlayingAudio ? (
+                  <VolumeX className="w-5 h-5 text-white animate-pulse" />
+                ) : isTTSEnabled ? (
+                  <Volume2 className="w-5 h-5 text-white" />
+                ) : (
+                  <VolumeX className="w-5 h-5 text-white/60" />
+                )}
+              </button>
+              <button
+                onClick={() => setIsOpen(false)}
+                className="p-2 rounded-full hover:bg-white/20 transition-colors"
+                aria-label={t.close}
+              >
+                <X className="w-5 h-5 text-white" />
+              </button>
+            </div>
           </div>
 
           {/* Messages */}
