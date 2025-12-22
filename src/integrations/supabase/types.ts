@@ -41,6 +41,51 @@ export type Database = {
         }
         Relationships: []
       }
+      auto_responses: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          priority: number
+          response_ar: string | null
+          response_de: string | null
+          response_en: string | null
+          response_es: string | null
+          response_fr: string
+          response_zh: string | null
+          trigger_keyword: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          priority?: number
+          response_ar?: string | null
+          response_de?: string | null
+          response_en?: string | null
+          response_es?: string | null
+          response_fr: string
+          response_zh?: string | null
+          trigger_keyword: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          priority?: number
+          response_ar?: string | null
+          response_de?: string | null
+          response_en?: string | null
+          response_es?: string | null
+          response_fr?: string
+          response_zh?: string | null
+          trigger_keyword?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       contact_messages: {
         Row: {
           created_at: string
@@ -322,6 +367,42 @@ export type Database = {
           status?: string
           type?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          created_at: string
+          first_name: string | null
+          id: string
+          last_name: string | null
+          phone: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          phone?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          phone?: string | null
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
