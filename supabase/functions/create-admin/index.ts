@@ -35,7 +35,7 @@ serve(async (req) => {
     }
     
     if (authHeader !== expectedSecret) {
-      console.log("Unauthorized access attempt");
+      console.log("Unauthorized access attempt - secrets don't match");
       return new Response(
         JSON.stringify({ error: "Unauthorized", success: false }),
         { 
@@ -91,7 +91,7 @@ serve(async (req) => {
     );
 
     if (existingAdmin) {
-      console.log("Admin user exists, checking role...");
+      console.log("Admin user exists, checking role and profile...");
       
       // Check if role exists
       const { data: roleData, error: roleCheckError } = await supabase
@@ -119,6 +119,33 @@ serve(async (req) => {
         }
       }
 
+      // Check if profile exists
+      const { data: profileData, error: profileCheckError } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("user_id", existingAdmin.id)
+        .maybeSingle();
+
+      if (profileCheckError) {
+        console.error("Error checking profile:", profileCheckError);
+      }
+
+      if (!profileData) {
+        console.log("Creating profile for existing user...");
+        const { error: profileInsertError } = await supabase
+          .from("profiles")
+          .insert({
+            user_id: existingAdmin.id,
+            first_name: "Inocent",
+            last_name: "KOFFI",
+            phone: "0759566087",
+          });
+
+        if (profileInsertError) {
+          console.error("Error inserting profile:", profileInsertError);
+        }
+      }
+
       return new Response(
         JSON.stringify({ 
           message: "Admin already exists", 
@@ -134,6 +161,10 @@ serve(async (req) => {
       email: adminEmail,
       password: adminPassword,
       email_confirm: true,
+      user_metadata: {
+        first_name: "Inocent",
+        last_name: "KOFFI",
+      }
     });
 
     if (createError) {
@@ -143,7 +174,7 @@ serve(async (req) => {
 
     console.log("Admin user created successfully");
 
-    // Add admin role
+    // Add admin role and profile
     if (newUser?.user) {
       console.log("Adding admin role...");
       const { error: roleError } = await supabase.from("user_roles").insert({
@@ -156,6 +187,22 @@ serve(async (req) => {
         throw roleError;
       }
       console.log("Admin role added successfully");
+
+      // Create profile
+      console.log("Creating admin profile...");
+      const { error: profileError } = await supabase.from("profiles").insert({
+        user_id: newUser.user.id,
+        first_name: "Inocent",
+        last_name: "KOFFI",
+        phone: "0759566087",
+      });
+
+      if (profileError) {
+        console.error("Error creating profile:", profileError);
+        // Don't throw, profile creation is not critical
+      } else {
+        console.log("Admin profile created successfully");
+      }
     }
 
     return new Response(
