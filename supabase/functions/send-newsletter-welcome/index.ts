@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -44,6 +45,25 @@ function escapeHtml(text: string): string {
     "'": '&#39;',
   };
   return text.replace(/[&<>"']/g, (char) => htmlEntities[char] || char);
+}
+
+// Create admin notification for newsletter subscription
+async function createNewsletterNotification(firstName: string, lastName: string, email: string) {
+  try {
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    await supabase.from("admin_notifications").insert({
+      type: "newsletter_subscription",
+      title: `Nouvelle inscription newsletter`,
+      message: `${firstName} ${lastName} (${email}) s'est inscrit à la newsletter`,
+      data: { firstName, lastName, email },
+    });
+    console.log("Admin notification created for newsletter subscription");
+  } catch (error) {
+    console.error("Error creating admin notification:", error);
+  }
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -221,6 +241,9 @@ const handler = async (req: Request): Promise<Response> => {
         headers: { "Content-Type": "application/json", ...corsHeaders },
       });
     }
+
+    // Create admin notification for the new subscription
+    await createNewsletterNotification(firstName, lastName, email);
 
     return new Response(JSON.stringify({ success: true, data }), {
       status: 200,

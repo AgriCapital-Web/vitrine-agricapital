@@ -1,14 +1,15 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, LogOut, Menu, X } from "lucide-react";
+import { Loader2, LogOut, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import AdminSidebar from "./AdminSidebar";
+import AdminNotificationsPanel from "./AdminNotificationsPanel";
 
 interface AdminLayoutProps {
   children: React.ReactNode;
-  title: string;
+  title?: string;
 }
 
 const AdminLayout = ({ children, title }: AdminLayoutProps) => {
@@ -80,11 +81,14 @@ const AdminLayout = ({ children, title }: AdminLayoutProps) => {
             </SheetContent>
           </Sheet>
           
-          <h1 className="text-lg font-bold text-foreground truncate max-w-[200px]">{title}</h1>
+          <h1 className="text-lg font-bold text-foreground truncate max-w-[200px]">{title || "Admin"}</h1>
           
-          <Button variant="ghost" size="icon" onClick={handleLogout}>
-            <LogOut className="h-5 w-5" />
-          </Button>
+          <div className="flex items-center gap-2">
+            <AdminNotificationsPanel />
+            <Button variant="ghost" size="icon" onClick={handleLogout}>
+              <LogOut className="h-5 w-5" />
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -93,8 +97,9 @@ const AdminLayout = ({ children, title }: AdminLayoutProps) => {
         {/* Desktop Header */}
         <header className="hidden lg:block bg-card border-b border-border sticky top-0 z-30 px-6 py-4">
           <div className="flex items-center justify-between">
-            <h1 className="text-xl font-bold text-foreground">{title}</h1>
+            <h1 className="text-xl font-bold text-foreground">{title || "Administration"}</h1>
             <div className="flex items-center gap-4">
+              <AdminNotificationsPanel />
               <span className="text-sm text-muted-foreground">{userEmail}</span>
               <Button variant="outline" size="sm" onClick={handleLogout} className="gap-2">
                 <LogOut className="w-4 h-4" />
