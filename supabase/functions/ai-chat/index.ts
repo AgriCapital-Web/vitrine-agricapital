@@ -204,11 +204,67 @@ serve(async (req) => {
           text: `L'utilisateur a envoyé un document (${attachment.name || 'document'}). Contenu encodé en base64: ${base64Data.substring(0, 1000)}... Analyse ce document et réponds aux questions le concernant. ${lastMessage.content || 'Que contient ce document ?'}`
         });
       } else if (attachment.type === 'audio') {
-        // Handle audio message
-        contentParts.push({
-          type: "text",
-          text: `L'utilisateur a envoyé un message vocal. Malheureusement, je ne peux pas encore traiter directement l'audio, mais je suis prêt à aider avec toute question textuelle. Pouvez-vous reformuler votre demande par écrit ?`
-        });
+        // Handle audio message - transcribe using ElevenLabs
+        const base64Data = attachment.content.includes(',') 
+          ? attachment.content.split(',')[1] 
+          : attachment.content;
+        
+        let transcribedText = "";
+        
+        try {
+          const ELEVENLABS_API_KEY = Deno.env.get("ELEVENLABS_API_KEY");
+          
+          if (ELEVENLABS_API_KEY) {
+            // Convert base64 to binary
+            const binaryString = atob(base64Data);
+            const bytes = new Uint8Array(binaryString.length);
+            for (let i = 0; i < binaryString.length; i++) {
+              bytes[i] = binaryString.charCodeAt(i);
+            }
+            
+            const mimeType = attachment.content.includes('data:') 
+              ? attachment.content.split(';')[0].split(':')[1] 
+              : 'audio/webm';
+            
+            // Prepare form data for ElevenLabs
+            const formData = new FormData();
+            const blob = new Blob([bytes.buffer as ArrayBuffer], { type: mimeType });
+            formData.append("file", blob, attachment.name || "voice.webm");
+            formData.append("model_id", "scribe_v1");
+            
+            console.log("Transcribing audio with ElevenLabs...");
+            
+            const transcribeResponse = await fetch("https://api.elevenlabs.io/v1/speech-to-text", {
+              method: "POST",
+              headers: {
+                "xi-api-key": ELEVENLABS_API_KEY,
+              },
+              body: formData,
+            });
+            
+            if (transcribeResponse.ok) {
+              const result = await transcribeResponse.json();
+              transcribedText = result.text || "";
+              console.log("Transcription successful:", transcribedText.substring(0, 100));
+            } else {
+              console.error("ElevenLabs transcription error:", await transcribeResponse.text());
+            }
+          }
+        } catch (transcribeError) {
+          console.error("Error transcribing audio:", transcribeError);
+        }
+        
+        if (transcribedText) {
+          contentParts.push({
+            type: "text",
+            text: `L'utilisateur a envoyé un message vocal. Voici la transcription: "${transcribedText}". Réponds à sa demande de manière naturelle et utile.`
+          });
+        } else {
+          contentParts.push({
+            type: "text",
+            text: `L'utilisateur a envoyé un message vocal mais la transcription a échoué. Demande-lui de reformuler par écrit.`
+          });
+        }
       }
 
       apiMessages.push({
