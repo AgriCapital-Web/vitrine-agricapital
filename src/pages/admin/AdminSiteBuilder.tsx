@@ -277,7 +277,7 @@ const AdvancedSiteBuilder = () => {
   });
 
   const toggleActiveMutation = useMutation({
-    mutationFn: async ({ table, id, is_active }: { table: string; id: string; is_active: boolean }) => {
+    mutationFn: async ({ table, id, is_active }: { table: "site_pages" | "site_sections"; id: string; is_active: boolean }) => {
       const { error } = await supabase.from(table).update({ is_active }).eq('id', id);
       if (error) throw error;
     },
@@ -1031,37 +1031,37 @@ const AdvancedSiteBuilder = () => {
               </TabsList>
               <TabsContent value="fr">
                 <WYSIWYGEditor
-                  value={sectionForm.content_fr}
+                  content={sectionForm.content_fr}
                   onChange={(v) => setSectionForm(prev => ({ ...prev, content_fr: v }))}
                 />
               </TabsContent>
               <TabsContent value="en">
                 <WYSIWYGEditor
-                  value={sectionForm.content_en}
+                  content={sectionForm.content_en}
                   onChange={(v) => setSectionForm(prev => ({ ...prev, content_en: v }))}
                 />
               </TabsContent>
               <TabsContent value="ar">
                 <WYSIWYGEditor
-                  value={sectionForm.content_ar}
+                  content={sectionForm.content_ar}
                   onChange={(v) => setSectionForm(prev => ({ ...prev, content_ar: v }))}
                 />
               </TabsContent>
               <TabsContent value="es">
                 <WYSIWYGEditor
-                  value={sectionForm.content_es}
+                  content={sectionForm.content_es}
                   onChange={(v) => setSectionForm(prev => ({ ...prev, content_es: v }))}
                 />
               </TabsContent>
               <TabsContent value="de">
                 <WYSIWYGEditor
-                  value={sectionForm.content_de}
+                  content={sectionForm.content_de}
                   onChange={(v) => setSectionForm(prev => ({ ...prev, content_de: v }))}
                 />
               </TabsContent>
               <TabsContent value="zh">
                 <WYSIWYGEditor
-                  value={sectionForm.content_zh}
+                  content={sectionForm.content_zh}
                   onChange={(v) => setSectionForm(prev => ({ ...prev, content_zh: v }))}
                 />
               </TabsContent>
