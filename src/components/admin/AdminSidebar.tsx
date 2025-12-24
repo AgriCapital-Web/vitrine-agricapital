@@ -3,8 +3,8 @@ import {
   BarChart3, MessageSquare, Users, Image, Handshake, 
   Mail, Settings, FileText, Home, Send, Bell, Search, 
   Shield, TrendingUp, Layout, Database, Palette, Globe,
-  Menu as MenuIcon, FormInput, Layers, ImageIcon, LayoutTemplate, MailOpen,
-  Bot, Reply
+  FormInput, ImageIcon, MailOpen, Inbox,
+  Bot, Reply, UserCircle
 } from "lucide-react";
 import logo from "@/assets/logo.png";
 import { cn } from "@/lib/utils";
@@ -17,24 +17,20 @@ interface AdminSidebarProps {
 const menuItems = [
   { icon: BarChart3, label: "Tableau de bord", path: "/admin/dashboard" },
   { icon: TrendingUp, label: "Analytiques", path: "/admin/analytics" },
-  { divider: true, label: "Contenu" },
-  { icon: LayoutTemplate, label: "Constructeur de site", path: "/admin/site-builder" },
-  { icon: Layout, label: "Pages", path: "/admin/pages" },
-  { icon: FileText, label: "Sections", path: "/admin/sections" },
-  { icon: Layers, label: "Blocs", path: "/admin/blocs" },
-  { icon: MenuIcon, label: "Menu / Navigation", path: "/admin/menu" },
-  { icon: ImageIcon, label: "Médiathèque", path: "/admin/media-library" },
-  { icon: Image, label: "Galerie", path: "/admin/media" },
-  { icon: FormInput, label: "Formulaires", path: "/admin/forms" },
+  { divider: true, label: "Site Web" },
+  { icon: Layout, label: "Constructeur de site", path: "/admin/site-builder" },
   { divider: true, label: "Données" },
   { icon: MessageSquare, label: "Témoignages", path: "/admin/testimonials" },
   { icon: Users, label: "Abonnés Newsletter", path: "/admin/newsletter" },
   { icon: Handshake, label: "Partenariats", path: "/admin/partnerships" },
+  { divider: true, label: "Communication" },
+  { icon: Inbox, label: "Boîte de réception", path: "/admin/inbox" },
   { icon: Mail, label: "Messages Contact", path: "/admin/contact-messages" },
   { icon: Send, label: "Messagerie", path: "/admin/messaging" },
   { icon: MailOpen, label: "Emailing", path: "/admin/emailing" },
   { divider: true, label: "Intelligence Artificielle" },
   { icon: Bot, label: "Conversations IA", path: "/admin/ai-conversations" },
+  { icon: UserCircle, label: "Contacts Visiteurs", path: "/admin/visitor-contacts" },
   { icon: Reply, label: "Réponses Auto", path: "/admin/auto-responses" },
   { divider: true, label: "Configuration" },
   { icon: Database, label: "CMS Avancé", path: "/admin/cms" },

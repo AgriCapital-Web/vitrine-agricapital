@@ -331,6 +331,7 @@ export type Database = {
       page_visits: {
         Row: {
           created_at: string
+          domain: string | null
           id: string
           page_path: string
           referrer: string | null
@@ -339,6 +340,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          domain?: string | null
           id?: string
           page_path: string
           referrer?: string | null
@@ -347,6 +349,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          domain?: string | null
           id?: string
           page_path?: string
           referrer?: string | null
@@ -899,6 +902,45 @@ export type Database = {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
+        }
+        Relationships: []
+      }
+      visitor_contacts: {
+        Row: {
+          collected_via: string | null
+          created_at: string
+          email: string | null
+          first_name: string | null
+          id: string
+          language: string | null
+          last_name: string | null
+          phone: string | null
+          session_id: string
+          updated_at: string
+        }
+        Insert: {
+          collected_via?: string | null
+          created_at?: string
+          email?: string | null
+          first_name?: string | null
+          id?: string
+          language?: string | null
+          last_name?: string | null
+          phone?: string | null
+          session_id: string
+          updated_at?: string
+        }
+        Update: {
+          collected_via?: string | null
+          created_at?: string
+          email?: string | null
+          first_name?: string | null
+          id?: string
+          language?: string | null
+          last_name?: string | null
+          phone?: string | null
+          session_id?: string
+          updated_at?: string
         }
         Relationships: []
       }

@@ -2,6 +2,9 @@ import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 
+// Persistent domain for tracking - always use www.agricapital.ci
+const TRACKING_DOMAIN = "www.agricapital.ci";
+
 const getVisitorId = (): string => {
   let visitorId = localStorage.getItem('visitor_id');
   if (!visitorId) {
@@ -25,6 +28,7 @@ export const usePageTracking = () => {
           visitor_id: getVisitorId(),
           user_agent: navigator.userAgent,
           referrer: document.referrer || null,
+          domain: TRACKING_DOMAIN, // Always track with the persistent domain
         });
       } catch (error) {
         // Silently fail - don't affect user experience
