@@ -44,6 +44,7 @@ const AdminEmailing = lazy(() => import("./pages/admin/AdminEmailing"));
 const AdminContactMessages = lazy(() => import("./pages/admin/AdminContactMessages"));
 const AdminAIConversations = lazy(() => import("./pages/admin/AdminAIConversations"));
 const AdminAutoResponses = lazy(() => import("./pages/admin/AdminAutoResponses"));
+const AdminInbox = lazy(() => import("./pages/admin/AdminInbox"));
 const queryClient = new QueryClient();
 
 const LoadingFallback = () => (
@@ -126,6 +127,7 @@ const AppContent = () => {
         <Route path="/admin/contact-messages" element={<AdminContactMessages />} />
         <Route path="/admin/ai-conversations" element={<AdminAIConversations />} />
         <Route path="/admin/auto-responses" element={<AdminAutoResponses />} />
+        <Route path="/admin/inbox" element={<AdminInbox />} />
         
         {/* 404 */}
         <Route path="*" element={<NotFound />} />
