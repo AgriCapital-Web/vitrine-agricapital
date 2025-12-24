@@ -3,6 +3,7 @@ import { MessageCircle, X, Send, User, Bot, Loader2, Phone, Mic, MicOff, Image, 
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Message {
   role: "user" | "assistant";
@@ -10,15 +11,29 @@ interface Message {
   type?: "text" | "image" | "document" | "audio";
   fileName?: string;
   fileUrl?: string;
-  audioUrl?: string; // For TTS audio
+  audioUrl?: string;
 }
+
+interface VisitorInfo {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+}
+
+type CollectionStep = 'idle' | 'firstName' | 'lastName' | 'email' | 'phone' | 'complete';
 
 const translations = {
   fr: {
     title: "KAPITA",
     subtitle: "Assistant AgriCapital",
     placeholder: "Tapez ou parlez...",
-    welcome: "Bonjour ! Je suis KAPITA, votre assistant intelligent AgriCapital. Je peux échanger par texte, par voix, ou analyser vos images et documents. Comment puis-je vous aider ?",
+    welcome: "Bonjour ! Je suis KAPITA, votre assistant intelligent AgriCapital. Avant de commencer, puis-je avoir votre prénom ?",
+    askFirstName: "Quel est votre prénom ?",
+    askLastName: "Merci ! Et votre nom de famille ?",
+    askEmail: "Parfait ! Votre adresse email ? (optionnel, tapez 'passer' pour ignorer)",
+    askPhone: "Et votre numéro de téléphone ? (optionnel, tapez 'passer' pour ignorer)",
+    thankYou: "Merci {name} ! Comment puis-je vous aider aujourd'hui ? Je peux échanger par texte, par voix, ou analyser vos images et documents.",
     contactTeam: "Contacter l'équipe",
     close: "Fermer",
     recording: "Enregistrement en cours...",
@@ -29,12 +44,18 @@ const translations = {
     processingFile: "Analyse du fichier...",
     imageReceived: "Image reçue",
     documentReceived: "Document reçu",
+    skip: "passer",
   },
   en: {
     title: "KAPITA",
     subtitle: "AgriCapital Assistant",
     placeholder: "Type or speak...",
-    welcome: "Hello! I'm KAPITA, your intelligent AgriCapital assistant. I can chat via text, voice, or analyze your images and documents. How can I help you?",
+    welcome: "Hello! I'm KAPITA, your intelligent AgriCapital assistant. Before we start, may I have your first name?",
+    askFirstName: "What is your first name?",
+    askLastName: "Thanks! And your last name?",
+    askEmail: "Great! Your email address? (optional, type 'skip' to pass)",
+    askPhone: "And your phone number? (optional, type 'skip' to pass)",
+    thankYou: "Thank you {name}! How can I help you today? I can chat via text, voice, or analyze your images and documents.",
     contactTeam: "Contact the team",
     close: "Close",
     recording: "Recording...",
@@ -45,12 +66,18 @@ const translations = {
     processingFile: "Analyzing file...",
     imageReceived: "Image received",
     documentReceived: "Document received",
+    skip: "skip",
   },
   ar: {
     title: "كابيتا",
     subtitle: "مساعد أجريكابيتال",
     placeholder: "اكتب أو تحدث...",
-    welcome: "مرحباً! أنا كابيتا، مساعدك الذكي في أجريكابيتال. يمكنني التواصل عبر النص أو الصوت أو تحليل صورك ووثائقك. كيف يمكنني مساعدتك؟",
+    welcome: "مرحباً! أنا كابيتا، مساعدك الذكي في أجريكابيتال. قبل أن نبدأ، هل يمكنني معرفة اسمك الأول؟",
+    askFirstName: "ما هو اسمك الأول؟",
+    askLastName: "شكراً! واسم عائلتك؟",
+    askEmail: "ممتاز! بريدك الإلكتروني؟ (اختياري، اكتب 'تخطي' للتجاوز)",
+    askPhone: "ورقم هاتفك؟ (اختياري، اكتب 'تخطي' للتجاوز)",
+    thankYou: "شكراً {name}! كيف يمكنني مساعدتك اليوم؟",
     contactTeam: "اتصل بالفريق",
     close: "إغلاق",
     recording: "جاري التسجيل...",
@@ -61,12 +88,18 @@ const translations = {
     processingFile: "تحليل الملف...",
     imageReceived: "تم استلام الصورة",
     documentReceived: "تم استلام المستند",
+    skip: "تخطي",
   },
   es: {
     title: "KAPITA",
     subtitle: "Asistente AgriCapital",
     placeholder: "Escribe o habla...",
-    welcome: "¡Hola! Soy KAPITA, tu asistente inteligente de AgriCapital. Puedo chatear por texto, voz o analizar tus imágenes y documentos. ¿Cómo puedo ayudarte?",
+    welcome: "¡Hola! Soy KAPITA, tu asistente inteligente de AgriCapital. Antes de empezar, ¿puedo saber tu nombre?",
+    askFirstName: "¿Cuál es tu nombre?",
+    askLastName: "¡Gracias! ¿Y tu apellido?",
+    askEmail: "¡Perfecto! ¿Tu email? (opcional, escribe 'saltar' para omitir)",
+    askPhone: "¿Y tu teléfono? (opcional, escribe 'saltar' para omitir)",
+    thankYou: "¡Gracias {name}! ¿Cómo puedo ayudarte hoy?",
     contactTeam: "Contactar equipo",
     close: "Cerrar",
     recording: "Grabando...",
@@ -77,12 +110,18 @@ const translations = {
     processingFile: "Analizando archivo...",
     imageReceived: "Imagen recibida",
     documentReceived: "Documento recibido",
+    skip: "saltar",
   },
   de: {
     title: "KAPITA",
     subtitle: "AgriCapital Assistent",
     placeholder: "Tippen oder sprechen...",
-    welcome: "Hallo! Ich bin KAPITA, Ihr intelligenter AgriCapital-Assistent. Ich kann per Text, Sprache chatten oder Ihre Bilder und Dokumente analysieren. Wie kann ich Ihnen helfen?",
+    welcome: "Hallo! Ich bin KAPITA, Ihr intelligenter AgriCapital-Assistent. Bevor wir anfangen, darf ich Ihren Vornamen erfahren?",
+    askFirstName: "Wie ist Ihr Vorname?",
+    askLastName: "Danke! Und Ihr Nachname?",
+    askEmail: "Super! Ihre E-Mail? (optional, tippen Sie 'überspringen' zum Auslassen)",
+    askPhone: "Und Ihre Telefonnummer? (optional, tippen Sie 'überspringen' zum Auslassen)",
+    thankYou: "Danke {name}! Wie kann ich Ihnen heute helfen?",
     contactTeam: "Team kontaktieren",
     close: "Schließen",
     recording: "Aufnahme läuft...",
@@ -93,12 +132,18 @@ const translations = {
     processingFile: "Datei wird analysiert...",
     imageReceived: "Bild erhalten",
     documentReceived: "Dokument erhalten",
+    skip: "überspringen",
   },
   zh: {
     title: "KAPITA",
     subtitle: "AgriCapital助手",
     placeholder: "输入或说话...",
-    welcome: "您好！我是KAPITA，您的AgriCapital智能助手。我可以通过文字、语音聊天，或分析您的图片和文档。我能帮您什么？",
+    welcome: "您好！我是KAPITA，您的AgriCapital智能助手。在开始之前，请问您的名字是？",
+    askFirstName: "您的名字是？",
+    askLastName: "谢谢！您的姓氏是？",
+    askEmail: "太好了！您的邮箱？（可选，输入'跳过'可忽略）",
+    askPhone: "您的电话号码？（可选，输入'跳过'可忽略）",
+    thankYou: "谢谢{name}！今天我能帮您什么？",
     contactTeam: "联系团队",
     close: "关闭",
     recording: "录音中...",
@@ -109,6 +154,7 @@ const translations = {
     processingFile: "分析文件中...",
     imageReceived: "已收到图片",
     documentReceived: "已收到文档",
+    skip: "跳过",
   },
 };
 
@@ -125,6 +171,17 @@ const AIChatbot = () => {
   const [isTTSEnabled, setIsTTSEnabled] = useState(true);
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
   const [visitorId] = useState(() => `visitor_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`);
+  
+  // Contact collection state
+  const [collectionStep, setCollectionStep] = useState<CollectionStep>('idle');
+  const [visitorInfo, setVisitorInfo] = useState<VisitorInfo>({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+  });
+  const [hasCollectedInfo, setHasCollectedInfo] = useState(false);
+  
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -137,12 +194,86 @@ const AIChatbot = () => {
   useEffect(() => {
     if (isOpen && messages.length === 0) {
       setMessages([{ role: "assistant", content: t.welcome }]);
+      setCollectionStep('firstName');
     }
   }, [isOpen, t.welcome]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  // Save visitor contact to database
+  const saveVisitorContact = useCallback(async (info: VisitorInfo) => {
+    try {
+      await supabase.from('visitor_contacts').insert({
+        session_id: visitorId,
+        first_name: info.firstName || null,
+        last_name: info.lastName || null,
+        email: info.email && info.email.toLowerCase() !== t.skip ? info.email : null,
+        phone: info.phone && info.phone.toLowerCase() !== t.skip ? info.phone : null,
+        language: language,
+        collected_via: 'chatbot',
+      });
+      console.log('Visitor contact saved');
+    } catch (error) {
+      console.error('Error saving visitor contact:', error);
+    }
+  }, [visitorId, language, t.skip]);
+
+  // Handle contact collection responses
+  const handleCollectionResponse = useCallback((userInput: string) => {
+    const trimmedInput = userInput.trim();
+    const isSkip = trimmedInput.toLowerCase() === t.skip.toLowerCase();
+    
+    switch (collectionStep) {
+      case 'firstName':
+        setVisitorInfo(prev => ({ ...prev, firstName: trimmedInput }));
+        setMessages(prev => [...prev, 
+          { role: "user", content: trimmedInput },
+          { role: "assistant", content: t.askLastName }
+        ]);
+        setCollectionStep('lastName');
+        return true;
+        
+      case 'lastName':
+        setVisitorInfo(prev => ({ ...prev, lastName: trimmedInput }));
+        setMessages(prev => [...prev, 
+          { role: "user", content: trimmedInput },
+          { role: "assistant", content: t.askEmail }
+        ]);
+        setCollectionStep('email');
+        return true;
+        
+      case 'email':
+        setVisitorInfo(prev => ({ ...prev, email: isSkip ? '' : trimmedInput }));
+        setMessages(prev => [...prev, 
+          { role: "user", content: trimmedInput },
+          { role: "assistant", content: t.askPhone }
+        ]);
+        setCollectionStep('phone');
+        return true;
+        
+      case 'phone':
+        const finalInfo = { ...visitorInfo, phone: isSkip ? '' : trimmedInput };
+        setVisitorInfo(finalInfo);
+        
+        const thankYouMsg = t.thankYou.replace('{name}', visitorInfo.firstName || 'ami(e)');
+        setMessages(prev => [...prev, 
+          { role: "user", content: trimmedInput },
+          { role: "assistant", content: thankYouMsg }
+        ]);
+        
+        // Save to database
+        saveVisitorContact(finalInfo);
+        
+        setCollectionStep('complete');
+        setHasCollectedInfo(true);
+        return true;
+        
+      default:
+        return false;
+    }
+  }, [collectionStep, visitorInfo, t, saveVisitorContact]);
 
   // Text-to-Speech function
   const speakText = useCallback(async (text: string) => {
@@ -151,7 +282,6 @@ const AIChatbot = () => {
     try {
       setIsPlayingAudio(true);
       
-      // Stop any currently playing audio
       if (audioRef.current) {
         audioRef.current.pause();
         audioRef.current = null;
@@ -202,6 +332,11 @@ const AIChatbot = () => {
   }, []);
 
   const streamChat = useCallback(async (userMessages: Message[], attachedFile?: { type: string; content: string; name: string }) => {
+    // Add visitor info to context if collected
+    const visitorContext = hasCollectedInfo 
+      ? `\n[Visiteur: ${visitorInfo.firstName} ${visitorInfo.lastName}${visitorInfo.email ? `, Email: ${visitorInfo.email}` : ''}${visitorInfo.phone ? `, Tél: ${visitorInfo.phone}` : ''}]`
+      : '';
+
     const resp = await fetch(CHAT_URL, {
       method: "POST",
       headers: {
@@ -212,7 +347,8 @@ const AIChatbot = () => {
         messages: userMessages.map(m => ({ role: m.role, content: m.content })), 
         visitorId, 
         language,
-        attachment: attachedFile 
+        attachment: attachedFile,
+        visitorContext,
       }),
     });
 
@@ -262,16 +398,24 @@ const AIChatbot = () => {
       }
     }
 
-    // Speak the response if TTS is enabled
     if (assistantContent && isTTSEnabled) {
       speakText(assistantContent);
     }
 
     return assistantContent;
-  }, [visitorId, language, isTTSEnabled, speakText]);
+  }, [visitorId, language, isTTSEnabled, speakText, hasCollectedInfo, visitorInfo]);
 
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
+
+    // Handle contact collection flow first
+    if (collectionStep !== 'idle' && collectionStep !== 'complete') {
+      const handled = handleCollectionResponse(input.trim());
+      if (handled) {
+        setInput("");
+        return;
+      }
+    }
 
     const userMessage: Message = { role: "user", content: input.trim() };
     const newMessages = [...messages, userMessage];
@@ -280,7 +424,14 @@ const AIChatbot = () => {
     setIsLoading(true);
 
     try {
-      await streamChat(newMessages.filter(m => m.content !== t.welcome));
+      await streamChat(newMessages.filter(m => 
+        m.content !== t.welcome && 
+        m.content !== t.askFirstName &&
+        m.content !== t.askLastName &&
+        m.content !== t.askEmail &&
+        m.content !== t.askPhone &&
+        !m.content.includes(t.thankYou.split('{name}')[0])
+      ));
     } catch (error) {
       console.error("Chat error:", error);
       setMessages(prev => [...prev, { role: "assistant", content: "Désolé, une erreur s'est produite. Veuillez réessayer ou contacter notre équipe au 05 64 55 17 17." }]);
@@ -327,13 +478,11 @@ const AIChatbot = () => {
   const processVoiceMessage = async (audioBlob: Blob) => {
     setIsProcessingVoice(true);
     try {
-      // Convert blob to base64
       const reader = new FileReader();
       reader.readAsDataURL(audioBlob);
       reader.onloadend = async () => {
         const base64Audio = reader.result as string;
         
-        // Add user message indicating voice input
         const userMessage: Message = { 
           role: "user", 
           content: `🎤 ${t.voiceMessage}`,
@@ -344,14 +493,17 @@ const AIChatbot = () => {
         setIsLoading(true);
 
         try {
-          await streamChat(newMessages.filter(m => m.content !== t.welcome), {
+          await streamChat(newMessages.filter(m => 
+            m.content !== t.welcome && 
+            !m.content.includes(t.askFirstName)
+          ), {
             type: 'audio',
             content: base64Audio,
             name: 'voice-message.webm'
           });
         } catch (error) {
           console.error("Voice chat error:", error);
-          setMessages(prev => [...prev, { role: "assistant", content: "Désolé, je n'ai pas pu traiter votre message vocal. Essayez de taper votre message." }]);
+          setMessages(prev => [...prev, { role: "assistant", content: "Désolé, je n'ai pas pu traiter votre message vocal. Veuillez réessayer." }]);
         } finally {
           setIsLoading(false);
         }
@@ -369,7 +521,7 @@ const AIChatbot = () => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    const maxSize = 5 * 1024 * 1024; // 5MB
+    const maxSize = 5 * 1024 * 1024;
     if (file.size > maxSize) {
       toast.error("Le fichier est trop volumineux (max 5MB)");
       return;
@@ -433,7 +585,6 @@ const AIChatbot = () => {
 
   return (
     <>
-      {/* Hidden file input */}
       <input
         type="file"
         ref={fileInputRef}
@@ -442,7 +593,6 @@ const AIChatbot = () => {
         className="hidden"
       />
 
-      {/* Floating button */}
       <button
         onClick={() => setIsOpen(true)}
         className={`fixed bottom-4 sm:bottom-6 ${isRTL ? 'left-4 sm:left-6' : 'right-4 sm:right-6'} z-[99990] w-14 h-14 sm:w-16 sm:h-16 rounded-full shadow-2xl flex items-center justify-center transition-all hover:scale-110 animate-bounce`}
@@ -456,13 +606,10 @@ const AIChatbot = () => {
         <span className="absolute -top-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 bg-amber-400 rounded-full animate-ping" />
       </button>
 
-      {/* Chat window - Fully responsive */}
       {isOpen && (
         <div
           className={`fixed z-[99995] flex flex-col overflow-hidden animate-scale-in
-            /* Mobile: Full screen minus safe areas */
             inset-2 sm:inset-auto
-            /* Tablet and up: Positioned bottom-right */
             sm:bottom-20 md:bottom-24 
             ${isRTL ? 'sm:left-4' : 'sm:right-4'} 
             sm:w-[380px] sm:max-w-[calc(100vw-2rem)] 
@@ -471,7 +618,6 @@ const AIChatbot = () => {
           style={{ background: 'linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)' }}
           dir={isRTL ? 'rtl' : 'ltr'}
         >
-          {/* Header */}
           <div
             className="p-4 flex items-center justify-between"
             style={{ background: 'linear-gradient(135deg, #166534 0%, #14532d 100%)' }}
@@ -486,171 +632,153 @@ const AIChatbot = () => {
               </div>
             </div>
             <div className="flex items-center gap-1">
-              {/* TTS Toggle */}
               <button
-                onClick={() => {
-                  if (isPlayingAudio) {
-                    stopAudio();
-                  } else {
-                    setIsTTSEnabled(!isTTSEnabled);
-                  }
-                }}
-                className={`p-2 rounded-full transition-colors ${
-                  isTTSEnabled ? 'bg-white/20 hover:bg-white/30' : 'hover:bg-white/20'
-                }`}
+                onClick={() => setIsTTSEnabled(!isTTSEnabled)}
+                className="p-2 hover:bg-white/10 rounded-full transition-colors"
                 title={isTTSEnabled ? "Désactiver la voix" : "Activer la voix"}
               >
-                {isPlayingAudio ? (
-                  <VolumeX className="w-5 h-5 text-white animate-pulse" />
-                ) : isTTSEnabled ? (
+                {isTTSEnabled ? (
                   <Volume2 className="w-5 h-5 text-white" />
                 ) : (
-                  <VolumeX className="w-5 h-5 text-white/60" />
+                  <VolumeX className="w-5 h-5 text-white/50" />
                 )}
               </button>
               <button
                 onClick={() => setIsOpen(false)}
-                className="p-2 rounded-full hover:bg-white/20 transition-colors"
-                aria-label={t.close}
+                className="p-2 hover:bg-white/10 rounded-full transition-colors"
               >
                 <X className="w-5 h-5 text-white" />
               </button>
             </div>
           </div>
 
-          {/* Messages */}
           <div className="flex-1 overflow-y-auto p-4 space-y-4">
             {messages.map((msg, i) => (
               <div
                 key={i}
-                className={`flex ${msg.role === "user" ? (isRTL ? "flex-row-reverse" : "flex-row") : ""} gap-2`}
+                className={`flex ${msg.role === "user" ? (isRTL ? "flex-row-reverse" : "flex-row") : isRTL ? "flex-row" : "flex-row"} gap-2`}
               >
-                {msg.role === "assistant" && (
-                  <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
-                    <Bot className="w-4 h-4 text-green-700" />
-                  </div>
-                )}
-                <div className="max-w-[80%]">
-                  {/* Show image preview if it's an image message */}
-                  {msg.type === "image" && msg.fileUrl && (
-                    <img 
-                      src={msg.fileUrl} 
-                      alt={msg.fileName || "Image"} 
-                      className="max-w-full rounded-lg mb-2 max-h-32 object-cover"
-                    />
-                  )}
-                  <div
-                    className={`p-3 rounded-2xl text-sm ${
-                      msg.role === "user"
-                        ? "bg-green-700 text-white ml-auto"
-                        : "bg-gray-100 text-gray-800"
-                    }`}
-                    style={{
-                      borderRadius: msg.role === "user"
-                        ? (isRTL ? '18px 18px 4px 18px' : '18px 18px 18px 4px')
-                        : (isRTL ? '18px 18px 18px 4px' : '18px 18px 4px 18px'),
-                    }}
-                  >
-                    {msg.content}
-                  </div>
-                </div>
-                {msg.role === "user" && (
-                  <div className="w-8 h-8 rounded-full bg-green-700 flex items-center justify-center flex-shrink-0">
+                <div
+                  className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
+                    msg.role === "user"
+                      ? "bg-gradient-to-br from-amber-400 to-amber-500"
+                      : "bg-gradient-to-br from-green-600 to-green-700"
+                  }`}
+                >
+                  {msg.role === "user" ? (
                     <User className="w-4 h-4 text-white" />
-                  </div>
-                )}
+                  ) : (
+                    <Bot className="w-4 h-4 text-white" />
+                  )}
+                </div>
+                <div
+                  className={`max-w-[80%] p-3 rounded-2xl ${
+                    msg.role === "user"
+                      ? "bg-gradient-to-r from-amber-50 to-amber-100 text-gray-800"
+                      : "bg-white shadow-sm border border-gray-100 text-gray-800"
+                  }`}
+                >
+                  {msg.type === "image" && msg.fileUrl && (
+                    <img src={msg.fileUrl} alt={msg.fileName} className="max-w-full rounded-lg mb-2" />
+                  )}
+                  <p className="text-sm whitespace-pre-wrap leading-relaxed">{msg.content}</p>
+                </div>
               </div>
             ))}
             {(isLoading || isProcessingVoice) && (
               <div className="flex gap-2">
-                <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
-                  <Bot className="w-4 h-4 text-green-700" />
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-green-600 to-green-700 flex items-center justify-center">
+                  <Bot className="w-4 h-4 text-white" />
                 </div>
-                <div className="bg-gray-100 p-3 rounded-2xl">
-                  <Loader2 className="w-4 h-4 animate-spin text-green-700" />
+                <div className="bg-white shadow-sm border border-gray-100 rounded-2xl p-3 flex items-center gap-2">
+                  <Loader2 className="w-4 h-4 animate-spin text-green-600" />
+                  <span className="text-sm text-gray-500">
+                    {isProcessingVoice ? t.processingVoice : "..."}
+                  </span>
                 </div>
               </div>
             )}
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Recording indicator */}
-          {isRecording && (
-            <div className="px-4 py-2 bg-red-50 border-t border-red-100 flex items-center justify-between">
-              <div className="flex items-center gap-2 text-red-600">
-                <span className="w-3 h-3 bg-red-500 rounded-full animate-pulse" />
-                <span className="text-sm font-medium">{t.recording}</span>
-              </div>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={stopRecording}
-                className="text-red-600 hover:bg-red-100"
-              >
-                <StopCircle className="w-4 h-4 mr-1" />
-                {t.stopRecording}
-              </Button>
-            </div>
-          )}
-
-          {/* Contact team button */}
-          <div className="px-4 pb-2">
-            <button
-              onClick={scrollToContact}
-              className="w-full py-2 text-xs font-medium text-green-700 bg-green-50 rounded-lg hover:bg-green-100 transition-colors flex items-center justify-center gap-2"
-            >
-              <Phone className="w-3 h-3" />
-              {t.contactTeam}
-            </button>
-          </div>
-
-          {/* Input area */}
-          <div className="p-4 border-t border-gray-100">
-            <div className="flex gap-2 items-center">
-              {/* Attachment button */}
-              <Button
-                variant="ghost"
-                size="icon"
+          <div className="p-3 border-t border-gray-100 bg-white/80 backdrop-blur-sm">
+            <div className="flex items-center gap-2 mb-2">
+              <button
                 onClick={() => fileInputRef.current?.click()}
-                disabled={isLoading || isRecording}
-                className="flex-shrink-0 text-gray-500 hover:text-green-700"
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
                 title={t.attachFile}
+                disabled={isLoading}
               >
-                <Paperclip className="w-5 h-5" />
-              </Button>
+                <Paperclip className="w-5 h-5 text-gray-500" />
+              </button>
+              
+              {isRecording ? (
+                <button
+                  onClick={stopRecording}
+                  className="p-2 bg-red-100 hover:bg-red-200 rounded-full transition-colors animate-pulse"
+                  title={t.stopRecording}
+                >
+                  <StopCircle className="w-5 h-5 text-red-500" />
+                </button>
+              ) : (
+                <button
+                  onClick={startRecording}
+                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                  title={t.voiceMessage}
+                  disabled={isLoading}
+                >
+                  <Mic className="w-5 h-5 text-gray-500" />
+                </button>
+              )}
 
-              {/* Voice button */}
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={isRecording ? stopRecording : startRecording}
-                disabled={isLoading || isProcessingVoice}
-                className={`flex-shrink-0 ${isRecording ? 'text-red-500 bg-red-50' : 'text-gray-500 hover:text-green-700'}`}
-                title={t.voiceMessage}
-              >
-                {isRecording ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
-              </Button>
+              {isPlayingAudio && (
+                <button
+                  onClick={stopAudio}
+                  className="p-2 bg-green-100 hover:bg-green-200 rounded-full transition-colors"
+                  title="Arrêter l'audio"
+                >
+                  <VolumeX className="w-5 h-5 text-green-600" />
+                </button>
+              )}
+            </div>
+            
+            {isRecording && (
+              <div className="flex items-center gap-2 mb-2 p-2 bg-red-50 rounded-lg">
+                <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+                <span className="text-sm text-red-600">{t.recording}</span>
+              </div>
+            )}
 
-              {/* Text input */}
+            <div className="flex gap-2">
               <input
-                type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyPress={(e) => e.key === "Enter" && handleSend()}
                 placeholder={t.placeholder}
-                className="flex-1 px-4 py-3 rounded-full border border-gray-200 focus:outline-none focus:border-green-500 text-sm min-w-0"
                 disabled={isLoading || isRecording}
+                className="flex-1 px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-full text-sm focus:outline-none focus:border-green-400 focus:ring-2 focus:ring-green-100 transition-all disabled:opacity-50"
               />
-
-              {/* Send button */}
-              <Button
+              <button
                 onClick={handleSend}
-                disabled={isLoading || !input.trim() || isRecording}
-                className="w-12 h-12 rounded-full bg-green-700 hover:bg-green-800 flex-shrink-0"
+                disabled={!input.trim() || isLoading || isRecording}
+                className="p-2.5 rounded-full transition-all disabled:opacity-50"
+                style={{
+                  background: input.trim() ? 'linear-gradient(135deg, #166534 0%, #14532d 100%)' : '#e5e7eb',
+                }}
               >
-                <Send className="w-5 h-5" />
-              </Button>
+                <Send className={`w-5 h-5 ${input.trim() ? "text-white" : "text-gray-400"}`} />
+              </button>
             </div>
+          </div>
+
+          <div className="p-3 border-t border-gray-100 bg-gray-50/50">
+            <button
+              onClick={scrollToContact}
+              className="w-full flex items-center justify-center gap-2 py-2.5 text-sm font-medium text-green-700 hover:text-green-800 hover:bg-green-50 rounded-lg transition-colors"
+            >
+              <Phone className="w-4 h-4" />
+              {t.contactTeam}
+            </button>
           </div>
         </div>
       )}
