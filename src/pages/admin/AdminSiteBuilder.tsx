@@ -15,6 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import WYSIWYGEditor from "@/components/admin/WYSIWYGEditor";
+import { VisualPageEditor } from "@/components/admin/VisualPageEditor";
 import { toast } from "sonner";
 import {
   Plus, Trash2, Edit2, Eye, EyeOff, GripVertical, Save, ChevronDown, ChevronRight,
@@ -56,7 +57,7 @@ interface Section {
   content_en?: string;
   is_active: boolean;
   order_index: number;
-  settings?: any;
+  settings?: unknown;
 }
 
 interface MediaItem {
@@ -137,6 +138,7 @@ const AdvancedSiteBuilder = () => {
   const [selectedLang, setSelectedLang] = useState("fr");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [pendingChanges, setPendingChanges] = useState<string[]>([]);
+  const [visualEditorPage, setVisualEditorPage] = useState<Page | null>(null);
   
   // Dialog states
   const [isPageDialogOpen, setIsPageDialogOpen] = useState(false);
@@ -632,6 +634,10 @@ const AdvancedSiteBuilder = () => {
                               <Edit2 className="w-4 h-4 mr-2" />
                               Modifier
                             </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => setVisualEditorPage(page)}>
+                              <Palette className="w-4 h-4 mr-2" />
+                              Éditeur visuel
+                            </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => openSectionDialog(undefined, page.id)}>
                               <Plus className="w-4 h-4 mr-2" />
                               Ajouter section
@@ -1083,6 +1089,15 @@ const AdvancedSiteBuilder = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Visual Page Editor */}
+      {visualEditorPage && sections && (
+        <VisualPageEditor
+          page={visualEditorPage}
+          sections={sections.filter(s => s.page_id === visualEditorPage.id)}
+          onClose={() => setVisualEditorPage(null)}
+        />
+      )}
     </AdminLayout>
   );
 };
