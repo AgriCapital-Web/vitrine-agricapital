@@ -25,7 +25,7 @@ const fr = {
     contact: "Contact",
   },
   hero: {
-    badge: "Le partenaire stratégique des producteurs agricoles",
+    badge: "Le partenaire idéal des producteurs agricoles",
     title: "Cultivons ensemble l'avenir de l'agriculture ivoirienne",
     description: "AgriCapital accompagne propriétaires terriens et producteurs vers une agriculture rentable et durable. Notre modèle innovant ouvre les portes de la filière palmier à huile avec flexibilité et excellence.",
     btnApproach: "Découvrir notre approche",
@@ -174,9 +174,9 @@ const fr = {
     title: "Leadership",
     subtitle: "Une Vision Portée par l'Expérience",
     intro: "AgriCapital est le fruit d'une vision entrepreneuriale incarnée par Inocent KOFFI et soutenue par sept associés fondateurs. Ensemble, ils partagent la conviction que l'agriculture constitue un levier stratégique de développement économique et social pour la Côte d'Ivoire et l'Afrique.",
-    mission: "L'équipe fondatrice combine expertise technique, expérience terrain et engagement social pour déployer un modèle agricole durable, rentable et à fort impact. Leur action s'articule autour d'une ambition commune : structurer la filière palmier à huile de manière inclusive et pérenne.",
+    mission: "L'équipe fondatrice combine savoir-faire technique, expérience terrain et engagement social pour déployer un modèle agricole durable, rentable et à fort impact. Leur action s'articule autour d'une ambition commune : structurer la filière palmier à huile de manière inclusive et pérenne.",
     founderTitle: "Le Fondateur",
-    name: "Inocent KOFFI",
+    name: "**Inocent KOFFI**",
     position: "Fondateur & Directeur Général",
     signature: "Agro-entrepreneur et Stratège du Développement Rural",
     quote: {
