@@ -45,7 +45,7 @@ const Founder = () => {
               <div className="md:col-span-2 space-y-4">
                 <div className="text-center md:text-left">
                   <h3 className="text-2xl font-bold text-foreground mb-1">
-                    {t.founder.name}
+                    <strong>Inocent KOFFI</strong>
                   </h3>
                   <p className="text-lg text-agri-orange font-semibold mb-2">
                     {t.founder.position}

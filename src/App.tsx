@@ -46,6 +46,8 @@ const AdminAIConversations = lazy(() => import("./pages/admin/AdminAIConversatio
 const AdminAutoResponses = lazy(() => import("./pages/admin/AdminAutoResponses"));
 const AdminInbox = lazy(() => import("./pages/admin/AdminInbox"));
 const AdminVisitorContacts = lazy(() => import("./pages/admin/AdminVisitorContacts"));
+const FAQ = lazy(() => import("./pages/FAQ"));
+
 const queryClient = new QueryClient();
 
 const LoadingFallback = () => (
@@ -74,6 +76,7 @@ const AppContent = () => {
         <Route path="/partenariat" element={<HomePage />} />
         <Route path="/temoignages" element={<HomePage />} />
         <Route path="/contact" element={<HomePage />} />
+        <Route path="/faq" element={<FAQ />} />
         
         {/* Section routes (English) */}
         <Route path="/home" element={<HomePage />} />
