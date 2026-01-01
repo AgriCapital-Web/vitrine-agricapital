@@ -1,5 +1,7 @@
 import logoWhite from "@/assets/logo-white.png";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { Link } from "react-router-dom";
+import { HelpCircle } from "lucide-react";
 import Newsletter from "./Newsletter";
 
 const scrollToSection = (id: string) => {
@@ -74,6 +76,15 @@ const Footer = () => {
                 >
                   {t.nav.partnership}
                 </button>
+              </li>
+              <li>
+                <Link
+                  to="/faq"
+                  className="text-white/80 hover:text-white transition-colors text-sm flex items-center gap-1"
+                >
+                  <HelpCircle size={14} />
+                  FAQ
+                </Link>
               </li>
             </ul>
           </div>
