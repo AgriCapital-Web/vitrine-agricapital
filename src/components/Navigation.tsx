@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from "react";
-import { Menu, X, Globe } from "lucide-react";
+import { Menu, X, Globe, HelpCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Language, languageNames } from "@/lib/translations";
+import { Link } from "react-router-dom";
 import logo from "@/assets/logo.png";
 
 const languages: Language[] = ["fr", "en", "ar", "es", "de", "zh"];
@@ -83,6 +84,13 @@ const Navigation = () => {
             >
               {t.nav.partnership}
             </button>
+            <Link
+              to="/faq"
+              className="text-foreground hover:text-primary transition-smooth font-medium flex items-center gap-1"
+            >
+              <HelpCircle size={16} />
+              FAQ
+            </Link>
             
             {/* Desktop Language Selector */}
             <div className="relative" ref={langMenuRef}>
@@ -224,6 +232,14 @@ const Navigation = () => {
               >
                 {t.nav.partnership}
               </button>
+              <Link
+                to="/faq"
+                className="text-foreground hover:text-primary transition-smooth font-medium text-left flex items-center gap-2"
+                onClick={() => setIsOpen(false)}
+              >
+                <HelpCircle size={16} />
+                FAQ
+              </Link>
               <Button
                 onClick={() => scrollToSection("contact")}
                 className="bg-gradient-accent border-0 text-white hover:opacity-90 transition-smooth w-full"

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import AdminLayout from "@/components/admin/AdminLayout";
@@ -19,17 +19,24 @@ import {
   Copy,
   Loader2,
   Plus,
-  Filter
+  Filter,
+  FileUp,
+  X
 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Progress } from "@/components/ui/progress";
 
 const AdminMediaLibrary = () => {
   const queryClient = useQueryClient();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [selectedMedia, setSelectedMedia] = useState<any>(null);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [dragOver, setDragOver] = useState(false);
   const [newMedia, setNewMedia] = useState({
     name: "",
     url: "",
@@ -50,6 +57,62 @@ const AdminMediaLibrary = () => {
     },
   });
 
+  const uploadFileMutation = useMutation({
+    mutationFn: async (file: File) => {
+      setIsUploading(true);
+      setUploadProgress(10);
+
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+      const filePath = `uploads/${fileName}`;
+
+      setUploadProgress(30);
+
+      const { error: uploadError } = await supabase.storage
+        .from('media')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (uploadError) throw uploadError;
+
+      setUploadProgress(60);
+
+      const { data: urlData } = supabase.storage
+        .from('media')
+        .getPublicUrl(filePath);
+
+      setUploadProgress(80);
+
+      const { error: dbError } = await supabase
+        .from('site_media')
+        .insert([{
+          name: file.name,
+          url: urlData.publicUrl,
+          type: file.type.startsWith('image/') ? 'image' : 'file',
+          category: 'upload'
+        }]);
+
+      if (dbError) throw dbError;
+
+      setUploadProgress(100);
+      return urlData.publicUrl;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-media'] });
+      toast.success("Fichier uploadé avec succès !");
+      setIsUploading(false);
+      setUploadProgress(0);
+    },
+    onError: (error) => {
+      console.error('Upload error:', error);
+      toast.error("Erreur lors de l'upload");
+      setIsUploading(false);
+      setUploadProgress(0);
+    }
+  });
+
   const addMediaMutation = useMutation({
     mutationFn: async (media: typeof newMedia) => {
       const { error } = await supabase
@@ -67,11 +130,18 @@ const AdminMediaLibrary = () => {
   });
 
   const deleteMediaMutation = useMutation({
-    mutationFn: async (id: string) => {
+    mutationFn: async (media: any) => {
+      if (media.url && media.url.includes('/media/')) {
+        const pathMatch = media.url.match(/\/media\/(.+)$/);
+        if (pathMatch) {
+          await supabase.storage.from('media').remove([pathMatch[1]]);
+        }
+      }
+      
       const { error } = await supabase
         .from('site_media')
         .delete()
-        .eq('id', id);
+        .eq('id', media.id);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -81,6 +151,32 @@ const AdminMediaLibrary = () => {
     },
     onError: () => toast.error("Erreur lors de la suppression"),
   });
+
+  const handleFileSelect = (files: FileList | null) => {
+    if (!files) return;
+    Array.from(files).forEach(file => {
+      if (file.size > 10 * 1024 * 1024) {
+        toast.error(`${file.name} est trop volumineux (max 10MB)`);
+        return;
+      }
+      uploadFileMutation.mutate(file);
+    });
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragOver(false);
+    handleFileSelect(e.dataTransfer.files);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragOver(true);
+  };
+
+  const handleDragLeave = () => {
+    setDragOver(false);
+  };
 
   const categories = [...new Set(mediaItems?.map(m => m.category).filter(Boolean) || [])];
   
@@ -99,22 +195,70 @@ const AdminMediaLibrary = () => {
   return (
     <AdminLayout title="Médiathèque">
       <div className="space-y-6">
+        {/* Upload Zone */}
+        <div
+          onDrop={handleDrop}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          className={`border-2 border-dashed rounded-xl p-8 text-center transition-all ${
+            dragOver 
+              ? 'border-agri-green bg-agri-green/10' 
+              : 'border-muted-foreground/30 hover:border-agri-green/50'
+          }`}
+        >
+          <input
+            ref={fileInputRef}
+            type="file"
+            multiple
+            accept="image/*,video/*,.pdf,.doc,.docx"
+            onChange={(e) => handleFileSelect(e.target.files)}
+            className="hidden"
+          />
+          
+          {isUploading ? (
+            <div className="space-y-4">
+              <Loader2 className="w-12 h-12 mx-auto animate-spin text-agri-green" />
+              <p className="text-muted-foreground">Upload en cours...</p>
+              <Progress value={uploadProgress} className="max-w-xs mx-auto" />
+            </div>
+          ) : (
+            <>
+              <FileUp className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+              <p className="text-lg font-medium mb-2">
+                Glissez-déposez vos fichiers ici
+              </p>
+              <p className="text-muted-foreground text-sm mb-4">
+                ou cliquez pour sélectionner (max 10MB par fichier)
+              </p>
+              <Button 
+                onClick={() => fileInputRef.current?.click()}
+                className="bg-agri-green hover:bg-agri-green-dark"
+              >
+                <Upload className="w-4 h-4 mr-2" />
+                Sélectionner des fichiers
+              </Button>
+            </>
+          )}
+        </div>
+
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold">Médiathèque</h1>
-            <p className="text-muted-foreground">Gérez vos images et fichiers médias</p>
+            <h2 className="text-xl font-bold">Fichiers uploadés</h2>
+            <p className="text-muted-foreground text-sm">
+              {mediaItems?.length || 0} fichier(s) dans la médiathèque
+            </p>
           </div>
           <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
             <DialogTrigger asChild>
-              <Button className="bg-agri-green hover:bg-agri-green-dark">
+              <Button variant="outline">
                 <Plus className="w-4 h-4 mr-2" />
-                Ajouter un média
+                Ajouter via URL
               </Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Ajouter un média</DialogTitle>
+                <DialogTitle>Ajouter un média via URL</DialogTitle>
               </DialogHeader>
               <div className="space-y-4">
                 <div className="space-y-2">
@@ -141,32 +285,12 @@ const AdminMediaLibrary = () => {
                     placeholder="galerie, hero, logo..."
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label>Alt FR</Label>
-                    <Input 
-                      value={newMedia.alt_text_fr}
-                      onChange={(e) => setNewMedia({...newMedia, alt_text_fr: e.target.value})}
-                      placeholder="Description FR"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Alt EN</Label>
-                    <Input 
-                      value={newMedia.alt_text_en}
-                      onChange={(e) => setNewMedia({...newMedia, alt_text_en: e.target.value})}
-                      placeholder="Description EN"
-                    />
-                  </div>
-                </div>
                 <Button 
                   onClick={() => addMediaMutation.mutate(newMedia)}
                   disabled={addMediaMutation.isPending || !newMedia.name || !newMedia.url}
                   className="w-full bg-agri-green hover:bg-agri-green-dark"
                 >
-                  {addMediaMutation.isPending ? (
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  ) : null}
+                  {addMediaMutation.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                   Ajouter
                 </Button>
               </div>
@@ -191,25 +315,17 @@ const AdminMediaLibrary = () => {
               <SelectValue placeholder="Catégorie" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Toutes les catégories</SelectItem>
+              <SelectItem value="all">Toutes</SelectItem>
               {categories.map(cat => (
                 <SelectItem key={cat} value={cat || ""}>{cat}</SelectItem>
               ))}
             </SelectContent>
           </Select>
           <div className="flex gap-1 border rounded-lg p-1">
-            <Button 
-              variant={viewMode === 'grid' ? 'default' : 'ghost'} 
-              size="icon"
-              onClick={() => setViewMode('grid')}
-            >
+            <Button variant={viewMode === 'grid' ? 'default' : 'ghost'} size="icon" onClick={() => setViewMode('grid')}>
               <Grid3X3 className="w-4 h-4" />
             </Button>
-            <Button 
-              variant={viewMode === 'list' ? 'default' : 'ghost'} 
-              size="icon"
-              onClick={() => setViewMode('list')}
-            >
+            <Button variant={viewMode === 'list' ? 'default' : 'ghost'} size="icon" onClick={() => setViewMode('list')}>
               <List className="w-4 h-4" />
             </Button>
           </div>
@@ -288,6 +404,9 @@ const AdminMediaLibrary = () => {
                   <p className="font-medium truncate">{selectedMedia.name}</p>
                   <p className="text-xs text-muted-foreground truncate">{selectedMedia.url}</p>
                 </div>
+                <Button variant="ghost" size="icon" onClick={() => setSelectedMedia(null)}>
+                  <X className="w-4 h-4" />
+                </Button>
               </div>
               <div className="flex gap-2 mt-4">
                 <Button variant="outline" className="flex-1" onClick={() => copyToClipboard(selectedMedia.url)}>
@@ -300,7 +419,7 @@ const AdminMediaLibrary = () => {
                 <Button 
                   variant="destructive" 
                   size="icon"
-                  onClick={() => deleteMediaMutation.mutate(selectedMedia.id)}
+                  onClick={() => deleteMediaMutation.mutate(selectedMedia)}
                 >
                   <Trash2 className="w-4 h-4" />
                 </Button>
