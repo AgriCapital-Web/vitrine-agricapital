@@ -47,6 +47,7 @@ const AdminAutoResponses = lazy(() => import("./pages/admin/AdminAutoResponses")
 const AdminInbox = lazy(() => import("./pages/admin/AdminInbox"));
 const AdminVisitorContacts = lazy(() => import("./pages/admin/AdminVisitorContacts"));
 const FAQ = lazy(() => import("./pages/FAQ"));
+const Evolution = lazy(() => import("./pages/Evolution"));
 
 const queryClient = new QueryClient();
 
@@ -77,6 +78,8 @@ const AppContent = () => {
         <Route path="/temoignages" element={<HomePage />} />
         <Route path="/contact" element={<HomePage />} />
         <Route path="/faq" element={<FAQ />} />
+        <Route path="/evolution" element={<Evolution />} />
+        <Route path="/evolution-projet" element={<Evolution />} />
         
         {/* Section routes (English) */}
         <Route path="/home" element={<HomePage />} />

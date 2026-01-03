@@ -2,6 +2,10 @@ import { useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Link } from "react-router-dom";
+import { ArrowRight, Calendar, Sprout, Target } from "lucide-react";
 import jalonImage1 from "@/assets/jalon-1.jpg";
 import jalonImage2 from "@/assets/jalon-2.jpg";
 import jalonImage3 from "@/assets/jalon-3.jpg";
@@ -9,6 +13,8 @@ import jalonImage4 from "@/assets/jalon-4.jpg";
 import jalonImage5 from "@/assets/jalon-5.jpg";
 import jalonImage6 from "@/assets/jalon-6.jpg";
 import jalonImage7 from "@/assets/jalon-7.jpg";
+import nurseryImage1 from "@/assets/nursery-dec-2025-1.jpg";
+import nurseryImage2 from "@/assets/nursery-dec-2025-2.jpg";
 import {
   Carousel,
   CarouselContent,
@@ -18,10 +24,12 @@ import {
 } from "@/components/ui/carousel";
 
 const Milestones = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   const galleryImages = [
+    nurseryImage1,
+    nurseryImage2,
     jalonImage1,
     jalonImage2,
     jalonImage3,
@@ -31,6 +39,23 @@ const Milestones = () => {
     jalonImage7,
   ];
 
+  const translations = {
+    fr: {
+      nurseryTitle: "Pépinière 100+ Hectares",
+      nurseryBadge: "Nouveau - Déc. 2025",
+      nurseryDesc: "Installation complète de notre site de pépinière de plus de 100 hectares entre le 19 novembre et le 24 décembre 2025, avec système d'irrigation moderne et plants certifiés Tenera.",
+      seeMore: "Voir toute l'évolution du projet",
+    },
+    en: {
+      nurseryTitle: "100+ Hectare Nursery",
+      nurseryBadge: "New - Dec. 2025",
+      nurseryDesc: "Complete installation of our 100+ hectare nursery site between November 19 and December 24, 2025, with modern irrigation system and certified Tenera seedlings.",
+      seeMore: "See full project evolution",
+    }
+  };
+
+  const trans = translations[language as keyof typeof translations] || translations.fr;
+
   return (
     <section id="jalons" className="py-20 bg-background">
       <div className="container mx-auto px-4">
@@ -39,6 +64,53 @@ const Milestones = () => {
             {t.milestones.title}
           </h2>
         </div>
+
+        {/* New Nursery Milestone Card */}
+        <Card className="bg-gradient-to-r from-agri-green/5 to-emerald-500/5 border-agri-green/30 border-2 mb-8 overflow-hidden">
+          <CardContent className="p-6 sm:p-8">
+            <div className="flex flex-col lg:flex-row gap-6 items-center">
+              <div className="lg:w-1/3">
+                <div 
+                  className="relative rounded-xl overflow-hidden aspect-[4/3] cursor-pointer shadow-lg"
+                  onClick={() => setSelectedImage(nurseryImage1)}
+                >
+                  <img 
+                    src={nurseryImage1} 
+                    alt="Pépinière AgriCapital" 
+                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                  />
+                  <div className="absolute top-3 left-3">
+                    <Badge className="bg-agri-orange text-white animate-pulse">
+                      <Sprout className="w-3 h-3 mr-1" />
+                      {trans.nurseryBadge}
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+              <div className="lg:w-2/3 text-center lg:text-left">
+                <div className="flex items-center gap-2 mb-3 justify-center lg:justify-start">
+                  <Target className="w-6 h-6 text-agri-green" />
+                  <h3 className="text-2xl font-bold text-agri-green">
+                    {trans.nurseryTitle}
+                  </h3>
+                </div>
+                <div className="flex items-center gap-2 mb-4 justify-center lg:justify-start">
+                  <Badge variant="outline" className="text-muted-foreground">
+                    <Calendar className="w-3 h-3 mr-1" />
+                    19 Nov - 24 Déc 2025
+                  </Badge>
+                </div>
+                <p className="text-muted-foreground mb-6">{trans.nurseryDesc}</p>
+                <Button asChild className="bg-agri-green hover:bg-agri-green-dark">
+                  <Link to="/evolution">
+                    {trans.seeMore}
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Link>
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         <Card className="bg-card border-border mb-8">
           <CardContent className="p-8">

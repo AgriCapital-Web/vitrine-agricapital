@@ -3,7 +3,8 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { HelpCircle, Phone, Mail, MessageCircle, ChevronRight, Leaf, Users, TrendingUp, Shield, Building2 } from "lucide-react";
+import { HelpCircle, Phone, Mail, MessageCircle, ChevronRight, Leaf, Users, TrendingUp, Shield, Building2, ArrowLeft } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
@@ -17,6 +18,7 @@ interface FAQItem {
 const FAQ = () => {
   const { language } = useLanguage();
   const [activeCategory, setActiveCategory] = useState("general");
+  const navigate = useNavigate();
 
   const categories = [
     { id: "general", label: "Général", icon: HelpCircle },
@@ -50,26 +52,31 @@ const FAQ = () => {
       answer: "Notre modèle s'adresse à : (1) Les propriétaires terriens souhaitant valoriser leurs terres, (2) Les petits producteurs ne disposant pas de moyens financiers, (3) Les professionnels du secteur public et privé (commerçants, artisans, entrepreneurs) sans terre, (4) Toute personne désireuse de participer au secteur agricole du palmier à huile."
     },
     
-    // OFFRES
+    // OFFRES - MISE À JOUR AVEC PROMO LANCEMENT
     {
       category: "offres",
       question: "Quelles sont les offres proposées par AgriCapital ?",
-      answer: "Nous proposons 3 offres principales : (1) PalmElite - Offre Intégrale Premium pour les propriétaires terriens (droit d'accès: 20 000F/ha), (2) PalmInvest - Investissement Sans Terre pour les salariés, artisans et commerçants (droit d'accès: 30 000F/ha), (3) TerraPalm - Valorisation Foncière Sans Effort pour les propriétaires ne souhaitant pas exploiter eux-mêmes (droit d'accès: 10 000F/ha)."
+      answer: "Nous proposons 3 offres principales avec une PROMO LANCEMENT de -33% jusqu'au 31 mars 2026 : (1) PalmElite - Offre Intégrale Premium pour les propriétaires terriens (droit d'accès: 20 000F/ha au lieu de 30 000F), (2) PalmInvest - Investissement Sans Terre pour les salariés, artisans et commerçants (droit d'accès: 30 000F/ha au lieu de 45 000F), (3) TerraPalm - Valorisation Foncière Sans Effort pour les propriétaires ne souhaitant pas exploiter eux-mêmes (droit d'accès: 10 000F/ha au lieu de 15 000F)."
     },
     {
       category: "offres",
       question: "Qu'est-ce que l'offre PalmElite ?",
-      answer: "PalmElite est notre offre Premium destinée aux planteurs propriétaires de terre agricole. Le droit d'accès est de 20 000F/ha (ancien prix: 30 000F/ha). L'abonnement est modulable: 65F/ha/jour, 1 900F/mois, 5 500F/trimestre ou 20 000F/ha/an. Vous restez 100% propriétaire de votre plantation."
+      answer: "PalmElite est notre offre Premium destinée aux planteurs PROPRIÉTAIRES de terre agricole. Le droit d'accès est de 20 000F/ha (ancien prix: 30 000F/ha, soit -33%). L'abonnement est modulable au choix: 65F/ha/jour, 1 900F/ha/mois, 5 500F/ha/trimestre ou 20 000F/ha/an. Vous restez 100% propriétaire de votre plantation. Condition spéciale: attester la propriété de la parcelle souscrite."
     },
     {
       category: "offres",
       question: "Qu'est-ce que l'offre PalmInvest ?",
-      answer: "PalmInvest est conçue pour les salariés publics/privés, artisans et commerçants sans terre agricole. Le droit d'accès est de 30 000F/ha (ancien prix: 45 000F/ha). L'abonnement modulable: 120F/ha/jour, 3 400F/ha/mois, 9 500F/ha/trimestre ou 35 400F/ha/an. Avantage: diversification financière intelligente avec 50% de la plantation à l'entrée en production."
+      answer: "PalmInvest est conçue pour les salariés publics/privés, artisans et commerçants SANS terre agricole. Le droit d'accès est de 30 000F/ha (ancien prix: 45 000F/ha, soit -33%). Abonnement modulable au choix: 120F/ha/jour, 3 400F/ha/mois, 9 500F/ha/trimestre ou 35 400F/ha/an. Avantages: diversification financière intelligente avec 50% de la plantation à l'entrée en production. Condition spéciale: attester la capacité de mettre en valeur la superficie souscrite."
     },
     {
       category: "offres",
       question: "Qu'est-ce que l'offre TerraPalm ?",
-      answer: "TerraPalm est destinée aux propriétaires de terre agricole ne souhaitant pas exploiter eux-mêmes. Le droit d'accès est de 10 000F/ha (ancien prix: 15 000F/ha) en paiement unique. La gestion complète est assurée par AgriCapital et l'exploitant. Vous recevez 50% de la plantation dès l'entrée en production."
+      answer: "TerraPalm est destinée aux propriétaires de terre agricole ne souhaitant pas exploiter eux-mêmes. Le droit d'accès est de 10 000F/ha (ancien prix: 15 000F/ha, soit -33%) en paiement UNIQUE. La gestion complète est assurée par AgriCapital et l'exploitant avant l'entrée en production. Vous recevez 50% de la plantation dès l'entrée en production. Condition spéciale: attester la propriété de la parcelle souscrite."
+    },
+    {
+      category: "offres",
+      question: "Quelle est la durée de la promotion de lancement ?",
+      answer: "La promotion de lancement avec une réduction de 33% sur les droits d'accès est valable jusqu'au 31 mars 2026. C'est une opportunité exceptionnelle pour rejoindre AgriCapital dans les meilleures conditions possibles."
     },
     
     // INVESTISSEMENT
@@ -93,17 +100,22 @@ const FAQ = () => {
     {
       category: "accompagnement",
       question: "Quel accompagnement propose AgriCapital ?",
-      answer: "Notre modèle intégré comprend: l'accompagnement à la création des plantations, l'encadrement technique et opérationnel permanent, des formations pratiques régulières, des visites de suivi, des conseils personnalisés, la structuration et l'organisation des projets agricoles, et la sécurisation du modèle sur le long terme."
+      answer: "Notre modèle intégré comprend: la plantation clé en main avec fourniture de plants certifiés premium (Tenera tolérants fusariose) et tous les intrants (NPK, fongicides, insecticides), le suivi technique continu par nos techniciens qualifiés, des formations aux bonnes pratiques, des visites de suivi mensuelles, la structuration et l'organisation des projets agricoles, et la sécurisation du modèle sur le long terme."
     },
     {
       category: "accompagnement",
       question: "D'où proviennent les plants de palmier ?",
-      answer: "Nos plants proviennent de semences certifiées d'origine Iro Lamé, fournies par notre partenaire Les Palmistes. Cette certification garantit des plants de haute qualité, productifs et résistants aux maladies, essentiels pour une plantation rentable."
+      answer: "Nos plants proviennent de semences certifiées d'origine Iro Lamé, fournies par notre partenaire Les Palmistes. Il s'agit de la variété Tenera, tolérante à la fusariose, garantissant des plants de haute qualité, productifs et résistants aux maladies, essentiels pour une plantation rentable."
+    },
+    {
+      category: "accompagnement",
+      question: "Que fournit le partenaire producteur ?",
+      answer: "Le partenaire producteur fournit: la parcelle (pour PalmElite et TerraPalm), la main-d'œuvre locale pour les travaux de nettoyage, défrichage, trouaison, plantation, désherbage et entretien courant, le respect des instructions techniques, et l'engagement sur la durée du projet. Nous appelons nos clients 'partenaires producteurs' car nous construisons ensemble."
     },
     {
       category: "accompagnement",
       question: "Quelles sont les étapes de l'accompagnement ?",
-      answer: "Notre approche se déroule en 5 étapes: (1) Prospection et Qualification - identification et évaluation des terrains, (2) Création et Développement - mise en place de la plantation, (3) Suivi et Formation - accompagnement continu, (4) Récolte et Commercialisation - organisation et débouchés garantis, (5) Règlement et Bénéfices - perception des revenus."
+      answer: "Notre approche se déroule en 5 étapes: (1) Prospection et Qualification - identification et évaluation des terrains, (2) Création et Développement - mise en place de la plantation, (3) Suivi et Formation - accompagnement continu par techniciens qualifiés, (4) Récolte et Commercialisation - organisation et débouchés garantis, (5) Règlement et Bénéfices - paiement rapide sous 48h après pesée."
     },
     
     // GARANTIES
@@ -149,7 +161,7 @@ const FAQ = () => {
   const filteredFAQ = faqItems.filter(item => item.category === activeCategory);
 
   const scrollToContact = () => {
-    window.location.href = '/#contact';
+    navigate('/#contact');
   };
 
   return (

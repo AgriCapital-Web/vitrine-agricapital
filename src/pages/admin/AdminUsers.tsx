@@ -143,36 +143,23 @@ const AdminUsers = () => {
     setIsSubmitting(true);
 
     try {
-      // Create user account
-      const { data: userData, error: signUpError } = await supabase.auth.signUp({
-        email: formData.email,
-        password: formData.password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/admin`,
-        },
-      });
-
-      if (signUpError || !userData.user) {
-        throw new Error(signUpError?.message || "Erreur création utilisateur");
-      }
-
-      // Assign role
-      const { error: roleError } = await supabase
-        .from("user_roles")
-        .insert({
-          user_id: userData.user.id,
+      // Use edge function to create user with admin API
+      const { data, error } = await supabase.functions.invoke('create-user', {
+        body: {
+          email: formData.email,
+          password: formData.password,
           role: formData.role,
-        });
-
-      if (roleError) throw roleError;
-
-      // Create profile if names provided
-      if (formData.first_name || formData.last_name) {
-        await supabase.from("profiles").insert({
-          user_id: userData.user.id,
           first_name: formData.first_name || null,
           last_name: formData.last_name || null,
-        });
+        }
+      });
+
+      if (error) {
+        throw new Error(error.message || "Erreur création utilisateur");
+      }
+
+      if (!data?.success) {
+        throw new Error(data?.error || "Erreur création utilisateur");
       }
 
       toast.success(`${roleLabels[formData.role]} créé avec succès`);
@@ -180,6 +167,7 @@ const AdminUsers = () => {
       resetForm();
       fetchUsers();
     } catch (error: any) {
+      console.error("Error creating user:", error);
       toast.error(error.message || "Erreur lors de la création");
     } finally {
       setIsSubmitting(false);

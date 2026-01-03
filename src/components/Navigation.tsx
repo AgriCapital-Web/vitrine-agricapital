@@ -3,7 +3,7 @@ import { Menu, X, Globe, HelpCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Language, languageNames } from "@/lib/translations";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import logo from "@/assets/logo.png";
 
 const languages: Language[] = ["fr", "en", "ar", "es", "de", "zh"];
@@ -15,6 +15,8 @@ const Navigation = () => {
   const { language, setLanguage, t } = useLanguage();
   const langMenuRef = useRef<HTMLDivElement>(null);
   const mobileLangMenuRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -31,10 +33,24 @@ const Navigation = () => {
   }, []);
 
   const scrollToSection = (id: string) => {
-    const element = document.getElementById(id);
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
-      setIsOpen(false);
+    setIsOpen(false);
+    
+    // Check if we're on the homepage
+    const isHomePage = location.pathname === "/" || 
+                        location.pathname === "/fr" || 
+                        location.pathname === "/en" ||
+                        location.pathname.startsWith("/accueil") ||
+                        location.pathname.startsWith("/home");
+    
+    if (isHomePage) {
+      // If on homepage, just scroll
+      const element = document.getElementById(id);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth" });
+      }
+    } else {
+      // If on another page, navigate to homepage with section hash
+      navigate(`/#${id}`);
     }
   };
 
