@@ -1,18 +1,30 @@
 import logoWhite from "@/assets/logo-white.png";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { HelpCircle } from "lucide-react";
 import Newsletter from "./Newsletter";
 
-const scrollToSection = (id: string) => {
-  const element = document.getElementById(id);
-  if (element) {
-    element.scrollIntoView({ behavior: "smooth" });
-  }
-};
-
 const Footer = () => {
   const { t } = useLanguage();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const scrollToSection = (id: string) => {
+    const isHomePage = location.pathname === "/" || 
+                        location.pathname === "/fr" || 
+                        location.pathname === "/en" ||
+                        location.pathname.startsWith("/accueil") ||
+                        location.pathname.startsWith("/home");
+    
+    if (isHomePage) {
+      const element = document.getElementById(id);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth" });
+      }
+    } else {
+      navigate(`/#${id}`);
+    }
+  };
 
   return (
     <footer className="bg-agri-green text-white py-12">

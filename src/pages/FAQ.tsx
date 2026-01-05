@@ -16,17 +16,35 @@ interface FAQItem {
 }
 
 const FAQ = () => {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const [activeCategory, setActiveCategory] = useState("general");
   const navigate = useNavigate();
 
+  // Get FAQ translations with fallback
+  const ft = t.faq || {
+    title: "Foire Aux Questions",
+    subtitle: "Trouvez rapidement les réponses à vos questions.",
+    categories: {
+      general: "Général",
+      offers: "Nos Offres",
+      investment: "Investissement",
+      support: "Accompagnement",
+      guarantees: "Garanties",
+      company: "L'Entreprise",
+    },
+    noQuestions: "Aucune question dans cette catégorie.",
+    ctaTitle: "Vous n'avez pas trouvé votre réponse ?",
+    ctaSubtitle: "Notre équipe est disponible pour répondre à toutes vos questions.",
+    contactUs: "Nous contacter",
+  };
+
   const categories = [
-    { id: "general", label: "Général", icon: HelpCircle },
-    { id: "offres", label: "Nos Offres", icon: Leaf },
-    { id: "investissement", label: "Investissement", icon: TrendingUp },
-    { id: "accompagnement", label: "Accompagnement", icon: Users },
-    { id: "garanties", label: "Garanties", icon: Shield },
-    { id: "entreprise", label: "L'Entreprise", icon: Building2 },
+    { id: "general", label: ft.categories.general, icon: HelpCircle },
+    { id: "offres", label: ft.categories.offers, icon: Leaf },
+    { id: "investissement", label: ft.categories.investment, icon: TrendingUp },
+    { id: "accompagnement", label: ft.categories.support, icon: Users },
+    { id: "garanties", label: ft.categories.guarantees, icon: Shield },
+    { id: "entreprise", label: ft.categories.company, icon: Building2 },
   ];
 
   const faqItems: FAQItem[] = [
@@ -175,10 +193,10 @@ const FAQ = () => {
           <div className="container mx-auto px-4 text-center">
             <HelpCircle className="w-16 h-16 mx-auto mb-4 opacity-90" />
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">
-              Foire Aux Questions
+              {ft.title}
             </h1>
             <p className="text-lg sm:text-xl text-white/90 max-w-2xl mx-auto">
-              Trouvez rapidement les réponses à vos questions sur AgriCapital, nos offres et notre accompagnement.
+              {ft.subtitle}
             </p>
           </div>
         </section>
@@ -235,7 +253,7 @@ const FAQ = () => {
             {filteredFAQ.length === 0 && (
               <div className="text-center py-12 text-muted-foreground">
                 <HelpCircle className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                <p>Aucune question dans cette catégorie.</p>
+                <p>{ft.noQuestions}</p>
               </div>
             )}
           </div>
@@ -247,12 +265,12 @@ const FAQ = () => {
             <Card className="max-w-2xl mx-auto border-2 border-agri-green/20">
               <CardHeader className="text-center pb-4">
                 <CardTitle className="text-xl sm:text-2xl">
-                  Vous n'avez pas trouvé votre réponse ?
+                  {ft.ctaTitle}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <p className="text-center text-muted-foreground">
-                  Notre équipe est disponible pour répondre à toutes vos questions.
+                  {ft.ctaSubtitle}
                 </p>
                 
                 <div className="flex flex-col sm:flex-row gap-3 justify-center">
@@ -261,7 +279,7 @@ const FAQ = () => {
                     className="bg-agri-green hover:bg-agri-green-dark"
                   >
                     <MessageCircle className="w-4 h-4 mr-2" />
-                    Nous contacter
+                    {ft.contactUs}
                     <ChevronRight className="w-4 h-4 ml-1" />
                   </Button>
                   

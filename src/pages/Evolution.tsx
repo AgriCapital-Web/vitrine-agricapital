@@ -24,85 +24,59 @@ import nurserySite from "@/assets/nursery-site.webp";
 import nurseryPalm from "@/assets/nursery-palm.jpg";
 
 const Evolution = () => {
-  const { language } = useLanguage();
+  const { t, language } = useLanguage();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
-  const translations = {
-    fr: {
-      title: "Évolution du Projet AgriCapital",
-      subtitle: "Suivez notre progression et nos réalisations concrètes sur le terrain",
-      backHome: "Retour à l'accueil",
-      nurseryTitle: "Site de Pépinière - 100+ Hectares",
-      nurseryDesc: "Notre site de pépinière moderne, pleinement installé entre le 19 novembre et le 24 décembre 2025",
-      launchTitle: "Lancement Officiel",
-      launchDate: "19 Novembre 2025",
-      launchDesc: "Lancement officiel d'AgriCapital avec la présentation du modèle innovant d'accompagnement agricole et des 3 offres structurantes : PalmElite, PalmInvest et TerraPalm.",
-      nurserySetupTitle: "Installation de la Pépinière",
-      nurserySetupDate: "19 Nov - 24 Déc 2025",
-      nurserySetupDesc: "Installation complète de notre site de pépinière de plus de 100 hectares, avec système d'irrigation moderne, préparation des plants certifiés Tenera et mise en place de l'équipe technique.",
-      communityTitle: "Rencontres Communautaires",
-      communityDesc: "Engagement continu avec les communautés locales du Haut-Sassandra pour sensibiliser et accompagner les futurs partenaires producteurs.",
-      gallery: "Galerie Photos",
-      recentPhotos: "Photos Récentes - Décembre 2025",
-      launchPhotos: "Photos du Lancement - Novembre 2025",
-      milestones: "Jalons du Projet",
-      completed: "Réalisé",
-      inProgress: "En cours",
-      upcoming: "À venir",
-      hectares: "hectares de pépinière",
-      communities: "localités sensibilisées",
-      partners: "partenaires producteurs engagés",
-      viewMore: "Voir en grand"
-    },
-    en: {
-      title: "AgriCapital Project Evolution",
-      subtitle: "Follow our progress and concrete achievements on the ground",
-      backHome: "Back to home",
-      nurseryTitle: "Nursery Site - 100+ Hectares",
-      nurseryDesc: "Our modern nursery site, fully installed between November 19 and December 24, 2025",
-      launchTitle: "Official Launch",
-      launchDate: "November 19, 2025",
-      launchDesc: "Official launch of AgriCapital with the presentation of the innovative agricultural support model and the 3 structuring offers: PalmElite, PalmInvest and TerraPalm.",
-      nurserySetupTitle: "Nursery Installation",
-      nurserySetupDate: "Nov 19 - Dec 24, 2025",
-      nurserySetupDesc: "Complete installation of our 100+ hectare nursery site, with modern irrigation system, certified Tenera seedling preparation and technical team setup.",
-      communityTitle: "Community Meetings",
-      communityDesc: "Continuous engagement with local communities of Haut-Sassandra to raise awareness and support future producer partners.",
-      gallery: "Photo Gallery",
-      recentPhotos: "Recent Photos - December 2025",
-      launchPhotos: "Launch Photos - November 2025",
-      milestones: "Project Milestones",
-      completed: "Completed",
-      inProgress: "In Progress",
-      upcoming: "Upcoming",
-      hectares: "hectares of nursery",
-      communities: "communities reached",
-      partners: "producer partners engaged",
-      viewMore: "View larger"
-    }
+  // Get evolution translations with fallback
+  const et = t.evolution || {
+    title: "Évolution du Projet AgriCapital",
+    subtitle: "Suivez notre progression et nos réalisations concrètes sur le terrain",
+    backHome: "Retour à l'accueil",
+    nurseryTitle: "Site de Pépinière - 100+ Hectares",
+    nurseryDesc: "Notre site de pépinière moderne, pleinement installé entre le 19 novembre et le 24 décembre 2025",
+    launchTitle: "Lancement Officiel",
+    launchDate: "19 Novembre 2025",
+    launchDesc: "Lancement officiel d'AgriCapital avec la présentation du modèle innovant d'accompagnement agricole.",
+    nurserySetupTitle: "Installation de la Pépinière",
+    nurserySetupDate: "19 Nov - 24 Déc 2025",
+    nurserySetupDesc: "Installation complète de notre site de pépinière de plus de 100 hectares.",
+    communityTitle: "Rencontres Communautaires",
+    communityDesc: "Engagement continu avec les communautés locales du Haut-Sassandra.",
+    gallery: "Galerie Photos",
+    recentPhotos: "Photos Récentes - Décembre 2025",
+    launchPhotos: "Photos du Lancement - Novembre 2025",
+    milestones: "Jalons du Projet",
+    completed: "Réalisé",
+    inProgress: "En cours",
+    upcoming: "À venir",
+    hectares: "hectares de pépinière",
+    communities: "localités sensibilisées",
+    partners: "partenaires producteurs engagés",
+    viewMore: "Voir en grand",
+    ctaTitle: "Rejoignez l'aventure AgriCapital",
+    ctaSubtitle: "Devenez partenaire producteur et faites partie de cette success story",
+    contactUs: "Nous contacter"
   };
-
-  const t = translations[language as keyof typeof translations] || translations.fr;
 
   const milestones = [
     {
-      date: "19 Nov 2025",
-      title: t.launchTitle,
-      description: t.launchDesc,
+      date: et.launchDate,
+      title: et.launchTitle,
+      description: et.launchDesc,
       status: "completed",
       icon: Target
     },
     {
-      date: "19 Nov - 24 Déc 2025",
-      title: t.nurserySetupTitle,
-      description: t.nurserySetupDesc,
+      date: et.nurserySetupDate,
+      title: et.nurserySetupTitle,
+      description: et.nurserySetupDesc,
       status: "completed",
       icon: Sprout
     },
     {
-      date: "En cours",
-      title: t.communityTitle,
-      description: t.communityDesc,
+      date: language === "fr" ? "En cours" : language === "en" ? "Ongoing" : language === "ar" ? "مستمر" : language === "es" ? "En curso" : language === "de" ? "Laufend" : "进行中",
+      title: et.communityTitle,
+      description: et.communityDesc,
       status: "in_progress",
       icon: Users
     }
@@ -126,9 +100,9 @@ const Evolution = () => {
   ];
 
   const stats = [
-    { value: "100+", label: t.hectares, icon: Leaf },
-    { value: "50+", label: t.communities, icon: MapPin },
-    { value: "200+", label: t.partners, icon: Users }
+    { value: "100+", label: et.hectares, icon: Leaf },
+    { value: "50+", label: et.communities, icon: MapPin },
+    { value: "200+", label: et.partners, icon: Users }
   ];
 
   return (
@@ -143,16 +117,16 @@ const Evolution = () => {
             <Link to="/">
               <Button variant="ghost" className="mb-4 text-white/80 hover:text-white hover:bg-white/10">
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                {t.backHome}
+                {et.backHome}
               </Button>
             </Link>
             <div className="text-center">
               <TrendingUp className="w-16 h-16 mx-auto mb-4 opacity-90" />
               <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">
-                {t.title}
+                {et.title}
               </h1>
               <p className="text-lg sm:text-xl text-white/90 max-w-2xl mx-auto">
-                {t.subtitle}
+                {et.subtitle}
               </p>
             </div>
           </div>
@@ -182,7 +156,7 @@ const Evolution = () => {
         <section className="py-12 sm:py-16">
           <div className="container mx-auto px-4">
             <h2 className="text-2xl sm:text-3xl font-bold text-center mb-8 sm:mb-12">
-              {t.milestones}
+              {et.milestones}
             </h2>
             
             <div className="max-w-3xl mx-auto space-y-6">
@@ -222,12 +196,12 @@ const Evolution = () => {
                             {milestone.status === 'completed' && (
                               <Badge className="bg-emerald-100 text-emerald-700">
                                 <CheckCircle className="w-3 h-3 mr-1" />
-                                {t.completed}
+                                {et.completed}
                               </Badge>
                             )}
                             {milestone.status === 'in_progress' && (
                               <Badge className="bg-amber-100 text-amber-700">
-                                {t.inProgress}
+                                {et.inProgress}
                               </Badge>
                             )}
                           </div>
@@ -247,14 +221,14 @@ const Evolution = () => {
         <section className="py-12 sm:py-16 bg-card/50">
           <div className="container mx-auto px-4">
             <h2 className="text-2xl sm:text-3xl font-bold text-center mb-4">
-              {t.gallery}
+              {et.gallery}
             </h2>
             
             {/* December 2025 Photos */}
             <div className="mb-12">
               <h3 className="text-xl font-semibold text-center mb-6 text-agri-green">
                 <Sprout className="w-5 h-5 inline-block mr-2" />
-                {t.recentPhotos}
+                {et.recentPhotos}
               </h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-5xl mx-auto">
                 {recentPhotos.map((photo, index) => (
@@ -278,7 +252,7 @@ const Evolution = () => {
             <div>
               <h3 className="text-xl font-semibold text-center mb-6 text-agri-orange">
                 <Target className="w-5 h-5 inline-block mr-2" />
-                {t.launchPhotos}
+                {et.launchPhotos}
               </h3>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-4 max-w-6xl mx-auto">
                 {launchPhotos.map((photo, index) => (
@@ -306,16 +280,16 @@ const Evolution = () => {
             <Card className="max-w-2xl mx-auto border-2 border-agri-green/20">
               <CardHeader>
                 <CardTitle className="text-xl sm:text-2xl">
-                  Rejoignez l'aventure AgriCapital
+                  {et.ctaTitle}
                 </CardTitle>
                 <CardDescription>
-                  Devenez partenaire producteur et faites partie de cette success story
+                  {et.ctaSubtitle}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex flex-col sm:flex-row gap-3 justify-center">
                   <Button asChild className="bg-agri-green hover:bg-agri-green-dark">
-                    <Link to="/#contact">Nous contacter</Link>
+                    <Link to="/#contact">{et.contactUs}</Link>
                   </Button>
                   <Button variant="outline" asChild>
                     <a href="tel:+2250564551717">📞 05 64 55 17 17</a>
