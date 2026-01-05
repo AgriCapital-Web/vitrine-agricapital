@@ -14,7 +14,6 @@ import jalonImage5 from "@/assets/jalon-5.jpg";
 import jalonImage6 from "@/assets/jalon-6.jpg";
 import jalonImage7 from "@/assets/jalon-7.jpg";
 import nurseryImage1 from "@/assets/nursery-dec-2025-1.jpg";
-import nurseryImage2 from "@/assets/nursery-dec-2025-2.jpg";
 import {
   Carousel,
   CarouselContent,
@@ -27,9 +26,8 @@ const Milestones = () => {
   const { t, language } = useLanguage();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
+  // Only launch photos in this section, nursery photos are on /evolution page
   const galleryImages = [
-    nurseryImage1,
-    nurseryImage2,
     jalonImage1,
     jalonImage2,
     jalonImage3,

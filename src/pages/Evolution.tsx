@@ -136,9 +136,9 @@ const Evolution = () => {
       <SEOHead />
       <Navigation />
       
-      <main className="pt-20 min-h-screen bg-gradient-to-b from-background to-secondary/10">
+      <main className="pt-20 min-h-screen bg-background">
         {/* Hero Section */}
-        <section className="py-12 sm:py-16 bg-gradient-to-r from-agri-green to-agri-green-dark text-white">
+        <section className="py-12 sm:py-16 bg-agri-green text-white">
           <div className="container mx-auto px-4">
             <Link to="/">
               <Button variant="ghost" className="mb-4 text-white/80 hover:text-white hover:bg-white/10">
