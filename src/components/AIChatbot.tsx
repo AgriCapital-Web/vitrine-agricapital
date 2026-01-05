@@ -478,40 +478,86 @@ const AIChatbot = () => {
   const processVoiceMessage = async (audioBlob: Blob) => {
     setIsProcessingVoice(true);
     try {
+      // First, transcribe the audio using ElevenLabs
       const reader = new FileReader();
       reader.readAsDataURL(audioBlob);
       reader.onloadend = async () => {
-        const base64Audio = reader.result as string;
+        const base64Data = reader.result as string;
+        // Extract base64 content after the data URL prefix
+        const base64Audio = base64Data.split(',')[1];
         
-        const userMessage: Message = { 
-          role: "user", 
-          content: `🎤 ${t.voiceMessage}`,
-          type: "audio"
-        };
-        const newMessages = [...messages, userMessage];
-        setMessages(newMessages);
-        setIsLoading(true);
-
         try {
-          await streamChat(newMessages.filter(m => 
-            m.content !== t.welcome && 
-            !m.content.includes(t.askFirstName)
-          ), {
-            type: 'audio',
-            content: base64Audio,
-            name: 'voice-message.webm'
+          // Call transcription edge function
+          const transcribeUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/transcribe-audio`;
+          const transcribeResponse = await fetch(transcribeUrl, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+            },
+            body: JSON.stringify({ 
+              audio: base64Audio,
+              mimeType: audioBlob.type 
+            }),
           });
+          
+          if (!transcribeResponse.ok) {
+            throw new Error("Transcription failed");
+          }
+          
+          const transcribeResult = await transcribeResponse.json();
+          const transcribedText = transcribeResult.text;
+          
+          if (!transcribedText || transcribedText.trim() === '') {
+            setMessages(prev => [...prev, { role: "assistant", content: "Je n'ai pas pu comprendre votre message vocal. Pourriez-vous réessayer ou écrire votre question ?" }]);
+            setIsProcessingVoice(false);
+            return;
+          }
+          
+          // Handle contact collection flow with transcribed text
+          if (collectionStep !== 'idle' && collectionStep !== 'complete') {
+            const handled = handleCollectionResponse(transcribedText.trim());
+            if (handled) {
+              setIsProcessingVoice(false);
+              return;
+            }
+          }
+          
+          // Now process the transcribed text as a regular message
+          const userMessage: Message = { 
+            role: "user", 
+            content: `🎤 ${transcribedText}`,
+            type: "audio"
+          };
+          const newMessages = [...messages, userMessage];
+          setMessages(newMessages);
+          setIsLoading(true);
+
+          try {
+            await streamChat(newMessages.filter(m => 
+              m.content !== t.welcome && 
+              !m.content.includes(t.askFirstName) &&
+              !m.content.includes(t.askLastName) &&
+              !m.content.includes(t.askEmail) &&
+              !m.content.includes(t.askPhone) &&
+              !m.content.includes(t.thankYou.split('{name}')[0])
+            ));
+          } catch (error) {
+            console.error("Voice chat error:", error);
+            setMessages(prev => [...prev, { role: "assistant", content: "Désolé, je n'ai pas pu traiter votre message. Veuillez réessayer." }]);
+          } finally {
+            setIsLoading(false);
+          }
         } catch (error) {
-          console.error("Voice chat error:", error);
-          setMessages(prev => [...prev, { role: "assistant", content: "Désolé, je n'ai pas pu traiter votre message vocal. Veuillez réessayer." }]);
+          console.error("Transcription error:", error);
+          setMessages(prev => [...prev, { role: "assistant", content: "Désolé, je n'ai pas pu transcrire votre message vocal. Veuillez réessayer ou écrire votre question." }]);
         } finally {
-          setIsLoading(false);
+          setIsProcessingVoice(false);
         }
       };
     } catch (error) {
       console.error("Error processing voice:", error);
       toast.error("Erreur lors du traitement de la voix");
-    } finally {
       setIsProcessingVoice(false);
     }
   };
