@@ -46,8 +46,10 @@ const AdminAIConversations = lazy(() => import("./pages/admin/AdminAIConversatio
 const AdminAutoResponses = lazy(() => import("./pages/admin/AdminAutoResponses"));
 const AdminInbox = lazy(() => import("./pages/admin/AdminInbox"));
 const AdminVisitorContacts = lazy(() => import("./pages/admin/AdminVisitorContacts"));
+const AdminPartnershipRequests = lazy(() => import("./pages/admin/AdminPartnershipRequests"));
 const FAQ = lazy(() => import("./pages/FAQ"));
 const Evolution = lazy(() => import("./pages/Evolution"));
+const PartnershipRequest = lazy(() => import("./pages/PartnershipRequest"));
 
 const queryClient = new QueryClient();
 
@@ -80,6 +82,8 @@ const AppContent = () => {
         <Route path="/faq" element={<FAQ />} />
         <Route path="/evolution" element={<Evolution />} />
         <Route path="/evolution-projet" element={<Evolution />} />
+        <Route path="/partenariat-demande" element={<PartnershipRequest />} />
+        <Route path="/partnership-request" element={<PartnershipRequest />} />
         
         {/* Section routes (English) */}
         <Route path="/home" element={<HomePage />} />
@@ -136,6 +140,7 @@ const AppContent = () => {
         <Route path="/admin/auto-responses" element={<AdminAutoResponses />} />
         <Route path="/admin/inbox" element={<AdminInbox />} />
         <Route path="/admin/visitor-contacts" element={<AdminVisitorContacts />} />
+        <Route path="/admin/partnership-requests" element={<AdminPartnershipRequests />} />
         
         {/* 404 */}
         <Route path="*" element={<NotFound />} />

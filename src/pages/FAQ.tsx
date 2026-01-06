@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { HelpCircle, Phone, Mail, MessageCircle, ChevronRight, Leaf, Users, TrendingUp, Shield, Building2, ArrowLeft } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import Navigation from "@/components/Navigation";
+import DynamicNavigation from "@/components/DynamicNavigation";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
 
@@ -185,11 +185,11 @@ const FAQ = () => {
   return (
     <>
       <SEOHead />
-      <Navigation />
+      <DynamicNavigation />
       
-      <main className="pt-20 min-h-screen bg-gradient-to-b from-background to-secondary/20">
+      <main className="pt-20 min-h-screen bg-background">
         {/* Hero Section */}
-        <section className="py-12 sm:py-16 bg-gradient-to-r from-agri-green to-agri-green-dark text-white">
+        <section className="py-12 sm:py-16 bg-agri-green text-white">
           <div className="container mx-auto px-4 text-center">
             <HelpCircle className="w-16 h-16 mx-auto mb-4 opacity-90" />
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">

@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Eye, MessageSquare, Mail, Users, TrendingUp, Bot, Send, Handshake } from "lucide-react";
 import AdminLayout from "@/components/admin/AdminLayout";
 import AdminExportCSV from "@/components/admin/AdminExportCSV";
+import VisitorMap from "@/components/admin/VisitorMap";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from "recharts";
 
 interface PageVisit {
@@ -465,6 +466,9 @@ const AdminDashboard = () => {
               </div>
             </CardContent>
           </Card>
+
+          {/* Visitor Map */}
+          <VisitorMap />
         </div>
       </div>
     </AdminLayout>
