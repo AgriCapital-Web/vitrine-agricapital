@@ -17,6 +17,7 @@ const fallbackMenu = [
   { id: "milestones", label: "Jalons", url: "#jalons" },
   { id: "testimonials", label: "Témoignages", url: "#temoignages" },
   { id: "partnership", label: "Partenariat", url: "#partenariat" },
+  { id: "faq", label: "FAQ", url: "/faq" },
   { id: "contact", label: "Contact", url: "#contact" },
 ];
 
@@ -49,9 +50,17 @@ const DynamicNavigation = () => {
     if (!url) return;
     
     if (url.startsWith('#')) {
-      const element = document.getElementById(url.substring(1));
-      if (element) {
-        element.scrollIntoView({ behavior: "smooth" });
+      const sectionId = url.substring(1);
+      const isHomePage = window.location.pathname === '/' || window.location.pathname === '';
+      
+      if (isHomePage) {
+        const element = document.getElementById(sectionId);
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth" });
+        }
+      } else {
+        // Navigate to homepage with hash
+        window.location.href = '/' + url;
       }
     } else if (target === '_blank') {
       window.open(url, '_blank');

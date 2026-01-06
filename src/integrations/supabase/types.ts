@@ -330,31 +330,124 @@ export type Database = {
       }
       page_visits: {
         Row: {
+          city: string | null
+          country: string | null
           created_at: string
           domain: string | null
           id: string
+          latitude: number | null
+          longitude: number | null
           page_path: string
           referrer: string | null
           user_agent: string | null
           visitor_id: string
         }
         Insert: {
+          city?: string | null
+          country?: string | null
           created_at?: string
           domain?: string | null
           id?: string
+          latitude?: number | null
+          longitude?: number | null
           page_path: string
           referrer?: string | null
           user_agent?: string | null
           visitor_id: string
         }
         Update: {
+          city?: string | null
+          country?: string | null
           created_at?: string
           domain?: string | null
           id?: string
+          latitude?: number | null
+          longitude?: number | null
           page_path?: string
           referrer?: string | null
           user_agent?: string | null
           visitor_id?: string
+        }
+        Relationships: []
+      }
+      partnership_requests: {
+        Row: {
+          address: string | null
+          category: string | null
+          city: string | null
+          company_logo_url: string | null
+          company_name: string | null
+          country: string | null
+          created_at: string
+          email: string
+          first_name: string | null
+          id: string
+          investment_amount: number | null
+          land_area_hectares: number | null
+          language: string | null
+          last_name: string | null
+          message: string | null
+          notes: string | null
+          partner_type: string
+          phone: string | null
+          photo_url: string | null
+          preferred_offer: string | null
+          request_type: string
+          status: string | null
+          updated_at: string
+          whatsapp: string | null
+        }
+        Insert: {
+          address?: string | null
+          category?: string | null
+          city?: string | null
+          company_logo_url?: string | null
+          company_name?: string | null
+          country?: string | null
+          created_at?: string
+          email: string
+          first_name?: string | null
+          id?: string
+          investment_amount?: number | null
+          land_area_hectares?: number | null
+          language?: string | null
+          last_name?: string | null
+          message?: string | null
+          notes?: string | null
+          partner_type: string
+          phone?: string | null
+          photo_url?: string | null
+          preferred_offer?: string | null
+          request_type: string
+          status?: string | null
+          updated_at?: string
+          whatsapp?: string | null
+        }
+        Update: {
+          address?: string | null
+          category?: string | null
+          city?: string | null
+          company_logo_url?: string | null
+          company_name?: string | null
+          country?: string | null
+          created_at?: string
+          email?: string
+          first_name?: string | null
+          id?: string
+          investment_amount?: number | null
+          land_area_hectares?: number | null
+          language?: string | null
+          last_name?: string | null
+          message?: string | null
+          notes?: string | null
+          partner_type?: string
+          phone?: string | null
+          photo_url?: string | null
+          preferred_offer?: string | null
+          request_type?: string
+          status?: string | null
+          updated_at?: string
+          whatsapp?: string | null
         }
         Relationships: []
       }
