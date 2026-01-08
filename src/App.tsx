@@ -50,6 +50,8 @@ const AdminPartnershipRequests = lazy(() => import("./pages/admin/AdminPartnersh
 const FAQ = lazy(() => import("./pages/FAQ"));
 const Evolution = lazy(() => import("./pages/Evolution"));
 const PartnershipRequest = lazy(() => import("./pages/PartnershipRequest"));
+const News = lazy(() => import("./pages/News"));
+const AdminNews = lazy(() => import("./pages/admin/AdminNews"));
 
 const queryClient = new QueryClient();
 
@@ -84,6 +86,8 @@ const AppContent = () => {
         <Route path="/evolution-projet" element={<Evolution />} />
         <Route path="/partenariat-demande" element={<PartnershipRequest />} />
         <Route path="/partnership-request" element={<PartnershipRequest />} />
+        <Route path="/actualites" element={<News />} />
+        <Route path="/news" element={<News />} />
         
         {/* Section routes (English) */}
         <Route path="/home" element={<HomePage />} />
@@ -141,6 +145,7 @@ const AppContent = () => {
         <Route path="/admin/inbox" element={<AdminInbox />} />
         <Route path="/admin/visitor-contacts" element={<AdminVisitorContacts />} />
         <Route path="/admin/partnership-requests" element={<AdminPartnershipRequests />} />
+        <Route path="/admin/news" element={<AdminNews />} />
         
         {/* 404 */}
         <Route path="*" element={<NotFound />} />
