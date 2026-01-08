@@ -307,6 +307,108 @@ export type Database = {
           },
         ]
       }
+      news: {
+        Row: {
+          author: string | null
+          category: string | null
+          content_ar: string | null
+          content_de: string | null
+          content_en: string | null
+          content_es: string | null
+          content_fr: string
+          content_zh: string | null
+          created_at: string
+          excerpt_ar: string | null
+          excerpt_de: string | null
+          excerpt_en: string | null
+          excerpt_es: string | null
+          excerpt_fr: string | null
+          excerpt_zh: string | null
+          featured_image: string | null
+          id: string
+          images: Json | null
+          is_featured: boolean
+          is_published: boolean
+          published_at: string | null
+          slug: string
+          title_ar: string | null
+          title_de: string | null
+          title_en: string | null
+          title_es: string | null
+          title_fr: string
+          title_zh: string | null
+          updated_at: string
+          videos: Json | null
+          views_count: number | null
+        }
+        Insert: {
+          author?: string | null
+          category?: string | null
+          content_ar?: string | null
+          content_de?: string | null
+          content_en?: string | null
+          content_es?: string | null
+          content_fr: string
+          content_zh?: string | null
+          created_at?: string
+          excerpt_ar?: string | null
+          excerpt_de?: string | null
+          excerpt_en?: string | null
+          excerpt_es?: string | null
+          excerpt_fr?: string | null
+          excerpt_zh?: string | null
+          featured_image?: string | null
+          id?: string
+          images?: Json | null
+          is_featured?: boolean
+          is_published?: boolean
+          published_at?: string | null
+          slug: string
+          title_ar?: string | null
+          title_de?: string | null
+          title_en?: string | null
+          title_es?: string | null
+          title_fr: string
+          title_zh?: string | null
+          updated_at?: string
+          videos?: Json | null
+          views_count?: number | null
+        }
+        Update: {
+          author?: string | null
+          category?: string | null
+          content_ar?: string | null
+          content_de?: string | null
+          content_en?: string | null
+          content_es?: string | null
+          content_fr?: string
+          content_zh?: string | null
+          created_at?: string
+          excerpt_ar?: string | null
+          excerpt_de?: string | null
+          excerpt_en?: string | null
+          excerpt_es?: string | null
+          excerpt_fr?: string | null
+          excerpt_zh?: string | null
+          featured_image?: string | null
+          id?: string
+          images?: Json | null
+          is_featured?: boolean
+          is_published?: boolean
+          published_at?: string | null
+          slug?: string
+          title_ar?: string | null
+          title_de?: string | null
+          title_en?: string | null
+          title_es?: string | null
+          title_fr?: string
+          title_zh?: string | null
+          updated_at?: string
+          videos?: Json | null
+          views_count?: number | null
+        }
+        Relationships: []
+      }
       newsletter_subscribers: {
         Row: {
           email: string

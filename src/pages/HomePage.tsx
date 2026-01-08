@@ -14,6 +14,7 @@ import Founder from "@/components/Founder";
 import Partnership from "@/components/Partnership";
 import TestimonialsDisplay from "@/components/TestimonialsDisplay";
 import Testimonials from "@/components/Testimonials";
+import NewsSection from "@/components/NewsSection";
 import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
@@ -122,6 +123,7 @@ const HomePage = () => {
       <Partnership />
       <TestimonialsDisplay />
       <Testimonials />
+      <NewsSection />
       <Contact />
       <Footer />
     </div>
