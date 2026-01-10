@@ -69,9 +69,9 @@ const Navigation = () => {
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-6">
+          <div className="hidden md:flex items-center gap-5">
             <button
-              onClick={() => scrollToSection("accueil")}
+              onClick={() => scrollToSection("hero")}
               className="text-foreground hover:text-primary transition-smooth font-medium"
             >
               {t.nav.home}
@@ -100,6 +100,12 @@ const Navigation = () => {
             >
               {t.nav.partnership}
             </button>
+            <Link
+              to="/actualites"
+              className="text-foreground hover:text-primary transition-smooth font-medium"
+            >
+              {language === 'fr' ? 'Actualités' : language === 'en' ? 'News' : language === 'ar' ? 'الأخبار' : language === 'es' ? 'Noticias' : language === 'de' ? 'Nachrichten' : '新闻'}
+            </Link>
             <Link
               to="/faq"
               className="text-foreground hover:text-primary transition-smooth font-medium flex items-center gap-1"
@@ -219,7 +225,7 @@ const Navigation = () => {
           <div className="md:hidden py-4 border-t border-border bg-background">
             <div className="flex flex-col gap-4">
               <button
-                onClick={() => scrollToSection("accueil")}
+                onClick={() => scrollToSection("hero")}
                 className="text-foreground hover:text-primary transition-smooth font-medium text-left"
               >
                 {t.nav.home}
@@ -248,6 +254,13 @@ const Navigation = () => {
               >
                 {t.nav.partnership}
               </button>
+              <Link
+                to="/actualites"
+                className="text-foreground hover:text-primary transition-smooth font-medium text-left"
+                onClick={() => setIsOpen(false)}
+              >
+                {language === 'fr' ? 'Actualités' : language === 'en' ? 'News' : language === 'ar' ? 'الأخبار' : language === 'es' ? 'Noticias' : language === 'de' ? 'Nachrichten' : '新闻'}
+              </Link>
               <Link
                 to="/faq"
                 className="text-foreground hover:text-primary transition-smooth font-medium text-left flex items-center gap-2"

@@ -144,16 +144,17 @@ const VisitorMap = () => {
           )}
         </div>
 
-        {/* World Map Placeholder */}
-        <div className="mt-6 p-4 border border-dashed border-border rounded-lg text-center">
-          <Globe className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
-          <p className="text-sm text-muted-foreground">
-            Carte interactive des visiteurs
-          </p>
-          <p className="text-xs text-muted-foreground">
-            (Collecte des données en cours)
-          </p>
-        </div>
+        {/* Info */}
+        {locations.length > 0 && (
+          <div className="mt-6 p-4 bg-green-50 rounded-lg text-center">
+            <p className="text-sm text-green-700 font-medium">
+              ✅ Collecte de géolocalisation active
+            </p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Les données sont collectées automatiquement via l'IP des visiteurs
+            </p>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

@@ -51,6 +51,7 @@ const FAQ = lazy(() => import("./pages/FAQ"));
 const Evolution = lazy(() => import("./pages/Evolution"));
 const PartnershipRequest = lazy(() => import("./pages/PartnershipRequest"));
 const News = lazy(() => import("./pages/News"));
+const NewsArticle = lazy(() => import("./pages/NewsArticle"));
 const AdminNews = lazy(() => import("./pages/admin/AdminNews"));
 
 const queryClient = new QueryClient();
@@ -87,7 +88,9 @@ const AppContent = () => {
         <Route path="/partenariat-demande" element={<PartnershipRequest />} />
         <Route path="/partnership-request" element={<PartnershipRequest />} />
         <Route path="/actualites" element={<News />} />
+        <Route path="/actualites/:slug" element={<NewsArticle />} />
         <Route path="/news" element={<News />} />
+        <Route path="/news/:slug" element={<NewsArticle />} />
         
         {/* Section routes (English) */}
         <Route path="/home" element={<HomePage />} />
