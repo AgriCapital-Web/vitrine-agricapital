@@ -113,6 +113,7 @@ const HomePage = () => {
       <AIChatbot />
       <DynamicNavigation />
       <Hero />
+      <NewsSection />
       <Ambitions />
       <About />
       <Approach />
@@ -123,7 +124,6 @@ const HomePage = () => {
       <Partnership />
       <TestimonialsDisplay />
       <Testimonials />
-      <NewsSection />
       <Contact />
       <Footer />
     </div>

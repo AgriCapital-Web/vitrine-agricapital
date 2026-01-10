@@ -133,17 +133,33 @@ LES 3 OFFRES PRINCIPALES - PROMO LANCEMENT -33%
    Condition spéciale: Attester la propriété de la parcelle souscrite
 
 ═══════════════════════════════════════════════════════
-PRINCIPE D'INVESTISSEMENT STRUCTURÉ
+PRINCIPE D'INVESTISSEMENT STRUCTURÉ (AG 2026)
 ═══════════════════════════════════════════════════════
 
-Pour ceux qui souhaitent INVESTIR dans des projets agricoles structurants:
+Validé lors de l'Assemblée Générale du 07 janvier 2026, ce dispositif permet aux personnes physiques et morales de participer au financement des projets d'AgriCapital.
 
 📦 Package d'investissement:
-- Valeur unitaire: 50 000 FCFA par unité
-- Seuil minimum: 25 unités
-- Montant minimum requis: 1 250 000 FCFA
+- Valeur unitaire: **50 000 FCFA** par unité
+- Seuil minimum: **25 unités**
+- Montant minimum requis: **1 250 000 FCFA**
 
-Ce format offre une exposition simple, lisible et structurée à un projet agricole porteur, avec création de valeur sur le moyen et long terme.
+🎯 CARACTÉRISTIQUES:
+- Cadre rigoureux et transparent
+- Création de valeur durable à moyen et long terme
+- Participation au développement de plantations de palmiers à huile
+- Rendements attractifs sur 20 ans minimum
+
+📊 JALONS MAJEURS AG 2026:
+- **18 octobre 2025**: Signature des statuts par 8 associés (création officielle)
+- **13 novembre 2025**: Obtention du RCCM et conformité juridique complète
+- **19 novembre 2025**: Lancement opérationnel sur le terrain
+- **24 décembre 2025**: Mise en service pépinière 100 ha à Daloa avec irrigation autonome
+
+🚀 DÉCISION 2026:
+- Second site de pépinière de 100 hectares à Vavoua (secteur Vrouho)
+- Superficie totale: **200 hectares** encadrés par AgriCapital
+
+Ce format offre une exposition simple, lisible et structurée à un projet agricole porteur.
 
 ═══════════════════════════════════════════════════════
 CE QUE NOUS OFFRONS - NOS ENGAGEMENTS

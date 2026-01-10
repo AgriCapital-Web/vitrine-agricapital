@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
-import DynamicNavigation from "@/components/DynamicNavigation";
+import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
 import { Card, CardContent } from "@/components/ui/card";
@@ -23,68 +23,8 @@ const firstArticle = {
   slug: "assemblee-generale-2026",
   title_fr: "AGRICAPITAL | Assemblée Générale Ordinaire Annuelle 2026",
   title_en: "AGRICAPITAL | Annual General Meeting 2026",
-  content_fr: `Le 07 janvier 2026, AgriCapital SARL a tenu sa première Assemblée Générale Ordinaire Annuelle, réunissant l'ensemble de ses associés.
-
-Fidèle à son identité, la rencontre s'est déroulée en plein air, directement sur le terrain, là où les décisions prennent tout leur sens.
-
-Sans attendre de salle climatisée. Pas de bureau luxueux. Mais des échanges francs, des décisions claires et une direction assumée.
-
-Parce que, chez AgriCapital, la vision se construit dans l'action, avec méthode, rigueur et responsabilité.
-
----
-
-## À l'ordre du jour
-
-### I. Bilan de constitution et lancement des activités
-
-Le Fondateur et Directeur Général a présenté le bilan de constitution de l'entreprise ainsi que le démarrage effectif des activités, articulé autour de quatre jalons structurants :
-
-- **18 octobre 2025** : Signature des statuts par les huit (8) associés, actant la création officielle d'AgriCapital SARL.
-- **13 novembre 2025** : Obtention du RCCM, suivie de la DFE et des formalités administratives connexes, assurant la pleine conformité juridique de l'entreprise.
-- **19 novembre 2025** : Lancement opérationnel des activités sur le terrain.
-- **24 décembre 2025** : Mise en service du premier site de pépinière de 100 hectares, équipé d'un système d'irrigation autonome, dans le département de Daloa.
-
-Ces étapes ont été franchies avant l'entrée en 2026, traduisant une exécution anticipée du projet.
-
----
-
-### II. Budget prévisionnel et orientations stratégiques 2026
-
-Monsieur Inocent Koffi, Fondateur et Directeur Général, a présenté le budget prévisionnel ainsi que les grandes orientations stratégiques pour l'exercice 2026.
-
-Après échanges et analyses, l'Assemblée Générale a validé à l'unanimité les orientations proposées, marquant la volonté collective d'entrer dans une nouvelle phase de consolidation et de montée en charge des activités.
-
----
-
-### III. Décisions opérationnelles et perspectives de déploiement
-
-Dans le prolongement des orientations validées, l'Assemblée Générale a arrêté une décision opérationnelle majeure pour l'année 2026.
-
-Il a ainsi été décidé la mise en place d'un **second site de pépinière de 100 hectares**, dans le département de Vavoua, secteur de Vrouho.
-
-Cette extension portera la superficie totale encadrée par AgriCapital à **200 hectares**, renforçant la capacité opérationnelle de l'entreprise et son ancrage territorial.
-
-Les associés ont exprimé une adhésion unanime à cette trajectoire de croissance progressive et maîtrisée.
-
----
-
-### IV. Rappel : positionnement et vision opérationnelle
-
-AGRICAPITAL SARL est aujourd'hui pleinement constituée et opérationnelle, avec un positionnement clair autour de :
-
-- l'accompagnement agricole et les services intégrés ;
-- la création et le développement de plantations de palmier à huile.
-
-AgriCapital se positionne comme un **acteur structurant et facilitateur** d'un modèle agricole inclusif, durable et économiquement viable, associant producteurs, partenaires techniques, investisseurs, institutions et acteurs locaux.
-
----
-
-À l'issue de l'Assemblée Générale, les associés ont validé l'ouverture d'un **dispositif d'investissement structuré**, permettant aux personnes physiques et morales intéressées de participer au financement des projets d'AgriCapital, dans un cadre :
-
-- rigoureux,
-- transparent,
-- orienté vers la création de valeur durable, à moyen et long terme.`,
-  excerpt_fr: "AgriCapital SARL a tenu sa première Assemblée Générale Ordinaire Annuelle le 07 janvier 2026, réunissant l'ensemble de ses associés pour valider les orientations stratégiques 2026.",
+  excerpt_fr: "Le 07 janvier 2026, AgriCapital SARL a tenu sa première Assemblée Générale Ordinaire Annuelle, réunissant l'ensemble de ses associés pour valider les orientations stratégiques 2026.",
+  excerpt_en: "On January 7, 2026, AgriCapital SARL held its first Annual General Meeting, bringing together all its partners to validate the 2026 strategic orientations.",
   images: [ag1, ag2, ag3, ag4, ag5],
   published_at: "2026-01-07T12:00:00Z",
   author: "AgriCapital",
@@ -100,7 +40,8 @@ const translations = {
     evolution: "Voir l'évolution",
     views: "vues",
     by: "Par",
-    seeAll: "Toutes les actualités"
+    seeAll: "Toutes les actualités",
+    featured: "À la une"
   },
   en: {
     title: "News",
@@ -110,7 +51,8 @@ const translations = {
     evolution: "See evolution",
     views: "views",
     by: "By",
-    seeAll: "All news"
+    seeAll: "All news",
+    featured: "Featured"
   },
   ar: {
     title: "الأخبار",
@@ -120,7 +62,8 @@ const translations = {
     evolution: "شاهد التطور",
     views: "مشاهدات",
     by: "بواسطة",
-    seeAll: "جميع الأخبار"
+    seeAll: "جميع الأخبار",
+    featured: "مميز"
   },
   es: {
     title: "Noticias",
@@ -130,7 +73,8 @@ const translations = {
     evolution: "Ver evolución",
     views: "vistas",
     by: "Por",
-    seeAll: "Todas las noticias"
+    seeAll: "Todas las noticias",
+    featured: "Destacado"
   },
   de: {
     title: "Nachrichten",
@@ -140,7 +84,8 @@ const translations = {
     evolution: "Entwicklung ansehen",
     views: "Aufrufe",
     by: "Von",
-    seeAll: "Alle Nachrichten"
+    seeAll: "Alle Nachrichten",
+    featured: "Aktuell"
   },
   zh: {
     title: "新闻",
@@ -150,13 +95,19 @@ const translations = {
     evolution: "查看发展",
     views: "浏览量",
     by: "作者",
-    seeAll: "所有新闻"
+    seeAll: "所有新闻",
+    featured: "头条"
   }
 };
 
 const News = () => {
   const { language } = useLanguage();
   const tr = translations[language as keyof typeof translations] || translations.fr;
+
+  // Scroll to top on mount
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   // Fetch news from database
   const { data: newsFromDb } = useQuery({
@@ -172,9 +123,6 @@ const News = () => {
       return data || [];
     }
   });
-
-  // Combine with first article
-  const allNews = [firstArticle, ...(newsFromDb || [])];
 
   const getLocalizedField = (item: any, field: string) => {
     const langField = `${field}_${language}`;
@@ -192,7 +140,7 @@ const News = () => {
   return (
     <>
       <SEOHead />
-      <DynamicNavigation />
+      <Navigation />
       
       <main className="pt-20 min-h-screen bg-background">
         {/* Hero */}
@@ -241,7 +189,7 @@ const News = () => {
                 {/* Content */}
                 <CardContent className="p-6 md:p-8 flex flex-col justify-center">
                   <Badge className="w-fit mb-4 bg-agri-orange/20 text-agri-orange border-0">
-                    À la une
+                    {tr.featured}
                   </Badge>
                   <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
                     {getLocalizedField(firstArticle, 'title')}
