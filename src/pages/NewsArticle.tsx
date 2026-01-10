@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
-import Navigation from "@/components/Navigation";
+import DynamicNavigation from "@/components/DynamicNavigation";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
 import { Button } from "@/components/ui/button";
@@ -79,20 +79,9 @@ AgriCapital se positionne comme un **acteur structurant et facilitateur** d'un m
 
 ## Dispositif d'investissement structuré
 
-À l'issue de l'Assemblée Générale, les associés ont validé l'ouverture d'un **dispositif d'investissement structuré**, permettant aux personnes physiques et morales intéressées de participer au financement des projets d'AgriCapital, dans un cadre :
+À l'issue de l'Assemblée Générale, les associés ont validé l'ouverture d'un **dispositif d'investissement structuré**, permettant aux personnes physiques et morales intéressées de participer au financement des projets d'AgriCapital, dans un cadre rigoureux, transparent et orienté vers la création de valeur durable, à moyen et long terme.
 
-- Rigoureux
-- Transparent
-- Orienté vers la création de valeur durable, à moyen et long terme
-
-### Modalités d'investissement
-
-📦 **Package d'investissement :**
-- Valeur unitaire : **50 000 FCFA** par unité
-- Seuil minimum : **25 unités**
-- Montant minimum requis : **1 250 000 FCFA**
-
-Ce format offre une exposition simple, lisible et structurée à un projet agricole porteur, avec création de valeur sur le moyen et long terme.
+Pour plus d'informations sur les modalités de participation, veuillez nous contacter directement.
 
 ---
 
@@ -100,7 +89,6 @@ Ce format offre une exposition simple, lisible et structurée à un projet agric
 
 📞 (+225) 07 59 56 60 87 / 05 64 55 17 17  
 📧 contact@agricapital.ci  
-📧 inocent.koffi@agricapital.ci  
 🌐 www.agricapital.ci
 
 ---
@@ -169,20 +157,9 @@ AgriCapital positions itself as a **structuring and facilitating actor** of an i
 
 ## Structured Investment Scheme
 
-At the end of the General Assembly, the associates validated the opening of a **structured investment scheme**, allowing interested individuals and legal entities to participate in the financing of AgriCapital's projects, within a framework that is:
+At the end of the General Assembly, the associates validated the opening of a **structured investment scheme**, allowing interested individuals and legal entities to participate in the financing of AgriCapital's projects, within a rigorous, transparent framework oriented towards sustainable value creation in the medium and long term.
 
-- Rigorous
-- Transparent
-- Oriented towards sustainable value creation, in the medium and long term
-
-### Investment Terms
-
-📦 **Investment Package:**
-- Unit value: **50,000 FCFA** per unit
-- Minimum threshold: **25 units**
-- Minimum required amount: **1,250,000 FCFA**
-
-This format offers simple, readable, and structured exposure to a promising agricultural project, with value creation in the medium and long term.
+For more information on participation terms, please contact us directly.
 
 ---
 
@@ -190,7 +167,6 @@ This format offers simple, readable, and structured exposure to a promising agri
 
 📞 (+225) 07 59 56 60 87 / 05 64 55 17 17  
 📧 contact@agricapital.ci  
-📧 inocent.koffi@agricapital.ci  
 🌐 www.agricapital.ci
 
 ---
@@ -295,7 +271,7 @@ const NewsArticle = () => {
     return (
       <>
         <SEOHead />
-        <Navigation />
+        <DynamicNavigation />
         <main className="pt-24 min-h-screen bg-background">
           <div className="container mx-auto px-4 py-20 text-center">
             <h1 className="text-3xl font-bold text-foreground mb-4">{tr.notFound}</h1>
@@ -316,7 +292,7 @@ const NewsArticle = () => {
   return (
     <>
       <SEOHead />
-      <Navigation />
+      <DynamicNavigation />
       
       <main className="pt-24 min-h-screen bg-background">
         {/* Back Button */}

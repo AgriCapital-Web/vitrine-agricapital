@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
-import Navigation from "@/components/Navigation";
+import DynamicNavigation from "@/components/DynamicNavigation";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
 import { Card, CardContent } from "@/components/ui/card";
@@ -140,7 +140,7 @@ const News = () => {
   return (
     <>
       <SEOHead />
-      <Navigation />
+      <DynamicNavigation />
       
       <main className="pt-20 min-h-screen bg-background">
         {/* Hero */}

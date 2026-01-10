@@ -6,7 +6,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Calendar, MapPin, Users, Leaf, Target, CheckCircle, TrendingUp, Sprout, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import Navigation from "@/components/Navigation";
+import DynamicNavigation from "@/components/DynamicNavigation";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
 
@@ -108,7 +108,7 @@ const Evolution = () => {
   return (
     <>
       <SEOHead />
-      <Navigation />
+      <DynamicNavigation />
       
       <main className="pt-20 min-h-screen bg-background">
         {/* Hero Section */}

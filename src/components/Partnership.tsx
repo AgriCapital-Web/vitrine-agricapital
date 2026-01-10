@@ -1,8 +1,11 @@
+import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Briefcase, Factory, Wrench, Heart, CheckCircle2 } from "lucide-react";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { Briefcase, Factory, Wrench, Heart, CheckCircle2, Handshake } from "lucide-react";
 import lesPalmistesLogo from "@/assets/les-palmistes-logo.jpeg";
 import { useLanguage } from "@/contexts/LanguageContext";
+import PartnershipRequestForm from "@/components/PartnershipRequestForm";
 import {
   Carousel,
   CarouselContent,
@@ -30,6 +33,7 @@ const partners = [
 
 const Partnership = () => {
   const { t } = useLanguage();
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   
   const opportunities = [
     {
@@ -155,6 +159,24 @@ const Partnership = () => {
               </Card>
             ))}
           </div>
+        </div>
+
+        {/* CTA - Demande de partenariat */}
+        <div className="text-center mb-16">
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button 
+                size="lg" 
+                className="bg-agri-green hover:bg-agri-green/90 text-white px-8 py-6 text-lg shadow-lg"
+              >
+                <Handshake className="w-6 h-6 mr-3" />
+                {t.partnership.cta || "Demander un partenariat"}
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+              <PartnershipRequestForm />
+            </DialogContent>
+          </Dialog>
         </div>
 
         {/* Advantages */}
