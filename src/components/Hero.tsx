@@ -3,6 +3,7 @@ import { ArrowRight, ExternalLink } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import heroImage from "@/assets/palm-oil-production.jpg";
 import SocialShareButtons from "@/components/SocialShareButtons";
+import OptimizedImage from "@/components/OptimizedImage";
 
 const Hero = () => {
   const { t, language } = useLanguage();
@@ -28,38 +29,41 @@ const Hero = () => {
   };
 
   return (
-    <section id="hero" className="relative min-h-screen flex items-center justify-center pt-20">
-      {/* Background Image with Overlay */}
+    <section id="hero" className="relative min-h-screen flex items-center justify-center pt-16 sm:pt-20">
+      {/* Background Image with Overlay - Optimized for mobile */}
       <div className="absolute inset-0 z-0">
-        <img
+        <OptimizedImage
           src={heroImage}
           alt="Plantation de palmiers à huile en production"
-          className="w-full h-full object-cover"
-          loading="eager"
+          className="w-full h-full"
+          priority={true}
+          objectFit="cover"
+          sizes="100vw"
         />
         <div className="absolute inset-0 bg-gradient-hero"></div>
       </div>
 
-      {/* Content */}
-      <div className="container mx-auto px-4 relative z-10">
+      {/* Content - Enhanced mobile spacing */}
+      <div className="container mx-auto px-3 sm:px-4 relative z-10">
         <div className="max-w-4xl mx-auto text-center">
-          <div className="inline-block px-4 sm:px-6 py-2 sm:py-3 bg-accent/20 backdrop-blur-sm rounded-full mb-4 sm:mb-6">
-            <p className="text-agri-orange font-bold text-base sm:text-lg md:text-xl lg:text-2xl">{t.hero.badge}</p>
+          <div className="inline-block px-3 sm:px-6 py-2 sm:py-3 bg-accent/20 backdrop-blur-sm rounded-full mb-3 sm:mb-6">
+            <p className="text-agri-orange font-bold text-sm sm:text-lg md:text-xl lg:text-2xl">{t.hero.badge}</p>
           </div>
           
-          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-white mb-4 sm:mb-6 leading-tight px-2">
+          <h1 className="text-xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-white mb-3 sm:mb-6 leading-tight px-1 sm:px-2">
             {t.hero.title}
           </h1>
           
-          <p className="text-sm sm:text-base md:text-lg lg:text-xl text-white/90 font-medium mb-6 sm:mb-8 max-w-2xl mx-auto leading-relaxed px-2">
+          <p className="text-xs sm:text-base md:text-lg lg:text-xl text-white/90 font-medium mb-4 sm:mb-8 max-w-2xl mx-auto leading-relaxed px-1 sm:px-2">
             {t.hero.description}
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+          {/* CTA Buttons - Better touch targets for mobile */}
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center px-2">
             <Button
               size="lg"
               onClick={() => scrollToSection("approche")}
-              className="bg-white hover:bg-white/90 text-agri-green border-0 shadow-medium transition-smooth group w-full sm:w-auto"
+              className="bg-white hover:bg-white/90 text-agri-green border-0 shadow-medium transition-smooth group w-full sm:w-auto min-h-[48px] touch-manipulation active:scale-95"
             >
               {t.hero.btnApproach}
               <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" />
@@ -67,17 +71,17 @@ const Hero = () => {
             <Button
               size="lg"
               onClick={() => scrollToSection("partenariat")}
-              className="bg-accent hover:bg-accent/90 text-white border-0 shadow-medium transition-smooth w-full sm:w-auto"
+              className="bg-accent hover:bg-accent/90 text-white border-0 shadow-medium transition-smooth w-full sm:w-auto min-h-[48px] touch-manipulation active:scale-95"
             >
               {t.hero.btnPartner}
             </Button>
           </div>
 
-          {/* Subscriber Portal Button */}
-          <div className="mt-6">
+          {/* Subscriber Portal Button - Enhanced touch */}
+          <div className="mt-4 sm:mt-6">
             <button
               onClick={openSubscriberPortal}
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-semibold transition-all hover:scale-105 hover:shadow-xl bg-gradient-to-r from-green-600 to-green-700 text-white shadow-lg"
+              className="inline-flex items-center gap-2 px-5 sm:px-6 py-3 rounded-full text-sm font-semibold transition-all hover:scale-105 active:scale-95 hover:shadow-xl bg-gradient-to-r from-green-600 to-green-700 text-white shadow-lg touch-manipulation min-h-[48px]"
             >
               {subscriberText[language] || subscriberText.fr}
               <ExternalLink className="w-4 h-4" />
