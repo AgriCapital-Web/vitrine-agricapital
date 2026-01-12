@@ -41,6 +41,8 @@ const menuItems = [
   { icon: Bell, label: "Notifications", path: "/admin/notifications" },
   { icon: Bell, label: "Notifications Push", path: "/admin/push-notifications" },
   { icon: Shield, label: "Utilisateurs", path: "/admin/users" },
+  { icon: Shield, label: "Permissions", path: "/admin/permissions" },
+  { icon: Database, label: "Backup & Export", path: "/admin/backup" },
   { icon: Settings, label: "Paramètres", path: "/admin/settings" },
 ];
 
