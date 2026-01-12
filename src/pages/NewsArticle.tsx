@@ -89,16 +89,7 @@ Pour plus d'informations sur les modalités de participation, veuillez nous cont
 
 📞 (+225) 07 59 56 60 87 / 05 64 55 17 17  
 📧 contact@agricapital.ci  
-🌐 www.agricapital.ci
-
----
-
-*Pour la Direction,*
-
-**Inocent KOFFI**  
-*Fondateur & Directeur Général*  
-*AGRICAPITAL SARL*  
-*Le partenaire idéal des producteurs agricoles*`,
+🌐 www.agricapital.ci`,
     content_en: `On January 7, 2026, AgriCapital SARL held its first Annual Ordinary General Meeting, bringing together all its associates.
 
 True to its identity, the meeting took place outdoors, directly in the field, where decisions take on their full meaning.
@@ -167,16 +158,7 @@ For more information on participation terms, please contact us directly.
 
 📞 (+225) 07 59 56 60 87 / 05 64 55 17 17  
 📧 contact@agricapital.ci  
-🌐 www.agricapital.ci
-
----
-
-*For the Management,*
-
-**Inocent KOFFI**  
-*Founder & Managing Director*  
-*AGRICAPITAL SARL*  
-*The ideal partner for agricultural producers*`,
+🌐 www.agricapital.ci`,
     images: [ag1, ag2, ag3, ag4, ag5],
     published_at: "2026-01-07T12:00:00Z",
     author: "AgriCapital",

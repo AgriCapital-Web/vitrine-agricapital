@@ -156,7 +156,7 @@ const NewsSection = () => {
                     {formatDate(article.published_at || article.created_at)}
                   </span>
                   <Link 
-                    to={`/actualites`}
+                    to={article.slug ? `/actualites/${article.slug}` : `/actualites`}
                     className="text-agri-green hover:text-agri-green/80 text-sm font-medium flex items-center gap-1"
                   >
                     {tr.readMore}
