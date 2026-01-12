@@ -16,6 +16,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import WYSIWYGEditor from "@/components/admin/WYSIWYGEditor";
 import { VisualPageEditor } from "@/components/admin/VisualPageEditor";
+import SectionTemplates, { sectionTemplates } from "@/components/admin/SectionTemplates";
 import { toast } from "sonner";
 import {
   Plus, Trash2, Edit2, Eye, EyeOff, GripVertical, Save, ChevronDown, ChevronRight,
@@ -725,77 +726,139 @@ const AdvancedSiteBuilder = () => {
     </div>
   );
 
-  // Render sections tab
-  const renderSections = () => (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Sections</h1>
-          <p className="text-muted-foreground">Tous les blocs de contenu disponibles</p>
+  // Render sections tab with SectionTemplates integration
+  const renderSections = () => {
+    const handleSelectTemplate = (template: typeof sectionTemplates[0]) => {
+      setSectionForm(prev => ({
+        ...prev,
+        name: template.name,
+        type: template.category,
+        settings: template.settings,
+        content_fr: JSON.stringify(template.defaultContent),
+      }));
+      setIsSectionDialogOpen(true);
+      toast.success(`Template "${template.name}" sélectionné`);
+    };
+
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold">Sections & Templates</h1>
+            <p className="text-muted-foreground">Choisissez un template ou créez une section personnalisée</p>
+          </div>
+          <Button onClick={() => openSectionDialog()} className="bg-green-600 hover:bg-green-700">
+            <Plus className="w-4 h-4 mr-2" />
+            Section personnalisée
+          </Button>
         </div>
-        <Button onClick={() => openSectionDialog()} className="bg-green-600 hover:bg-green-700">
-          <Plus className="w-4 h-4 mr-2" />
-          Nouvelle section
-        </Button>
-      </div>
 
-      {/* Component palette */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Types de sections disponibles</CardTitle>
-          <CardDescription>Glissez-déposez pour ajouter à une page</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
-            {componentTypes.map((type) => (
-              <div
-                key={type.value}
-                className="p-4 border rounded-lg text-center hover:bg-muted/50 cursor-pointer transition-colors"
-                onClick={() => {
-                  setSectionForm(prev => ({ ...prev, type: type.value }));
-                  openSectionDialog();
-                }}
-              >
-                <span className="text-2xl">{type.icon}</span>
-                <p className="text-sm font-medium mt-2">{type.label}</p>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+        {/* Section Templates with drag-and-drop */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Bibliothèque de Templates</CardTitle>
+            <CardDescription>Cliquez pour utiliser un template pré-conçu</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <SectionTemplates 
+              onSelectTemplate={handleSelectTemplate}
+              selectedPageId={selectedPageId || undefined}
+            />
+          </CardContent>
+        </Card>
 
-      {/* Existing sections */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Sections existantes ({sections?.length || 0})</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-2">
-            {sections?.map((section) => {
-              const page = pages?.find(p => p.id === section.page_id);
-              return (
-                <div key={section.id} className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors">
-                  <span className="text-lg">{componentTypes.find(t => t.value === section.type)?.icon}</span>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium">{section.name}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {page ? `Page: ${page.title_fr}` : 'Section globale'}
-                    </p>
-                  </div>
-                  <Badge variant={section.is_active ? "default" : "secondary"}>
-                    {section.is_active ? "Actif" : "Inactif"}
-                  </Badge>
-                  <Button variant="ghost" size="icon" onClick={() => openSectionDialog(section)}>
-                    <Edit2 className="w-4 h-4" />
-                  </Button>
+        {/* Quick component palette */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Types de sections rapides</CardTitle>
+            <CardDescription>Créez rapidement une section basique</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
+              {componentTypes.map((type) => (
+                <div
+                  key={type.value}
+                  className="p-4 border rounded-lg text-center hover:bg-muted/50 hover:border-primary cursor-pointer transition-all group"
+                  draggable
+                  onDragStart={(e) => {
+                    e.dataTransfer.setData("sectionType", type.value);
+                  }}
+                  onClick={() => {
+                    setSectionForm(prev => ({ ...prev, type: type.value, name: type.label }));
+                    openSectionDialog();
+                  }}
+                >
+                  <span className="text-2xl group-hover:scale-110 transition-transform inline-block">{type.icon}</span>
+                  <p className="text-sm font-medium mt-2">{type.label}</p>
+                  <p className="text-xs text-muted-foreground mt-1 hidden group-hover:block">{type.description}</p>
                 </div>
-              );
-            })}
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Existing sections */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Sections existantes ({sections?.length || 0})</CardTitle>
+            <CardDescription>Glissez-déposez pour réorganiser</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+              <SortableContext items={sections?.map(s => s.id) || []} strategy={verticalListSortingStrategy}>
+                <div className="space-y-2">
+                  {sections?.map((section) => {
+                    const page = pages?.find(p => p.id === section.page_id);
+                    return (
+                      <div key={section.id} className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors cursor-move">
+                        <GripVertical className="w-4 h-4 text-muted-foreground" />
+                        <span className="text-lg">{componentTypes.find(t => t.value === section.type)?.icon}</span>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium">{section.name}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {page ? `Page: ${page.title_fr}` : 'Section globale'} • {section.type}
+                          </p>
+                        </div>
+                        <Badge variant={section.is_active ? "default" : "secondary"}>
+                          {section.is_active ? "Actif" : "Inactif"}
+                        </Badge>
+                        <Switch
+                          checked={section.is_active}
+                          onCheckedChange={(checked) => toggleActiveMutation.mutate({ table: 'site_sections', id: section.id, is_active: checked })}
+                        />
+                        <Button variant="ghost" size="icon" onClick={() => openSectionDialog(section)}>
+                          <Edit2 className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-destructive"
+                          onClick={() => {
+                            if (confirm("Supprimer cette section ?")) {
+                              deleteSectionMutation.mutate(section.id);
+                            }
+                          }}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    );
+                  })}
+                  {(!sections || sections.length === 0) && (
+                    <div className="text-center py-12 text-muted-foreground">
+                      <Layers className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                      <p>Aucune section créée</p>
+                      <p className="text-sm">Utilisez les templates ci-dessus pour commencer</p>
+                    </div>
+                  )}
+                </div>
+              </SortableContext>
+            </DndContext>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  };
 
   // Render media tab
   const renderMedia = () => (

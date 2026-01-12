@@ -17,6 +17,7 @@ interface AdminSidebarProps {
 const menuItems = [
   { icon: BarChart3, label: "Tableau de bord", path: "/admin/dashboard" },
   { icon: TrendingUp, label: "Analytiques", path: "/admin/analytics" },
+  { icon: TrendingUp, label: "Analytics Avancés", path: "/admin/advanced-analytics" },
   { divider: true, label: "Site Web" },
   { icon: Layout, label: "Constructeur de site", path: "/admin/site-builder" },
   { divider: true, label: "Données" },
@@ -38,6 +39,7 @@ const menuItems = [
   { icon: Globe, label: "Langues & Traductions", path: "/admin/translations" },
   { icon: Search, label: "SEO", path: "/admin/seo" },
   { icon: Bell, label: "Notifications", path: "/admin/notifications" },
+  { icon: Bell, label: "Notifications Push", path: "/admin/push-notifications" },
   { icon: Shield, label: "Utilisateurs", path: "/admin/users" },
   { icon: Settings, label: "Paramètres", path: "/admin/settings" },
 ];
