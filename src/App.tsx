@@ -40,11 +40,9 @@ const AdminCMS = lazy(() => import("./pages/admin/AdminCMS"));
 const AdminMediaLibrary = lazy(() => import("./pages/admin/AdminMediaLibrary"));
 const AdminPageBuilder = lazy(() => import("./pages/admin/AdminPageBuilder"));
 const AdminSiteBuilder = lazy(() => import("./pages/admin/AdminSiteBuilder"));
-const AdminEmailing = lazy(() => import("./pages/admin/AdminEmailing"));
 const AdminContactMessages = lazy(() => import("./pages/admin/AdminContactMessages"));
 const AdminAIConversations = lazy(() => import("./pages/admin/AdminAIConversations"));
 const AdminAutoResponses = lazy(() => import("./pages/admin/AdminAutoResponses"));
-const AdminInbox = lazy(() => import("./pages/admin/AdminInbox"));
 const AdminVisitorContacts = lazy(() => import("./pages/admin/AdminVisitorContacts"));
 const AdminPartnershipRequests = lazy(() => import("./pages/admin/AdminPartnershipRequests"));
 const FAQ = lazy(() => import("./pages/FAQ"));
@@ -57,6 +55,9 @@ const AdminAdvancedAnalytics = lazy(() => import("./pages/admin/AdminAdvancedAna
 const AdminPushNotificationsPage = lazy(() => import("./pages/admin/AdminPushNotificationsPage"));
 const AdminBackup = lazy(() => import("./pages/admin/AdminBackup"));
 const AdminPermissions = lazy(() => import("./pages/admin/AdminPermissions"));
+const AdminAuditLog = lazy(() => import("./pages/admin/AdminAuditLog"));
+const AdminCommunications = lazy(() => import("./pages/admin/AdminCommunications"));
+const AdminDatabase = lazy(() => import("./pages/admin/AdminDatabase"));
 
 const queryClient = new QueryClient();
 
@@ -145,11 +146,9 @@ const AppContent = () => {
         <Route path="/admin/media-library" element={<AdminMediaLibrary />} />
         <Route path="/admin/page-builder" element={<AdminPageBuilder />} />
         <Route path="/admin/site-builder" element={<AdminSiteBuilder />} />
-        <Route path="/admin/emailing" element={<AdminEmailing />} />
         <Route path="/admin/contact-messages" element={<AdminContactMessages />} />
         <Route path="/admin/ai-conversations" element={<AdminAIConversations />} />
         <Route path="/admin/auto-responses" element={<AdminAutoResponses />} />
-        <Route path="/admin/inbox" element={<AdminInbox />} />
         <Route path="/admin/visitor-contacts" element={<AdminVisitorContacts />} />
         <Route path="/admin/partnership-requests" element={<AdminPartnershipRequests />} />
         <Route path="/admin/news" element={<AdminNews />} />
@@ -157,6 +156,9 @@ const AppContent = () => {
         <Route path="/admin/push-notifications" element={<AdminPushNotificationsPage />} />
         <Route path="/admin/backup" element={<AdminBackup />} />
         <Route path="/admin/permissions" element={<AdminPermissions />} />
+        <Route path="/admin/audit-log" element={<AdminAuditLog />} />
+        <Route path="/admin/communications" element={<AdminCommunications />} />
+        <Route path="/admin/database" element={<AdminDatabase />} />
         
         {/* 404 */}
         <Route path="*" element={<NotFound />} />
