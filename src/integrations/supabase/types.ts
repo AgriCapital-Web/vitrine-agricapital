@@ -158,6 +158,84 @@ export type Database = {
         }
         Relationships: []
       }
+      backup_history: {
+        Row: {
+          backup_type: string
+          completed_at: string | null
+          created_at: string | null
+          destination: string | null
+          error_message: string | null
+          file_size: string | null
+          format: string
+          google_drive_file_id: string | null
+          id: string
+          status: string | null
+          tables_included: Json | null
+        }
+        Insert: {
+          backup_type?: string
+          completed_at?: string | null
+          created_at?: string | null
+          destination?: string | null
+          error_message?: string | null
+          file_size?: string | null
+          format: string
+          google_drive_file_id?: string | null
+          id?: string
+          status?: string | null
+          tables_included?: Json | null
+        }
+        Update: {
+          backup_type?: string
+          completed_at?: string | null
+          created_at?: string | null
+          destination?: string | null
+          error_message?: string | null
+          file_size?: string | null
+          format?: string
+          google_drive_file_id?: string | null
+          id?: string
+          status?: string | null
+          tables_included?: Json | null
+        }
+        Relationships: []
+      }
+      backup_settings: {
+        Row: {
+          auto_backup_enabled: boolean | null
+          backup_destination: string | null
+          backup_interval: string | null
+          created_at: string | null
+          google_drive_folder_id: string | null
+          id: string
+          last_backup_at: string | null
+          next_backup_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          auto_backup_enabled?: boolean | null
+          backup_destination?: string | null
+          backup_interval?: string | null
+          created_at?: string | null
+          google_drive_folder_id?: string | null
+          id?: string
+          last_backup_at?: string | null
+          next_backup_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          auto_backup_enabled?: boolean | null
+          backup_destination?: string | null
+          backup_interval?: string | null
+          created_at?: string | null
+          google_drive_folder_id?: string | null
+          id?: string
+          last_backup_at?: string | null
+          next_backup_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       contact_messages: {
         Row: {
           created_at: string
