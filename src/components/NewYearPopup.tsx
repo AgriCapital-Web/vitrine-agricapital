@@ -27,8 +27,8 @@ const newYearTranslations: Record<Language, NewYearTranslation> = {
     thanks: "Toute l'équipe AgriCapital vous remercie pour votre soutien en 2025. Ensemble, nous avons posé les fondations d'une agriculture ivoirienne plus forte.",
     commitment: "En 2026, nous renforçons notre engagement : plus de plantations, plus d'accompagnement, plus d'impact pour nos producteurs partenaires.",
     cta: "DÉCOUVRIR NOS OFFRES 2026",
-    subscriberPortal: "Espace Abonné",
-    subscriberQuestion: "Déjà abonné AgriCapital ?"
+    subscriberPortal: "Espace Clients",
+    subscriberQuestion: "Déjà client AgriCapital ?"
   },
   en: {
     greeting: "Happy",
@@ -39,8 +39,8 @@ const newYearTranslations: Record<Language, NewYearTranslation> = {
     thanks: "The entire AgriCapital team thanks you for your support in 2025. Together, we have laid the foundations for a stronger Ivorian agriculture.",
     commitment: "In 2026, we strengthen our commitment: more plantations, more support, more impact for our partner producers.",
     cta: "DISCOVER OUR 2026 OFFERS",
-    subscriberPortal: "Subscriber Portal",
-    subscriberQuestion: "Already an AgriCapital subscriber?"
+    subscriberPortal: "Client Portal",
+    subscriberQuestion: "Already an AgriCapital client?"
   },
   ar: {
     greeting: "سنة سعيدة",
@@ -51,8 +51,8 @@ const newYearTranslations: Record<Language, NewYearTranslation> = {
     thanks: "يشكركم فريق أجريكابيتال بأكمله على دعمكم في 2025. معاً، وضعنا أسس زراعة إيفوارية أقوى.",
     commitment: "في 2026، نعزز التزامنا: مزيد من المزارع، مزيد من الدعم، مزيد من التأثير.",
     cta: "اكتشف عروض 2026",
-    subscriberPortal: "بوابة المشترك",
-    subscriberQuestion: "هل أنت مشترك بالفعل؟"
+    subscriberPortal: "بوابة العملاء",
+    subscriberQuestion: "هل أنت عميل بالفعل؟"
   },
   es: {
     greeting: "¡Feliz",
@@ -63,8 +63,8 @@ const newYearTranslations: Record<Language, NewYearTranslation> = {
     thanks: "Todo el equipo de AgriCapital les agradece su apoyo en 2025. Juntos, hemos sentado las bases de una agricultura marfileña más fuerte.",
     commitment: "En 2026, reforzamos nuestro compromiso: más plantaciones, más apoyo, más impacto para nuestros productores.",
     cta: "DESCUBRIR OFERTAS 2026",
-    subscriberPortal: "Portal de Suscriptor",
-    subscriberQuestion: "¿Ya es suscriptor de AgriCapital?"
+    subscriberPortal: "Portal de Clientes",
+    subscriberQuestion: "¿Ya es cliente de AgriCapital?"
   },
   de: {
     greeting: "Frohes",
@@ -75,8 +75,8 @@ const newYearTranslations: Record<Language, NewYearTranslation> = {
     thanks: "Das gesamte AgriCapital-Team dankt Ihnen für Ihre Unterstützung in 2025. Gemeinsam haben wir die Grundlagen für eine stärkere ivorische Landwirtschaft gelegt.",
     commitment: "Im Jahr 2026 verstärken wir unser Engagement: mehr Plantagen, mehr Unterstützung, mehr Wirkung.",
     cta: "ANGEBOTE 2026 ENTDECKEN",
-    subscriberPortal: "Abonnentenportal",
-    subscriberQuestion: "Bereits AgriCapital-Abonnent?"
+    subscriberPortal: "Kundenportal",
+    subscriberQuestion: "Bereits AgriCapital-Kunde?"
   },
   zh: {
     greeting: "新年快乐",
@@ -87,8 +87,8 @@ const newYearTranslations: Record<Language, NewYearTranslation> = {
     thanks: "AgriCapital全体团队感谢您在2025年的支持。我们共同为更强大的科特迪瓦农业奠定了基础。",
     commitment: "2026年，我们加强承诺：更多种植园，更多支持，更大影响力。",
     cta: "发现2026优惠",
-    subscriberPortal: "订阅者门户",
-    subscriberQuestion: "已是AgriCapital订阅者？"
+    subscriberPortal: "客户门户",
+    subscriberQuestion: "已是AgriCapital客户？"
   }
 };
 
@@ -148,7 +148,7 @@ const NewYearPopup = () => {
   };
 
   const openSubscriberPortal = () => {
-    window.open('https://app.agricapital.ci/pay', '_blank');
+    window.open('https://pay.agricapital.ci', '_blank');
   };
 
   if (!isOpen) return null;

@@ -9,12 +9,12 @@ const Hero = () => {
   const { t, language } = useLanguage();
 
   const subscriberText: Record<string, string> = {
-    fr: "Espace Abonné",
-    en: "Subscriber Portal",
-    ar: "بوابة المشترك",
-    es: "Portal de Suscriptor",
-    de: "Abonnentenportal",
-    zh: "订阅者门户"
+    fr: "Espace Clients",
+    en: "Client Portal",
+    ar: "بوابة العملاء",
+    es: "Portal de Clientes",
+    de: "Kundenportal",
+    zh: "客户门户"
   };
   
   const scrollToSection = (id: string) => {
@@ -25,7 +25,7 @@ const Hero = () => {
   };
 
   const openSubscriberPortal = () => {
-    window.open('https://app.agricapital.ci/pay', '_blank');
+    window.open('https://pay.agricapital.ci', '_blank');
   };
 
   return (

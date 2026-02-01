@@ -139,18 +139,18 @@ const FAQ = () => {
     // GARANTIES
     {
       category: "garanties",
-      question: "Quelle garantie de rachat offre AgriCapital ?",
-      answer: "AgriCapital s'engage à racheter 100% de la production de régimes de palmier frais à des prix du marché, et ce pendant une durée minimum de 20 ans. Cette garantie assure des débouchés stables et des revenus prévisibles pour tous nos partenaires producteurs."
+      question: "Quelle garantie d'écoulement offre AgriCapital ?",
+      answer: "AgriCapital s'engage à assurer l'écoulement de 100% de la production de régimes de palmier frais à des prix du marché, et ce pendant une durée minimum de 20 ans. Cette garantie d'écoulement assure des débouchés stables et des revenus prévisibles pour tous nos partenaires producteurs."
     },
     {
       category: "garanties",
       question: "Comment AgriCapital sécurise-t-elle les investissements ?",
-      answer: "La sécurisation passe par: un modèle économique éprouvé, des partenariats industriels solides pour la commercialisation, un accompagnement technique de qualité réduisant les risques d'échec, la transparence et la traçabilité complète des opérations, et notre engagement contractuel sur 20 ans."
+      answer: "La sécurisation passe par: un modèle économique éprouvé, des partenariats industriels solides pour la commercialisation, un accompagnement technique de qualité réduisant les risques d'échec, la transparence et la traçabilité complète des opérations, et notre engagement contractuel sur 20 ans avec garantie d'écoulement."
     },
     {
       category: "garanties",
       question: "Qui sont les partenaires industriels d'AgriCapital ?",
-      answer: "AgriCapital développe des partenariats avec des industriels du secteur pour sécuriser l'approvisionnement en régimes de palmier frais certifiés, traçables et de qualité supérieure. Ces partenariats garantissent des débouchés commerciaux stables pour toute la production."
+      answer: "AgriCapital développe des partenariats avec des industriels du secteur pour sécuriser l'écoulement des régimes de palmier frais certifiés, traçables et de qualité supérieure. Ces partenariats garantissent des débouchés commerciaux stables pour toute la production."
     },
     
     // ENTREPRISE
