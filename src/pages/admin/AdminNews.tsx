@@ -6,13 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, Eye, EyeOff, Upload, Image, Video, Calendar, Loader2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Eye, EyeOff, Upload, Image, Video, Calendar, Loader2, Sparkles, Wand2, Hash, FileText } from "lucide-react";
 
 interface NewsArticle {
   id: string;
@@ -41,6 +41,7 @@ const AdminNews = () => {
   const [editingArticle, setEditingArticle] = useState<NewsArticle | null>(null);
   const [uploadingImages, setUploadingImages] = useState(false);
   const [uploadingVideos, setUploadingVideos] = useState(false);
+  const [generatingAI, setGeneratingAI] = useState(false);
   
   const [formData, setFormData] = useState({
     slug: "",
@@ -100,7 +101,7 @@ const AdminNews = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-news"] });
-      toast.success(editingArticle ? "Article mis à jour" : "Article créé");
+      toast.success(editingArticle ? "Article mis à jour" : "Article créé avec succès");
       resetForm();
       setIsDialogOpen(false);
     },
@@ -139,6 +140,94 @@ const AdminNews = () => {
       toast.success("Statut mis à jour");
     }
   });
+
+  // AI Generation function
+  const generateArticleWithAI = async () => {
+    if (!formData.content_fr.trim()) {
+      toast.error("Veuillez entrer une idée ou du contenu brut à développer");
+      return;
+    }
+
+    setGeneratingAI(true);
+    
+    try {
+      const response = await supabase.functions.invoke('ai-chat', {
+        body: {
+          message: `Tu es un rédacteur professionnel pour AgriCapital, une entreprise ivoirienne spécialisée dans l'accompagnement agricole et les plantations de palmiers à huile.
+
+Voici une idée ou un contenu brut à transformer en article professionnel:
+"${formData.content_fr}"
+
+INSTRUCTIONS:
+1. Génère un TITRE professionnel et accrocheur (max 80 caractères)
+2. Rédige un ARTICLE COMPLET et bien structuré avec:
+   - Une introduction engageante
+   - Des paragraphes clairs avec sous-titres si nécessaire
+   - Des points clés mis en **gras**
+   - Un style professionnel mais accessible
+   - Une conclusion avec call-to-action
+3. Génère un EXTRAIT de 2-3 phrases pour l'aperçu
+4. Propose 5 HASHTAGS pertinents
+
+Réponds UNIQUEMENT au format JSON suivant:
+{
+  "title": "Le titre de l'article",
+  "content": "Le contenu complet de l'article avec mise en forme markdown",
+  "excerpt": "L'extrait court pour l'aperçu",
+  "hashtags": ["hashtag1", "hashtag2", "hashtag3", "hashtag4", "hashtag5"]
+}`,
+          language: 'fr'
+        }
+      });
+
+      if (response.error) throw response.error;
+
+      // Parse the AI response
+      const aiResponse = response.data?.response || response.data?.message;
+      
+      if (aiResponse) {
+        try {
+          // Extract JSON from response
+          const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
+          if (jsonMatch) {
+            const parsed = JSON.parse(jsonMatch[0]);
+            
+            // Add hashtags to content
+            const contentWithHashtags = parsed.content + 
+              (parsed.hashtags ? `\n\n---\n\n${parsed.hashtags.map((h: string) => `#${h.replace(/^#/, '')}`).join(' ')}` : '');
+            
+            setFormData(prev => ({
+              ...prev,
+              title_fr: parsed.title || prev.title_fr,
+              content_fr: contentWithHashtags,
+              excerpt_fr: parsed.excerpt || prev.excerpt_fr
+            }));
+            
+            toast.success("Article généré avec succès ! Vérifiez et ajustez si nécessaire.");
+          } else {
+            // If no JSON, use the raw response as content
+            setFormData(prev => ({
+              ...prev,
+              content_fr: aiResponse
+            }));
+            toast.success("Contenu généré, veuillez ajouter un titre");
+          }
+        } catch (parseError) {
+          // Use raw response if JSON parsing fails
+          setFormData(prev => ({
+            ...prev,
+            content_fr: aiResponse
+          }));
+          toast.success("Contenu enrichi, veuillez vérifier la mise en forme");
+        }
+      }
+    } catch (error) {
+      console.error('AI generation error:', error);
+      toast.error("Erreur lors de la génération IA. Vérifiez votre connexion.");
+    } finally {
+      setGeneratingAI(false);
+    }
+  };
 
   const resetForm = () => {
     setFormData({
@@ -191,7 +280,7 @@ const AdminNews = () => {
     try {
       for (const file of Array.from(files)) {
         const fileName = `news/${Date.now()}-${file.name}`;
-        const { data, error } = await supabase.storage
+        const { error } = await supabase.storage
           .from("media")
           .upload(fileName, file);
         
@@ -229,7 +318,7 @@ const AdminNews = () => {
     try {
       for (const file of Array.from(files)) {
         const fileName = `news/videos/${Date.now()}-${file.name}`;
-        const { data, error } = await supabase.storage
+        const { error } = await supabase.storage
           .from("media")
           .upload(fileName, file);
         
@@ -262,59 +351,109 @@ const AdminNews = () => {
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <h2 className="text-2xl font-bold">Actualités</h2>
-            <p className="text-muted-foreground">Gérez les articles et publications</p>
+            <h2 className="text-xl sm:text-2xl font-bold">Actualités</h2>
+            <p className="text-sm text-muted-foreground">Gérez les articles et publications avec l'IA</p>
           </div>
           <Dialog open={isDialogOpen} onOpenChange={(open) => {
             setIsDialogOpen(open);
             if (!open) resetForm();
           }}>
             <DialogTrigger asChild>
-              <Button className="bg-agri-green hover:bg-agri-green/90">
+              <Button className="bg-agri-green hover:bg-agri-green/90 w-full sm:w-auto">
                 <Plus className="w-4 h-4 mr-2" />
                 Nouvel article
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle>
-                  {editingArticle ? "Modifier l'article" : "Nouvel article"}
+                <DialogTitle className="flex items-center gap-2">
+                  <FileText className="w-5 h-5" />
+                  {editingArticle ? "Modifier l'article" : "Nouvel article avec IA"}
                 </DialogTitle>
               </DialogHeader>
               
               <Tabs defaultValue="content" className="w-full">
-                <TabsList className="grid w-full grid-cols-3">
-                  <TabsTrigger value="content">Contenu FR</TabsTrigger>
-                  <TabsTrigger value="content-en">Contenu EN</TabsTrigger>
-                  <TabsTrigger value="media">Médias</TabsTrigger>
+                <TabsList className="grid w-full grid-cols-4">
+                  <TabsTrigger value="content" className="text-xs sm:text-sm">
+                    <Sparkles className="w-3 h-3 mr-1 hidden sm:inline" />
+                    Contenu FR
+                  </TabsTrigger>
+                  <TabsTrigger value="content-en" className="text-xs sm:text-sm">EN</TabsTrigger>
+                  <TabsTrigger value="media" className="text-xs sm:text-sm">
+                    <Image className="w-3 h-3 mr-1 hidden sm:inline" />
+                    Médias
+                  </TabsTrigger>
+                  <TabsTrigger value="settings" className="text-xs sm:text-sm">Options</TabsTrigger>
                 </TabsList>
                 
                 <TabsContent value="content" className="space-y-4">
+                  {/* AI Generation Section */}
+                  <div className="bg-gradient-to-r from-agri-green/10 to-accent/10 rounded-lg p-4 border border-agri-green/20">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Wand2 className="w-5 h-5 text-agri-green" />
+                      <span className="font-semibold text-sm">Assistant IA</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground mb-3">
+                      Écrivez votre idée ou contenu brut ci-dessous, puis cliquez sur "Générer avec IA" pour obtenir un article professionnel structuré avec titre, contenu formaté et hashtags.
+                    </p>
+                    <Button
+                      type="button"
+                      onClick={generateArticleWithAI}
+                      disabled={generatingAI || !formData.content_fr.trim()}
+                      className="bg-gradient-to-r from-agri-green to-green-600 hover:from-agri-green/90 hover:to-green-600/90"
+                    >
+                      {generatingAI ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Génération en cours...
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles className="w-4 h-4 mr-2" />
+                          Générer l'article avec IA
+                        </>
+                      )}
+                    </Button>
+                  </div>
+
                   <div className="space-y-2">
-                    <Label>Titre (Français) *</Label>
+                    <Label className="flex items-center gap-2">
+                      Titre (Français) *
+                      {formData.title_fr && <Badge variant="secondary" className="text-xs">Généré</Badge>}
+                    </Label>
                     <Input
                       value={formData.title_fr}
                       onChange={(e) => setFormData({ ...formData, title_fr: e.target.value })}
-                      placeholder="Titre de l'article"
+                      placeholder="Le titre sera généré par l'IA ou saisissez-le manuellement"
+                      className="text-base"
                     />
                   </div>
+                  
                   <div className="space-y-2">
-                    <Label>Extrait (Français)</Label>
+                    <Label className="flex items-center gap-2">
+                      <Hash className="w-4 h-4" />
+                      Extrait (Français)
+                    </Label>
                     <Textarea
                       value={formData.excerpt_fr}
                       onChange={(e) => setFormData({ ...formData, excerpt_fr: e.target.value })}
-                      placeholder="Résumé court pour l'aperçu"
+                      placeholder="Résumé court pour l'aperçu (sera généré par l'IA)"
                       rows={2}
                     />
                   </div>
+                  
                   <div className="space-y-2">
-                    <Label>Contenu (Français) *</Label>
+                    <Label>Contenu / Idée (Français) *</Label>
                     <Textarea
                       value={formData.content_fr}
                       onChange={(e) => setFormData({ ...formData, content_fr: e.target.value })}
-                      placeholder="Contenu complet de l'article (Markdown supporté)"
-                      rows={10}
+                      placeholder="Écrivez votre idée, notes ou contenu brut ici. L'IA le transformera en article professionnel structuré avec mise en forme, sous-titres et hashtags..."
+                      rows={12}
+                      className="font-mono text-sm"
                     />
+                    <p className="text-xs text-muted-foreground">
+                      💡 Astuce: Écrivez simplement vos idées, l'IA se charge de la mise en forme professionnelle.
+                    </p>
                   </div>
                 </TabsContent>
                 
@@ -324,7 +463,7 @@ const AdminNews = () => {
                     <Input
                       value={formData.title_en}
                       onChange={(e) => setFormData({ ...formData, title_en: e.target.value })}
-                      placeholder="Article title"
+                      placeholder="Article title in English"
                     />
                   </div>
                   <div className="space-y-2">
@@ -341,7 +480,7 @@ const AdminNews = () => {
                     <Textarea
                       value={formData.content_en}
                       onChange={(e) => setFormData({ ...formData, content_en: e.target.value })}
-                      placeholder="Full article content (Markdown supported)"
+                      placeholder="Full article content in English (Markdown supported)"
                       rows={10}
                     />
                   </div>
@@ -352,14 +491,15 @@ const AdminNews = () => {
                   <div className="space-y-4">
                     <Label className="flex items-center gap-2">
                       <Image className="w-4 h-4" />
-                      Images
+                      Images (multiples)
                     </Label>
-                    <div className="flex items-center gap-4">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
                       <Button
                         type="button"
                         variant="outline"
                         onClick={() => document.getElementById("image-upload")?.click()}
                         disabled={uploadingImages}
+                        className="w-full sm:w-auto"
                       >
                         {uploadingImages ? (
                           <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -376,29 +516,35 @@ const AdminNews = () => {
                         className="hidden"
                         onChange={handleImageUpload}
                       />
+                      <span className="text-xs text-muted-foreground">
+                        Formats: JPG, PNG, WebP • Max: 10MB par image
+                      </span>
                     </div>
                     {formData.images.length > 0 && (
-                      <div className="grid grid-cols-4 gap-2">
+                      <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
                         {formData.images.map((url, index) => (
-                          <div key={index} className="relative group">
+                          <div key={index} className="relative group aspect-square">
                             <img 
                               src={url} 
                               alt={`Image ${index + 1}`}
-                              className={`w-full aspect-square object-cover rounded-lg ${
-                                formData.featured_image === url ? 'ring-2 ring-agri-green' : ''
+                              className={`w-full h-full object-cover rounded-lg ${
+                                formData.featured_image === url ? 'ring-2 ring-agri-green ring-offset-2' : ''
                               }`}
                             />
-                            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2">
+                            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-1">
                               <Button
                                 size="sm"
                                 variant="secondary"
+                                className="h-7 w-7 p-0"
                                 onClick={() => setFormData({ ...formData, featured_image: url })}
+                                title="Définir comme image principale"
                               >
                                 ⭐
                               </Button>
                               <Button
                                 size="sm"
                                 variant="destructive"
+                                className="h-7 w-7 p-0"
                                 onClick={() => setFormData({
                                   ...formData,
                                   images: formData.images.filter((_, i) => i !== index),
@@ -408,6 +554,11 @@ const AdminNews = () => {
                                 ✕
                               </Button>
                             </div>
+                            {formData.featured_image === url && (
+                              <Badge className="absolute top-1 left-1 text-[10px]">
+                                Principal
+                              </Badge>
+                            )}
                           </div>
                         ))}
                       </div>
@@ -418,14 +569,15 @@ const AdminNews = () => {
                   <div className="space-y-4">
                     <Label className="flex items-center gap-2">
                       <Video className="w-4 h-4" />
-                      Vidéos
+                      Vidéos (multiples)
                     </Label>
-                    <div className="flex items-center gap-4">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
                       <Button
                         type="button"
                         variant="outline"
                         onClick={() => document.getElementById("video-upload")?.click()}
                         disabled={uploadingVideos}
+                        className="w-full sm:w-auto"
                       >
                         {uploadingVideos ? (
                           <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -442,12 +594,18 @@ const AdminNews = () => {
                         className="hidden"
                         onChange={handleVideoUpload}
                       />
+                      <span className="text-xs text-muted-foreground">
+                        Formats: MP4, WebM • Max: 50MB par vidéo
+                      </span>
                     </div>
                     {formData.videos.length > 0 && (
                       <div className="space-y-2">
                         {formData.videos.map((url, index) => (
-                          <div key={index} className="flex items-center justify-between p-2 bg-muted rounded-lg">
-                            <span className="truncate text-sm">{url.split('/').pop()}</span>
+                          <div key={index} className="flex items-center justify-between p-3 bg-muted rounded-lg">
+                            <div className="flex items-center gap-2">
+                              <Video className="w-4 h-4 text-muted-foreground" />
+                              <span className="truncate text-sm max-w-[200px]">{url.split('/').pop()}</span>
+                            </div>
                             <Button
                               size="sm"
                               variant="destructive"
@@ -463,18 +621,51 @@ const AdminNews = () => {
                       </div>
                     )}
                   </div>
+                </TabsContent>
+                
+                <TabsContent value="settings" className="space-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Catégorie</Label>
+                      <select
+                        value={formData.category}
+                        onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                        className="w-full p-2 border rounded-md bg-background"
+                      >
+                        <option value="general">Général</option>
+                        <option value="actualites">Actualités</option>
+                        <option value="evenements">Événements</option>
+                        <option value="partenariats">Partenariats</option>
+                        <option value="agriculture">Agriculture</option>
+                        <option value="formation">Formation</option>
+                      </select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Auteur</Label>
+                      <Input
+                        value={formData.author}
+                        onChange={(e) => setFormData({ ...formData, author: e.target.value })}
+                        placeholder="Nom de l'auteur"
+                      />
+                    </div>
+                  </div>
                   
-                  {/* Settings */}
                   <div className="space-y-4 pt-4 border-t">
-                    <div className="flex items-center justify-between">
-                      <Label>Publier immédiatement</Label>
+                    <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
+                      <div>
+                        <Label className="text-sm font-medium">Publier immédiatement</Label>
+                        <p className="text-xs text-muted-foreground">L'article sera visible sur le site</p>
+                      </div>
                       <Switch
                         checked={formData.is_published}
                         onCheckedChange={(checked) => setFormData({ ...formData, is_published: checked })}
                       />
                     </div>
-                    <div className="flex items-center justify-between">
-                      <Label>Article à la une</Label>
+                    <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
+                      <div>
+                        <Label className="text-sm font-medium">Article à la une</Label>
+                        <p className="text-xs text-muted-foreground">Affiché en priorité sur la page d'accueil</p>
+                      </div>
                       <Switch
                         checked={formData.is_featured}
                         onCheckedChange={(checked) => setFormData({ ...formData, is_featured: checked })}
@@ -484,19 +675,19 @@ const AdminNews = () => {
                 </TabsContent>
               </Tabs>
               
-              <div className="flex justify-end gap-3 pt-4">
-                <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+              <div className="flex flex-col sm:flex-row justify-end gap-3 pt-4 border-t">
+                <Button variant="outline" onClick={() => setIsDialogOpen(false)} className="w-full sm:w-auto">
                   Annuler
                 </Button>
                 <Button 
                   onClick={() => saveMutation.mutate(formData)}
                   disabled={!formData.title_fr || !formData.content_fr || saveMutation.isPending}
-                  className="bg-agri-green hover:bg-agri-green/90"
+                  className="bg-agri-green hover:bg-agri-green/90 w-full sm:w-auto"
                 >
                   {saveMutation.isPending ? (
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                   ) : null}
-                  {editingArticle ? "Mettre à jour" : "Publier"}
+                  {editingArticle ? "Mettre à jour" : "Publier l'article"}
                 </Button>
               </div>
             </DialogContent>
@@ -511,24 +702,26 @@ const AdminNews = () => {
         ) : news && news.length > 0 ? (
           <div className="grid gap-4">
             {news.map((article) => (
-              <Card key={article.id}>
-                <CardContent className="p-4">
-                  <div className="flex flex-col md:flex-row gap-4">
+              <Card key={article.id} className="overflow-hidden">
+                <CardContent className="p-0">
+                  <div className="flex flex-col sm:flex-row">
                     {article.featured_image && (
-                      <img 
-                        src={article.featured_image}
-                        alt={article.title_fr}
-                        className="w-full md:w-32 h-24 object-cover rounded-lg"
-                      />
+                      <div className="w-full sm:w-40 h-32 sm:h-auto flex-shrink-0">
+                        <img 
+                          src={article.featured_image}
+                          alt={article.title_fr}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
                     )}
-                    <div className="flex-1">
-                      <div className="flex items-start justify-between gap-4">
-                        <div>
-                          <h3 className="font-semibold text-lg">{article.title_fr}</h3>
-                          <p className="text-sm text-muted-foreground line-clamp-2">
-                            {article.excerpt_fr || article.content_fr.substring(0, 150)}...
+                    <div className="flex-1 p-4">
+                      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-semibold text-base sm:text-lg line-clamp-2">{article.title_fr}</h3>
+                          <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
+                            {article.excerpt_fr || article.content_fr.substring(0, 120)}...
                           </p>
-                          <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
+                          <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-3 text-xs text-muted-foreground">
                             <span className="flex items-center gap-1">
                               <Calendar className="w-3 h-3" />
                               {new Date(article.created_at).toLocaleDateString('fr-FR')}
@@ -537,12 +730,17 @@ const AdminNews = () => {
                               <Eye className="w-3 h-3" />
                               {article.views_count} vues
                             </span>
-                            <Badge variant={article.is_published ? "default" : "secondary"}>
+                            <Badge variant={article.is_published ? "default" : "secondary"} className="text-xs">
                               {article.is_published ? "Publié" : "Brouillon"}
                             </Badge>
+                            {article.is_featured && (
+                              <Badge variant="outline" className="text-xs text-amber-600 border-amber-600">
+                                ⭐ À la une
+                              </Badge>
+                            )}
                           </div>
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1 sm:gap-2">
                           <Button
                             size="sm"
                             variant="ghost"
@@ -550,6 +748,7 @@ const AdminNews = () => {
                               id: article.id, 
                               is_published: !article.is_published 
                             })}
+                            title={article.is_published ? "Dépublier" : "Publier"}
                           >
                             {article.is_published ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                           </Button>
@@ -557,18 +756,20 @@ const AdminNews = () => {
                             size="sm"
                             variant="ghost"
                             onClick={() => handleEdit(article)}
+                            title="Modifier"
                           >
                             <Pencil className="w-4 h-4" />
                           </Button>
                           <Button
                             size="sm"
                             variant="ghost"
-                            className="text-destructive"
+                            className="text-destructive hover:text-destructive"
                             onClick={() => {
-                              if (confirm("Supprimer cet article ?")) {
+                              if (confirm("Supprimer cet article définitivement ?")) {
                                 deleteMutation.mutate(article.id);
                               }
                             }}
+                            title="Supprimer"
                           >
                             <Trash2 className="w-4 h-4" />
                           </Button>
@@ -583,7 +784,9 @@ const AdminNews = () => {
         ) : (
           <Card>
             <CardContent className="py-12 text-center text-muted-foreground">
-              Aucun article pour le moment
+              <FileText className="w-12 h-12 mx-auto mb-4 opacity-50" />
+              <p className="font-medium">Aucun article pour le moment</p>
+              <p className="text-sm mt-1">Créez votre premier article avec l'assistant IA</p>
             </CardContent>
           </Card>
         )}

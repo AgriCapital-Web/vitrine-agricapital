@@ -34,8 +34,8 @@ const popupTranslations: Record<Language, PopupTranslation> = {
     hectare: "hectare après hectare",
     cta: "NOUS CONTACTER",
     slogan: "Le partenaire idéal des producteurs agricoles",
-    subscriberPortal: "Espace Abonné",
-    subscriberQuestion: "Déjà abonné AgriCapital ?"
+    subscriberPortal: "Espace Clients",
+    subscriberQuestion: "Déjà client AgriCapital ?"
   },
   en: {
     line1: "With us",
@@ -49,8 +49,8 @@ const popupTranslations: Record<Language, PopupTranslation> = {
     hectare: "hectare after hectare",
     cta: "CONTACT US",
     slogan: "The ideal partner for agricultural producers",
-    subscriberPortal: "Subscriber Portal",
-    subscriberQuestion: "Already an AgriCapital subscriber?"
+    subscriberPortal: "Client Portal",
+    subscriberQuestion: "Already an AgriCapital client?"
   },
   ar: {
     line1: "معنا",
@@ -64,8 +64,8 @@ const popupTranslations: Record<Language, PopupTranslation> = {
     hectare: "هكتار بعد هكتار",
     cta: "اتصل بنا",
     slogan: "الشريك المثالي للمنتجين الزراعيين",
-    subscriberPortal: "بوابة المشترك",
-    subscriberQuestion: "هل أنت مشترك في أجريكابيتال؟"
+    subscriberPortal: "بوابة العملاء",
+    subscriberQuestion: "هل أنت عميل أجريكابيتال؟"
   },
   es: {
     line1: "Con nosotros",
@@ -79,8 +79,8 @@ const popupTranslations: Record<Language, PopupTranslation> = {
     hectare: "hectárea tras hectárea",
     cta: "CONTÁCTENOS",
     slogan: "El socio ideal de los productores agrícolas",
-    subscriberPortal: "Portal de Suscriptor",
-    subscriberQuestion: "¿Ya es suscriptor de AgriCapital?"
+    subscriberPortal: "Portal de Clientes",
+    subscriberQuestion: "¿Ya es cliente de AgriCapital?"
   },
   de: {
     line1: "Mit uns",
@@ -94,8 +94,8 @@ const popupTranslations: Record<Language, PopupTranslation> = {
     hectare: "Hektar für Hektar",
     cta: "KONTAKT",
     slogan: "Der ideale Partner für Landwirtschaftsproduzenten",
-    subscriberPortal: "Abonnentenportal",
-    subscriberQuestion: "Bereits AgriCapital-Abonnent?"
+    subscriberPortal: "Kundenportal",
+    subscriberQuestion: "Bereits AgriCapital-Kunde?"
   },
   zh: {
     line1: "与我们一起",
@@ -109,8 +109,8 @@ const popupTranslations: Record<Language, PopupTranslation> = {
     hectare: "一公顷接一公顷",
     cta: "联系我们",
     slogan: "农业生产者的理想合作伙伴",
-    subscriberPortal: "订阅者门户",
-    subscriberQuestion: "已是AgriCapital订阅者？"
+    subscriberPortal: "客户门户",
+    subscriberQuestion: "已是AgriCapital客户？"
   }
 };
 
@@ -174,7 +174,7 @@ const WelcomePopup = () => {
   };
 
   const openSubscriberPortal = () => {
-    window.open('https://app.agricapital.ci/pay', '_blank');
+    window.open('https://pay.agricapital.ci', '_blank');
   };
 
   if (!isOpen) return null;
