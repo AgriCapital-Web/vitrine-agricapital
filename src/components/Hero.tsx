@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, ExternalLink } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import heroImage from "@/assets/palm-oil-production.jpg";
+import heroImage from "@/assets/nursery-site.webp";
 import SocialShareButtons from "@/components/SocialShareButtons";
 import OptimizedImage from "@/components/OptimizedImage";
 
@@ -34,7 +34,7 @@ const Hero = () => {
       <div className="absolute inset-0 z-0">
         <OptimizedImage
           src={heroImage}
-          alt="Plantation de palmiers à huile en production"
+          alt="Site de pépinière AgriCapital - Agriculture moderne en Côte d'Ivoire"
           className="w-full h-full"
           priority={true}
           objectFit="cover"
