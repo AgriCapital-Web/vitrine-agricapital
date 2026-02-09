@@ -1,5 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
-import nurseryImage from "@/assets/nursery-palm.jpg";
+import nurseryImage from "@/assets/nursery-dec-2025-1.jpg";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 // Function to convert Western Arabic numerals to other numeral systems
@@ -70,8 +70,8 @@ const Approach = () => {
         <div className="mb-16 rounded-2xl overflow-hidden shadow-medium">
           <img
             src={nurseryImage}
-            alt="Pépinière de palmiers"
-            className="w-full h-[400px] object-cover"
+            alt="Site de pépinière AgriCapital - Plants de palmiers Tenera"
+            className="w-full h-[300px] md:h-[400px] object-cover"
             loading="lazy"
           />
         </div>

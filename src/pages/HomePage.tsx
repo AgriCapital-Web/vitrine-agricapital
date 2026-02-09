@@ -8,6 +8,7 @@ import Ambitions from "@/components/Ambitions";
 import About from "@/components/About";
 import Approach from "@/components/Approach";
 import Impact from "@/components/Impact";
+import CommunityProspecting from "@/components/CommunityProspecting";
 import IvoryCoastMap from "@/components/IvoryCoastMap";
 import Milestones from "@/components/Milestones";
 import Founder from "@/components/Founder";
@@ -118,6 +119,7 @@ const HomePage = () => {
       <About />
       <Approach />
       <Impact />
+      <CommunityProspecting />
       <IvoryCoastMap />
       <Milestones />
       <Founder />
