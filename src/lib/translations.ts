@@ -32,26 +32,26 @@ const fr = {
     btnPartner: "Devenir partenaire",
   },
   ambitions: {
-    title: "Nos Objectifs Phase Pilote (2025-2030)",
+    title: "Programme Palmier Solidaire — Objectifs 2030",
     objectives: {
-      hectares: { title: "500 hectares", desc: "contractés sur 5 ans" },
-      farmers: { title: "250 à 500 producteurs", desc: "accompagnés" },
-      guarantee: { title: "Débouché commercial", desc: "Garantie de rachat sur 20 ans" },
+      hectares: { title: "500 hectares", desc: "de terres à valoriser durablement" },
+      farmers: { title: "1 000 familles", desc: "rurales à accompagner, dont 60% de femmes et jeunes" },
+      guarantee: { title: "Garantie d'écoulement", desc: "100% de la production sur 20 ans" },
     },
     why: "Pourquoi choisir AgriCapital ?",
     pillars: {
-      accessibility: { title: "Accessibilité Maximale", desc: "Notre modèle flexible élimine les barrières financières et rend l'agriculture moderne accessible à tous." },
-      expertise: { title: "Expertise Terrain", desc: "12 années d'immersion au cœur des communautés agricoles ivoiriennes nous permettent de comprendre et répondre aux réalités du terrain." },
-      sustainability: { title: "Rentabilité Garantie", desc: "Un engagement de rachat sur 20 ans assure des débouchés stables et des revenus prévisibles pour les producteurs." },
+      accessibility: { title: "Agriculture Inclusive", desc: "Notre modèle vise à éliminer les barrières financières et techniques pour rendre la filière palmier à huile accessible aux familles rurales vulnérables." },
+      expertise: { title: "Savoir-faire Terrain", desc: "12 années d'immersion au cœur des communautés agricoles ivoiriennes nous permettent de comprendre et répondre aux réalités du terrain." },
+      sustainability: { title: "Impact Durable", desc: "Un engagement à long terme pour l'autonomisation économique des bénéficiaires, la résilience climatique et la sécurité alimentaire." },
     },
   },
   about: {
     history: {
       title: "Notre Histoire",
       subtitle: "AgriCapital : Une Vision Née du Terrain",
-      p1: "AgriCapital est née d'une conviction profonde : les agriculteurs africains, piliers de nos économies et véritables nourriciers de nos nations, méritent de vivre dignement de leur travail. En Côte d'Ivoire, ce constat nous a poussés à agir.",
-      p2: "De 2012 à 2024, Inocent KOFFI, Fondateur et Directeur Général d'AgriCapital, a parcouru plus de 360 localités dans 8 régions de Côte d'Ivoire. Cette immersion de 12 années lui a permis de saisir les besoins réels des producteurs et les défis du secteur, posant ainsi les fondations d'une solution véritablement transformatrice.",
-      highlight: "🏆 AgriCapital se positionne comme partenaire de référence pour l'accompagnement agricole et services intégrés en Côte d'Ivoire et en Afrique.",
+      p1: "En Côte d'Ivoire, de nombreuses familles rurales disposent de terres agricoles mais manquent de moyens financiers, techniques et organisationnels pour les valoriser durablement. AgriCapital est née de cette réalité, avec la conviction que le palmier à huile représente un levier stratégique d'autonomisation économique et sociale pour ces communautés.",
+      p2: "De 2012 à 2024, **Inocent KOFFI**, Fondateur et Directeur Général, a parcouru plus de 360 localités dans 8 régions de Côte d'Ivoire. Cette immersion de 12 années a permis de concevoir un modèle innovant d'agriculture inclusive — le programme « Palmier Solidaire » — permettant aux familles vulnérables d'accéder à la filière sans investissement initial majeur, avec accompagnement technique et garantie d'écoulement.",
+      highlight: "🌱 AgriCapital pilote le programme « Palmier Solidaire » : autonomisation des familles rurales et résilience climatique en Côte d'Ivoire.",
     },
     mission: {
       title: "Notre Mission",
