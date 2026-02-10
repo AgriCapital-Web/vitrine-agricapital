@@ -20,12 +20,18 @@ import prospectImage5 from "@/assets/community-meeting-5.jpg";
 import prospectImage6 from "@/assets/community-meeting-6.jpg";
 import prospectImage7 from "@/assets/community-meeting-7.jpg";
 import prospectImage8 from "@/assets/community-meeting-8.jpg";
+import prospectImage9 from "@/assets/prospect-meeting-9.jpg";
+import prospectImage10 from "@/assets/prospect-meeting-10.jpg";
+import prospectImage11 from "@/assets/prospect-meeting-11.jpg";
+import prospectImage12 from "@/assets/prospect-meeting-12.jpg";
+import prospectImage13 from "@/assets/prospect-meeting-13.jpg";
+import prospectImage14 from "@/assets/prospect-meeting-14.jpg";
 
 const translations = {
   fr: {
     title: "Prospection Communautaire",
     subtitle: "Notre engagement terrain auprès des producteurs et communautés rurales du Haut-Sassandra",
-    description: "Depuis 2012, AgriCapital mène une démarche de prospection active auprès des communautés rurales. Nos équipes vont à la rencontre des producteurs, des chefs de villages et des autorités locales pour présenter notre modèle d'accompagnement et identifier les opportunités de partenariat.",
+    description: "Depuis 2012, AgriCapital mène une démarche de prospection active auprès des communautés rurales. Nos équipes vont à la rencontre des producteurs, des chefs de villages et des autorités locales pour présenter notre modèle d'accompagnement et identifier les opportunités de partenariat. Cette démarche s'inscrit dans le cadre du programme « Palmier Solidaire », visant à autonomiser durablement les familles rurales vulnérables.",
     stats: {
       localities: "360+ localités visitées",
       regions: "8 régions couvertes",
@@ -33,18 +39,18 @@ const translations = {
       years: "12 ans de présence terrain",
     },
     galleryTitle: "Photos de Prospection Terrain",
-    badge: "Entreprise engagée",
+    badge: "Entreprise à impact social",
     highlights: [
       "Rencontres directes avec les producteurs et propriétaires terriens",
       "Présentation du modèle AgriCapital et des offres d'accompagnement",
       "Identification et contractualisation des parcelles",
-      "Sensibilisation sur les bonnes pratiques agricoles",
+      "Sensibilisation sur les bonnes pratiques agricoles et la résilience climatique",
     ],
   },
   en: {
     title: "Community Prospecting",
     subtitle: "Our field commitment with producers and rural communities of Haut-Sassandra",
-    description: "Since 2012, AgriCapital has been conducting active prospecting among rural communities. Our teams meet with producers, village chiefs and local authorities to present our support model and identify partnership opportunities.",
+    description: "Since 2012, AgriCapital has been conducting active prospecting among rural communities. Our teams meet with producers, village chiefs and local authorities to present our support model and identify partnership opportunities. This approach is part of the 'Solidarity Palm' program, aimed at sustainably empowering vulnerable rural families.",
     stats: {
       localities: "360+ localities visited",
       regions: "8 regions covered",
@@ -52,12 +58,12 @@ const translations = {
       years: "12 years of field presence",
     },
     galleryTitle: "Field Prospecting Photos",
-    badge: "Committed company",
+    badge: "Social impact company",
     highlights: [
       "Direct meetings with producers and landowners",
       "Presentation of the AgriCapital model and support offers",
       "Identification and contracting of plots",
-      "Awareness on good agricultural practices",
+      "Awareness on good agricultural practices and climate resilience",
     ],
   },
   ar: {
@@ -71,12 +77,12 @@ const translations = {
       years: "١٢ سنة حضور ميداني",
     },
     galleryTitle: "صور التنقيب الميداني",
-    badge: "شركة ملتزمة",
+    badge: "شركة ذات أثر اجتماعي",
     highlights: [
       "لقاءات مباشرة مع المنتجين وملاك الأراضي",
       "تقديم نموذج أغريكابيتال وعروض الدعم",
       "تحديد وتعاقد القطع",
-      "التوعية بالممارسات الزراعية الجيدة",
+      "التوعية بالممارسات الزراعية الجيدة والمرونة المناخية",
     ],
   },
   es: {
@@ -90,12 +96,12 @@ const translations = {
       years: "12 años de presencia en campo",
     },
     galleryTitle: "Fotos de Prospección de Campo",
-    badge: "Empresa comprometida",
+    badge: "Empresa de impacto social",
     highlights: [
       "Reuniones directas con productores y propietarios de tierras",
       "Presentación del modelo AgriCapital y ofertas de acompañamiento",
       "Identificación y contratación de parcelas",
-      "Sensibilización sobre buenas prácticas agrícolas",
+      "Sensibilización sobre buenas prácticas agrícolas y resiliencia climática",
     ],
   },
   de: {
@@ -109,12 +115,12 @@ const translations = {
       years: "12 Jahre Feldpräsenz",
     },
     galleryTitle: "Fotos der Feldprospektion",
-    badge: "Engagiertes Unternehmen",
+    badge: "Soziales Unternehmen",
     highlights: [
       "Direkte Treffen mit Produzenten und Landbesitzern",
       "Präsentation des AgriCapital-Modells und der Begleitangebote",
       "Identifizierung und Vertragsabschluss von Parzellen",
-      "Sensibilisierung für gute landwirtschaftliche Praktiken",
+      "Sensibilisierung für gute landwirtschaftliche Praktiken und Klimaresilienz",
     ],
   },
   zh: {
@@ -128,12 +134,12 @@ const translations = {
       years: "12年实地存在",
     },
     galleryTitle: "实地勘探照片",
-    badge: "有担当的企业",
+    badge: "社会影响力企业",
     highlights: [
       "与生产者和土地所有者直接会面",
       "介绍AgriCapital模式和支持方案",
       "地块的识别和签约",
-      "良好农业实践的宣传",
+      "良好农业实践和气候适应力的宣传",
     ],
   },
 };
@@ -145,6 +151,12 @@ const CommunityProspecting = () => {
   const t = translations[language as keyof typeof translations] || translations.fr;
 
   const prospectingImages = [
+    prospectImage12, // Large gathering under tent
+    prospectImage11, // Meeting with AgriCapital polo
+    prospectImage13, // Village meeting
+    prospectImage14, // Field discussion
+    prospectImage9,  // Small group meeting
+    prospectImage10, // Community porch meeting
     prospectImage1,
     prospectImage2,
     prospectImage3,
