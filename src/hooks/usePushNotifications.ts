@@ -27,7 +27,7 @@ export const usePushNotifications = () => {
 
         try {
           const registration = await navigator.serviceWorker.ready;
-          subscription = await registration.pushManager.getSubscription();
+          subscription = await (registration as any).pushManager?.getSubscription() || null;
         } catch (e) {
           console.log('Error getting subscription:', e);
         }

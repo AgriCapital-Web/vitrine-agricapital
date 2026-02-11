@@ -52,122 +52,102 @@ const FAQ = () => {
     {
       category: "general",
       question: "Qu'est-ce qu'AgriCapital ?",
-      answer: "AGRICAPITAL SARL est une entreprise ivoirienne spécialisée dans l'accompagnement agricole et les services intégrés, notamment dans la création et le développement de plantations de palmiers à huile. Nous agissons comme un facilitateur d'accès à la culture du palmier à huile, avec pour ambition de rendre cette activité accessible aux populations, sans barrières financières ni techniques."
+      answer: "AGRICAPITAL SARL est une entreprise ivoirienne spécialisée dans l'accompagnement agricole inclusif. Elle pilote le programme « Palmier Solidaire », un modèle innovant permettant aux familles rurales vulnérables d'accéder à la filière palmier à huile avec accompagnement technique complet et garantie d'écoulement de la production."
+    },
+    {
+      category: "general",
+      question: "Qu'est-ce que le programme Palmier Solidaire ?",
+      answer: "Le programme « Palmier Solidaire » vise à améliorer durablement les conditions de vie des familles rurales vulnérables à travers une agriculture inclusive, durable et résiliente au changement climatique. Il cible prioritairement les femmes, les jeunes et les chefs de ménages dans la région du Haut-Sassandra."
     },
     {
       category: "general",
       question: "Où se trouve AgriCapital ?",
-      answer: "Notre siège est situé à Gonaté, Daloa, dans la région du Haut-Sassandra en Côte d'Ivoire. Nous intervenons dans plusieurs régions du pays avec un focus particulier sur le Haut-Sassandra qui offre des conditions idéales pour la culture du palmier à huile."
+      answer: "Notre siège est situé à Gonaté, Daloa, dans la région du Haut-Sassandra en Côte d'Ivoire. Notre zone d'intervention couvre Daloa, Vavoua, Zoukougbeu et Issia."
     },
     {
       category: "general",
       question: "AgriCapital est-elle une entreprise légale ?",
-      answer: "Oui, AGRICAPITAL SARL est une entreprise formellement constituée et opérationnelle. Elle est immatriculée au Registre du Commerce et du Crédit Mobilier (RCCM) sous le numéro CI-DAL-01-2025-B12-13435, avec un capital social de 5 000 000 FCFA."
+      answer: "Oui, AGRICAPITAL SARL est formellement constituée et opérationnelle, immatriculée au RCCM sous le numéro CI-DAL-01-2025-B12-13435."
     },
     {
       category: "general",
-      question: "Qui peut bénéficier des services d'AgriCapital ?",
-      answer: "Notre modèle s'adresse à : (1) Les propriétaires terriens souhaitant valoriser leurs terres, (2) Les petits producteurs ne disposant pas de moyens financiers, (3) Les professionnels du secteur public et privé (commerçants, artisans, entrepreneurs) sans terre, (4) Toute personne désireuse de participer au secteur agricole du palmier à huile."
-    },
-    
-    // OFFRES - MISE À JOUR AVEC PROMO LANCEMENT
-    {
-      category: "offres",
-      question: "Quelles sont les offres proposées par AgriCapital ?",
-      answer: "Nous proposons 3 offres principales avec une PROMO LANCEMENT de -33% jusqu'au 31 mars 2026 : (1) PalmElite - Offre Intégrale Premium pour les propriétaires terriens (droit d'accès: 20 000F/ha au lieu de 30 000F), (2) PalmInvest - Investissement Sans Terre pour les salariés, artisans et commerçants (droit d'accès: 30 000F/ha au lieu de 45 000F), (3) TerraPalm - Valorisation Foncière Sans Effort pour les propriétaires ne souhaitant pas exploiter eux-mêmes (droit d'accès: 10 000F/ha au lieu de 15 000F)."
-    },
-    {
-      category: "offres",
-      question: "Qu'est-ce que l'offre PalmElite ?",
-      answer: "PalmElite est notre offre Premium destinée aux planteurs PROPRIÉTAIRES de terre agricole. Le droit d'accès est de 20 000F/ha (ancien prix: 30 000F/ha, soit -33%). L'abonnement est modulable au choix: 65F/ha/jour, 1 900F/ha/mois, 5 500F/ha/trimestre ou 20 000F/ha/an. Vous restez 100% propriétaire de votre plantation. Condition spéciale: attester la propriété de la parcelle souscrite."
-    },
-    {
-      category: "offres",
-      question: "Qu'est-ce que l'offre PalmInvest ?",
-      answer: "PalmInvest est conçue pour les salariés publics/privés, artisans et commerçants SANS terre agricole. Le droit d'accès est de 30 000F/ha (ancien prix: 45 000F/ha, soit -33%). Abonnement modulable au choix: 120F/ha/jour, 3 400F/ha/mois, 9 500F/ha/trimestre ou 35 400F/ha/an. Avantages: diversification financière intelligente avec 50% de la plantation à l'entrée en production. Condition spéciale: attester la capacité de mettre en valeur la superficie souscrite."
-    },
-    {
-      category: "offres",
-      question: "Qu'est-ce que l'offre TerraPalm ?",
-      answer: "TerraPalm est destinée aux propriétaires de terre agricole ne souhaitant pas exploiter eux-mêmes. Le droit d'accès est de 10 000F/ha (ancien prix: 15 000F/ha, soit -33%) en paiement UNIQUE. La gestion complète est assurée par AgriCapital et l'exploitant avant l'entrée en production. Vous recevez 50% de la plantation dès l'entrée en production. Condition spéciale: attester la propriété de la parcelle souscrite."
-    },
-    {
-      category: "offres",
-      question: "Quelle est la durée de la promotion de lancement ?",
-      answer: "La promotion de lancement avec une réduction de 33% sur les droits d'accès est valable jusqu'au 31 mars 2026. C'est une opportunité exceptionnelle pour rejoindre AgriCapital dans les meilleures conditions possibles."
-    },
-    
-    // INVESTISSEMENT
-    {
-      category: "investissement",
-      question: "Quel est le principe d'investissement chez AgriCapital ?",
-      answer: "Nous déployons un dispositif d'investissement permettant de participer au financement de projets agricoles structurants. Il s'agit de superficies organisées et encadrées, avec une logique de participation aux performances générées, dans un cadre rigoureux, transparent et orienté création de valeur durable à moyen et long terme."
-    },
-    {
-      category: "investissement",
-      question: "Quelles sont les conditions du package d'investissement ?",
-      answer: "Les conditions sont: Valeur unitaire de 50 000 FCFA par unité, seuil minimum d'investissement de 25 unités, soit un montant minimum requis de 1 250 000 FCFA. Ce format offre une exposition simple, lisible et structurée à un projet agricole porteur."
-    },
-    {
-      category: "investissement",
-      question: "Quel est le retour sur investissement espéré ?",
-      answer: "Le palmier à huile entre en production généralement entre 3 et 4 ans après plantation. La production augmente progressivement pour atteindre son pic vers la 7ème année et reste stable pendant 20-25 ans. Le modèle est conçu pour générer des revenus sur le moyen et long terme avec notre garantie de rachat sur 20 ans."
+      question: "Qui peut bénéficier du programme ?",
+      answer: "Le programme s'adresse aux familles rurales vulnérables, principalement les femmes, les jeunes et les chefs de ménages disposant de terres à valoriser. Il est aussi ouvert aux propriétaires terriens, producteurs et toute personne souhaitant participer au développement de la filière palmier à huile."
     },
     
     // ACCOMPAGNEMENT
     {
       category: "accompagnement",
-      question: "Quel accompagnement propose AgriCapital ?",
-      answer: "Notre modèle intégré comprend: la plantation clé en main avec fourniture de plants certifiés premium (Tenera tolérants fusariose) et tous les intrants (NPK, fongicides, insecticides), le suivi technique continu par nos techniciens qualifiés, des formations aux bonnes pratiques, des visites de suivi mensuelles, la structuration et l'organisation des projets agricoles, et la sécurisation du modèle sur le long terme."
+      question: "En quoi consiste l'accompagnement d'AgriCapital ?",
+      answer: "Notre accompagnement intégré comprend : la fourniture de plants certifiés Tenera et intrants adaptés, le suivi technique continu par des techniciens qualifiés, des formations pratiques sur les techniques agricoles durables, des sessions dédiées aux femmes et jeunes sur l'entrepreneuriat rural, et la garantie d'écoulement de la production."
+    },
+    {
+      category: "accompagnement",
+      question: "Que fournit le bénéficiaire ?",
+      answer: "Le bénéficiaire apporte sa parcelle de terre et la main-d'œuvre locale pour les travaux de terrain (nettoyage, défrichage, trouaison, plantation, entretien). AgriCapital fournit les intrants, l'expertise technique et la garantie commerciale."
     },
     {
       category: "accompagnement",
       question: "D'où proviennent les plants de palmier ?",
-      answer: "Nos plants proviennent de semences certifiées d'origine Iro Lamé, fournies par notre partenaire Les Palmistes. Il s'agit de la variété Tenera, tolérante à la fusariose, garantissant des plants de haute qualité, productifs et résistants aux maladies, essentiels pour une plantation rentable."
+      answer: "Nos plants proviennent de semences certifiées d'origine Iro Lamé, fournies par notre partenaire Les Palmistes. Il s'agit de la variété Tenera, tolérante à la fusariose, garantissant des plants de haute qualité et productifs."
     },
     {
       category: "accompagnement",
-      question: "Que fournit le partenaire producteur ?",
-      answer: "Le partenaire producteur fournit: la parcelle (pour PalmElite et TerraPalm), la main-d'œuvre locale pour les travaux de nettoyage, défrichage, trouaison, plantation, désherbage et entretien courant, le respect des instructions techniques, et l'engagement sur la durée du projet. Nous appelons nos clients 'partenaires producteurs' car nous construisons ensemble."
-    },
-    {
-      category: "accompagnement",
-      question: "Quelles sont les étapes de l'accompagnement ?",
-      answer: "Notre approche se déroule en 5 étapes: (1) Prospection et Qualification - identification et évaluation des terrains, (2) Création et Développement - mise en place de la plantation, (3) Suivi et Formation - accompagnement continu par techniciens qualifiés, (4) Récolte et Commercialisation - organisation et débouchés garantis, (5) Règlement et Bénéfices - paiement rapide sous 48h après pesée."
+      question: "Quelles sont les étapes du programme ?",
+      answer: "Le programme se déroule en 5 étapes : (1) Prospection et mobilisation des familles bénéficiaires, (2) Mise en place des plantations avec plants certifiés, (3) Renforcement des capacités et formations, (4) Suivi technique et accompagnement continu, (5) Accès au marché avec garantie d'écoulement."
     },
     
     // GARANTIES
     {
       category: "garanties",
       question: "Quelle garantie d'écoulement offre AgriCapital ?",
-      answer: "AgriCapital s'engage à assurer l'écoulement de 100% de la production de régimes de palmier frais à des prix du marché, et ce pendant une durée minimum de 20 ans. Cette garantie d'écoulement assure des débouchés stables et des revenus prévisibles pour tous nos partenaires producteurs."
+      answer: "AgriCapital s'engage à assurer l'écoulement de 100% de la production de régimes de palmier frais à des prix du marché, pendant une durée minimum de 20 ans. Cette garantie assure des débouchés stables et des revenus prévisibles pour tous les bénéficiaires."
     },
     {
       category: "garanties",
-      question: "Comment AgriCapital sécurise-t-elle les investissements ?",
-      answer: "La sécurisation passe par: un modèle économique éprouvé, des partenariats industriels solides pour la commercialisation, un accompagnement technique de qualité réduisant les risques d'échec, la transparence et la traçabilité complète des opérations, et notre engagement contractuel sur 20 ans avec garantie d'écoulement."
+      question: "Comment AgriCapital sécurise-t-elle le programme ?",
+      answer: "La sécurisation repose sur : un modèle solidaire éprouvé, des partenariats industriels pour la commercialisation, un accompagnement technique réduisant les risques, la transparence et la traçabilité des opérations, et un engagement contractuel à long terme."
+    },
+    
+    // IMPACT SOCIAL
+    {
+      category: "offres",
+      question: "Quels sont les objectifs sociaux du programme ?",
+      answer: "D'ici 2030, le programme vise à accompagner 1 000 familles rurales (dont 60% de femmes et jeunes), valoriser 500 hectares de terres sous-exploitées, renforcer les capacités techniques des bénéficiaires, accroître les revenus agricoles et la sécurité alimentaire, et contribuer à la résilience climatique."
     },
     {
-      category: "garanties",
-      question: "Qui sont les partenaires industriels d'AgriCapital ?",
-      answer: "AgriCapital développe des partenariats avec des industriels du secteur pour sécuriser l'écoulement des régimes de palmier frais certifiés, traçables et de qualité supérieure. Ces partenariats garantissent des débouchés commerciaux stables pour toute la production."
+      category: "offres",
+      question: "Comment le programme favorise-t-il l'autonomisation des femmes ?",
+      answer: "Le programme intègre des sessions de formation spécifiques pour les femmes et les jeunes, couvrant la gestion agricole et l'entrepreneuriat rural. 60% des bénéficiaires ciblés sont des femmes et des jeunes, avec des groupes d'entraide communautaire dédiés."
+    },
+    {
+      category: "offres",
+      question: "Comment le programme contribue-t-il à la résilience climatique ?",
+      answer: "Le programme promeut des pratiques agricoles respectueuses de l'environnement, utilise des variétés de plants adaptées au climat local, et sensibilise les bénéficiaires sur la protection de l'environnement et les bonnes pratiques durables."
+    },
+    
+    // INVESTISSEMENT (reformulé sans montants)
+    {
+      category: "investissement",
+      question: "Comment puis-je soutenir le programme Palmier Solidaire ?",
+      answer: "Plusieurs formes de partenariat sont possibles : partenariat foncier (mise à disposition de terres), partenariat technique, partenariat institutionnel (ONG, fondations), ou partenariat financier. Contactez notre équipe pour discuter des modalités adaptées à votre situation."
+    },
+    {
+      category: "investissement",
+      question: "Le programme est-il ouvert aux institutions et fondations ?",
+      answer: "Absolument. Le programme Palmier Solidaire est conçu pour accueillir des partenaires institutionnels, des fondations et des ONG souhaitant contribuer au développement rural durable et à l'autonomisation des communautés vulnérables en Côte d'Ivoire."
     },
     
     // ENTREPRISE
     {
       category: "entreprise",
       question: "Quelle est l'expérience de l'équipe AgriCapital ?",
-      answer: "Le fondateur Inocent KOFFI possède 12 années d'immersion dans les communautés rurales ivoiriennes, ayant parcouru plus de 360 localités dans 8 régions. Cette expérience terrain approfondie a permis de comprendre les besoins réels des producteurs et de concevoir un modèle adapté à leurs réalités."
+      answer: "Le fondateur Inocent KOFFI possède 12 années d'expérience professionnelle terrain, ayant parcouru plus de 360 localités dans 8 régions de Côte d'Ivoire. Cette connaissance approfondie des réalités rurales a permis de concevoir le programme Palmier Solidaire, adapté aux besoins réels des communautés."
     },
     {
       category: "entreprise",
       question: "Quelle est la vision d'AgriCapital ?",
-      answer: "Notre vision est de bâtir un écosystème agricole intégré pour un développement durable. Nous voulons stimuler l'économie rurale, améliorer les conditions de vie des communautés agricoles, contribuer à l'autosuffisance alimentaire, renforcer l'économie nationale et impacter positivement les générations futures."
-    },
-    {
-      category: "entreprise",
-      question: "Quelles sont les valeurs d'AgriCapital ?",
-      answer: "Nos valeurs fondamentales sont: l'Accompagnement Permanent (présence continue de nos équipes), l'Innovation Agricole (modèles adaptés et techniques modernes), le Développement Rural Durable (impact positif à long terme), et la Transparence et Excellence (relations de confiance et standards rigoureux)."
+      answer: "Notre vision est d'améliorer durablement les conditions de vie des familles rurales à travers une agriculture inclusive et résiliente. Nous voulons stimuler l'économie rurale, contribuer à la sécurité alimentaire, réduire l'exode rural et impacter positivement les générations futures."
     },
     {
       category: "entreprise",
