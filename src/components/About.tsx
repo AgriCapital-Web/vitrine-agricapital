@@ -67,7 +67,14 @@ const About = () => {
               <span className="font-bold text-foreground">{t.about.history.subtitle}</span>
             </p>
             <p>{t.about.history.p1}</p>
-            <p>{t.about.history.p2}</p>
+            <p>
+              {t.about.history.p2.split('Inocent KOFFI').map((part, i, arr) => (
+                <span key={i}>
+                  {part}
+                  {i < arr.length - 1 && <strong className="text-foreground font-extrabold">Inocent KOFFI</strong>}
+                </span>
+              ))}
+            </p>
             <div className="bg-primary/10 border-l-4 border-primary p-6 rounded-r-lg">
               <p className="font-bold text-foreground text-xl">
                 {t.about.history.highlight}
