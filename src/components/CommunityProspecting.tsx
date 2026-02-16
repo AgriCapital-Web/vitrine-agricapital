@@ -69,7 +69,7 @@ const translations = {
   ar: {
     title: "التنقيب المجتمعي",
     subtitle: "التزامنا الميداني مع المنتجين والمجتمعات الريفية في هوت ساساندرا",
-    description: "منذ عام ٢٠١٢، تقوم أغريكابيتال بأنشطة تنقيب فعالة بين المجتمعات الريفية. تلتقي فرقنا بالمنتجين ورؤساء القرى والسلطات المحلية لتقديم نموذج الدعم لدينا وتحديد فرص الشراكة.",
+    description: "من ٢٠١٢ إلى ٢٠٢٤، جاب إينوسنت كوفي، مؤسس أغريكابيتال، من خلال خبرته المهنية أكثر من ٣٦٠ موقعًا في ٨ مناطق من كوت ديفوار. تشكل هذه العملية استكشافًا مسبقًا قيمًا، مما سمح بتحديد حقائق متطابقة بين المزارعين في جميع أنحاء البلاد — مما يدل على إمكانية توسع البرنامج والحاجة الملحة للعمل من أجل هذه المجتمعات. تستثمر أغريكابيتال اليوم هذه المعرفة الميدانية لنشر برنامج « النخيل التضامني » في منطقة هوت ساساندرا.",
     stats: {
       localities: "+٣٦٠ منطقة زيارة",
       regions: "٨ مناطق مغطاة",
@@ -88,7 +88,7 @@ const translations = {
   es: {
     title: "Prospección Comunitaria",
     subtitle: "Nuestro compromiso de campo con los productores y comunidades rurales de Haut-Sassandra",
-    description: "Desde 2012, AgriCapital realiza prospección activa entre las comunidades rurales. Nuestros equipos se reúnen con productores, jefes de aldea y autoridades locales para presentar nuestro modelo de acompañamiento e identificar oportunidades de asociación.",
+    description: "De 2012 a 2024, Inocent KOFFI, fundador de AgriCapital, recorrió a través de su experiencia profesional más de 360 localidades en 8 regiones de Costa de Marfil. Este proceso constituye una valiosa pre-prospección, habiendo permitido identificar realidades idénticas entre los agricultores de todo el país — demostrando el potencial de escalabilidad del programa y la urgencia de actuar para estas comunidades. AgriCapital capitaliza hoy este conocimiento de campo para desplegar el programa « Palma Solidaria » en la región de Haut-Sassandra.",
     stats: {
       localities: "360+ localidades visitadas",
       regions: "8 regiones cubiertas",
@@ -107,7 +107,7 @@ const translations = {
   de: {
     title: "Gemeinschaftliche Prospektion",
     subtitle: "Unser Engagement vor Ort bei Produzenten und ländlichen Gemeinden in Haut-Sassandra",
-    description: "Seit 2012 führt AgriCapital aktive Prospektion in ländlichen Gemeinden durch. Unsere Teams treffen sich mit Produzenten, Dorfchefs und lokalen Behörden, um unser Begleitmodell vorzustellen und Partnerschaftsmöglichkeiten zu identifizieren.",
+    description: "Von 2012 bis 2024 bereiste Inocent KOFFI, Gründer von AgriCapital, durch seine berufliche Erfahrung mehr als 360 Ortschaften in 8 Regionen der Elfenbeinküste. Dieser Prozess stellt eine wertvolle Vorprospektion dar, die es ermöglichte, identische Realitäten bei den Pflanzern im ganzen Land zu identifizieren — was das Skalierbarkeitspotenzial des Programms und die Dringlichkeit des Handelns für diese Gemeinschaften demonstriert. AgriCapital nutzt heute dieses Feldwissen, um das Programm « Solidarische Palme » in der Region Haut-Sassandra einzusetzen.",
     stats: {
       localities: "360+ Orte besucht",
       regions: "8 Regionen abgedeckt",
@@ -126,7 +126,7 @@ const translations = {
   zh: {
     title: "社区勘探",
     subtitle: "我们对上萨桑德拉地区生产者和农村社区的实地承诺",
-    description: "自2012年以来，AgriCapital一直在农村社区中积极开展勘探活动。我们的团队与生产者、村长和地方当局会面，介绍我们的支持模式并确定合作机会。",
+    description: "从2012年到2024年，AgriCapital创始人Inocent KOFFI通过其专业经验走访了科特迪瓦8个地区的360多个地点。这一过程构成了宝贵的预勘探，使我们能够识别全国种植者中相同的现实——证明了该计划的可扩展性潜力和为这些社区采取行动的紧迫性。AgriCapital现在利用这一实地知识在上萨桑德拉地区部署「团结棕榈」计划。",
     stats: {
       localities: "360+个访问地点",
       regions: "覆盖8个地区",
