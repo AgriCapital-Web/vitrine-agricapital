@@ -1,3 +1,5 @@
+// ============= Full file contents =============
+
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -153,28 +155,36 @@ const AdminNews = () => {
     try {
       const response = await supabase.functions.invoke('ai-chat', {
         body: {
-          message: `Tu es un rédacteur professionnel pour AgriCapital, une entreprise ivoirienne spécialisée dans l'accompagnement agricole et les plantations de palmiers à huile.
+          message: `Tu es un rédacteur professionnel pour AgriCapital, une entreprise ivoirienne d'impact social pilotant le programme "Palmier Solidaire".
+Ton rôle est de transformer des idées brutes en articles professionnels, structurés et engageants.
 
-Voici une idée ou un contenu brut à transformer en article professionnel:
+CONTEXTE ET TON :
+- AgriCapital est une ENTREPRISE SOCIALE (pas une ONG, pas une multinationale capitaliste).
+- Le ton doit être professionnel, chaleureux, inspirant et orienté vers l'impact social.
+- Mets en avant l'autonomisation des familles rurales, les femmes et les jeunes.
+- Ne mentionne JAMAIS de montants financiers spécifiques ou de prix (confidentialité).
+- L'orthographe et la grammaire doivent être irréprochables.
+
+CONTENU À TRAITER :
 "${formData.content_fr}"
 
-INSTRUCTIONS:
-1. Génère un TITRE professionnel et accrocheur (max 80 caractères)
-2. Rédige un ARTICLE COMPLET et bien structuré avec:
-   - Une introduction engageante
-   - Des paragraphes clairs avec sous-titres si nécessaire
-   - Des points clés mis en **gras**
-   - Un style professionnel mais accessible
-   - Une conclusion avec call-to-action
-3. Génère un EXTRAIT de 2-3 phrases pour l'aperçu
-4. Propose 5 HASHTAGS pertinents
+INSTRUCTIONS DE GÉNÉRATION :
+1. TITRE : En MAJUSCULES, impactant et professionnel (max 80 caractères).
+2. CONTENU : 
+   - Structure claire avec introduction, développement et conclusion.
+   - Utilise le format Markdown pour la mise en forme (gras, italique, listes).
+   - Paragraphes courts et aérés pour une lecture facile.
+   - Sous-titres pertinents si nécessaire.
+   - Pas de balises HTML, utilise uniquement Markdown.
+3. EXTRAIT : Un résumé accrocheur de 2-3 phrases en italique.
+4. HASHTAGS : 5 hashtags pertinents (ex: #PalmierSolidaire #AgriCapital #ImpactSocial).
 
-Réponds UNIQUEMENT au format JSON suivant:
+FORMAT DE RÉPONSE ATTENDU (JSON STRICT) :
 {
-  "title": "Le titre de l'article",
-  "content": "Le contenu complet de l'article avec mise en forme markdown",
-  "excerpt": "L'extrait court pour l'aperçu",
-  "hashtags": ["hashtag1", "hashtag2", "hashtag3", "hashtag4", "hashtag5"]
+  "title": "TITRE EN MAJUSCULES",
+  "content": "Contenu complet en markdown...",
+  "excerpt": "Extrait court...",
+  "hashtags": ["tag1", "tag2", "tag3", "tag4", "tag5"]
 }`,
           language: 'fr'
         }
@@ -425,7 +435,7 @@ Réponds UNIQUEMENT au format JSON suivant:
                       value={formData.title_fr}
                       onChange={(e) => setFormData({ ...formData, title_fr: e.target.value })}
                       placeholder="Le titre sera généré par l'IA ou saisissez-le manuellement"
-                      className="text-base"
+                      className="text-base font-bold"
                     />
                   </div>
                   
@@ -439,6 +449,7 @@ Réponds UNIQUEMENT au format JSON suivant:
                       onChange={(e) => setFormData({ ...formData, excerpt_fr: e.target.value })}
                       placeholder="Résumé court pour l'aperçu (sera généré par l'IA)"
                       rows={2}
+                      className="italic"
                     />
                   </div>
                   
@@ -449,7 +460,7 @@ Réponds UNIQUEMENT au format JSON suivant:
                       onChange={(e) => setFormData({ ...formData, content_fr: e.target.value })}
                       placeholder="Écrivez votre idée, notes ou contenu brut ici. L'IA le transformera en article professionnel structuré avec mise en forme, sous-titres et hashtags..."
                       rows={12}
-                      className="font-mono text-sm"
+                      className="font-mono text-sm leading-relaxed"
                     />
                     <p className="text-xs text-muted-foreground">
                       💡 Astuce: Écrivez simplement vos idées, l'IA se charge de la mise en forme professionnelle.
