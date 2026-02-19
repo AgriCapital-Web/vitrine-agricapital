@@ -2,9 +2,9 @@ import { Link, useLocation } from "react-router-dom";
 import { 
   BarChart3, MessageSquare, Users, Image, Handshake, 
   Mail, Settings, FileText, Home, Send, Bell, Search, 
-  Shield, TrendingUp, Layout, Database, Palette, Globe,
+  Shield, TrendingUp, Database, Palette, Globe,
   FormInput, ImageIcon, MailOpen, Inbox,
-  Bot, Reply, UserCircle
+  Bot, Reply, UserCircle, Newspaper
 } from "lucide-react";
 import logo from "@/assets/logo.png";
 import { cn } from "@/lib/utils";
@@ -18,9 +18,8 @@ const menuItems = [
   { icon: BarChart3, label: "Tableau de bord", path: "/admin/dashboard" },
   { icon: TrendingUp, label: "Analytiques", path: "/admin/analytics" },
   { icon: TrendingUp, label: "Analytics Avancés", path: "/admin/advanced-analytics" },
-  { divider: true, label: "Site Web" },
-  { icon: Layout, label: "Constructeur de site", path: "/admin/site-builder" },
   { divider: true, label: "Contenu" },
+  { icon: Newspaper, label: "Actualités / Blogs", path: "/admin/news" },
   { icon: MessageSquare, label: "Témoignages", path: "/admin/testimonials" },
   { icon: Users, label: "Abonnés Newsletter", path: "/admin/newsletter" },
   { icon: Handshake, label: "Demandes Partenariat", path: "/admin/partnership-requests" },
