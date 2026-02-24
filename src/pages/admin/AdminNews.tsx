@@ -155,7 +155,10 @@ const AdminNews = () => {
     try {
       const response = await supabase.functions.invoke('ai-chat', {
         body: {
-          message: `Tu es un rédacteur professionnel pour AgriCapital, une entreprise ivoirienne d'impact social pilotant le programme "Palmier Solidaire".
+          messages: [
+            {
+              role: 'user',
+              content: `Tu es un rédacteur professionnel pour AgriCapital, une entreprise ivoirienne d'impact social pilotant le programme "Palmier Solidaire".
 Ton rôle est de transformer des idées brutes en articles professionnels, structurés et engageants.
 
 CONTEXTE ET TON :
@@ -185,24 +188,49 @@ FORMAT DE RÉPONSE ATTENDU (JSON STRICT) :
   "content": "Contenu complet en markdown...",
   "excerpt": "Extrait court...",
   "hashtags": ["tag1", "tag2", "tag3", "tag4", "tag5"]
-}`,
+}`
+            }
+          ],
           language: 'fr'
         }
       });
 
       if (response.error) throw response.error;
 
-      // Parse the AI response
-      const aiResponse = response.data?.response || response.data?.message;
+      // Parse SSE stream response
+      let fullText = '';
+      const reader = response.data.getReader?.();
       
-      if (aiResponse) {
+      if (reader) {
+        const decoder = new TextDecoder();
+        let done = false;
+        while (!done) {
+          const { value, done: streamDone } = await reader.read();
+          done = streamDone;
+          if (value) {
+            const chunk = decoder.decode(value, { stream: true });
+            for (const line of chunk.split('\n')) {
+              if (!line.startsWith('data: ') || line.trim() === '') continue;
+              const jsonStr = line.slice(6).trim();
+              if (jsonStr === '[DONE]') continue;
+              try {
+                const parsed = JSON.parse(jsonStr);
+                const content = parsed.choices?.[0]?.delta?.content;
+                if (content) fullText += content;
+              } catch { /* skip partial */ }
+            }
+          }
+        }
+      } else {
+        // Fallback: response.data is already text/json
+        fullText = typeof response.data === 'string' ? response.data : JSON.stringify(response.data);
+      }
+
+      if (fullText) {
         try {
-          // Extract JSON from response
-          const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
+          const jsonMatch = fullText.match(/\{[\s\S]*\}/);
           if (jsonMatch) {
             const parsed = JSON.parse(jsonMatch[0]);
-            
-            // Add hashtags to content
             const contentWithHashtags = parsed.content + 
               (parsed.hashtags ? `\n\n---\n\n${parsed.hashtags.map((h: string) => `#${h.replace(/^#/, '')}`).join(' ')}` : '');
             
@@ -212,22 +240,13 @@ FORMAT DE RÉPONSE ATTENDU (JSON STRICT) :
               content_fr: contentWithHashtags,
               excerpt_fr: parsed.excerpt || prev.excerpt_fr
             }));
-            
             toast.success("Article généré avec succès ! Vérifiez et ajustez si nécessaire.");
           } else {
-            // If no JSON, use the raw response as content
-            setFormData(prev => ({
-              ...prev,
-              content_fr: aiResponse
-            }));
+            setFormData(prev => ({ ...prev, content_fr: fullText }));
             toast.success("Contenu généré, veuillez ajouter un titre");
           }
-        } catch (parseError) {
-          // Use raw response if JSON parsing fails
-          setFormData(prev => ({
-            ...prev,
-            content_fr: aiResponse
-          }));
+        } catch {
+          setFormData(prev => ({ ...prev, content_fr: fullText }));
           toast.success("Contenu enrichi, veuillez vérifier la mise en forme");
         }
       }
