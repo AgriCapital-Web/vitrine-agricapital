@@ -230,36 +230,38 @@ const News = () => {
               <h2 className="text-2xl font-bold mb-8">{tr.seeAll}</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {newsFromDb.map((article: any) => (
-                  <Card key={article.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-                    {article.featured_image && (
-                      <div className="aspect-video">
-                        <img 
-                          src={article.featured_image} 
-                          alt={getLocalizedField(article, 'title')}
-                          className="w-full h-full object-cover"
-                          loading="lazy"
-                        />
-                      </div>
-                    )}
-                    <CardContent className="p-4">
-                      <h3 className="font-semibold text-lg mb-2 line-clamp-2">
-                        {getLocalizedField(article, 'title')}
-                      </h3>
-                      <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
-                        {getLocalizedField(article, 'excerpt')}
-                      </p>
-                      <div className="flex items-center justify-between text-xs text-muted-foreground">
-                        <span className="flex items-center gap-1">
-                          <Calendar className="w-3 h-3" />
-                          {formatDate(article.published_at || article.created_at)}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <Eye className="w-3 h-3" />
-                          {article.views_count || 0} {tr.views}
-                        </span>
-                      </div>
-                    </CardContent>
-                  </Card>
+                  <Link key={article.id} to={`/actualites/${article.slug}`}>
+                    <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full">
+                      {article.featured_image && (
+                        <div className="aspect-video">
+                          <img 
+                            src={article.featured_image} 
+                            alt={getLocalizedField(article, 'title')}
+                            className="w-full h-full object-cover"
+                            loading="lazy"
+                          />
+                        </div>
+                      )}
+                      <CardContent className="p-4">
+                        <h3 className="font-semibold text-lg mb-2 line-clamp-2 text-foreground">
+                          {getLocalizedField(article, 'title')}
+                        </h3>
+                        <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
+                          {getLocalizedField(article, 'excerpt')}
+                        </p>
+                        <div className="flex items-center justify-between text-xs text-muted-foreground">
+                          <span className="flex items-center gap-1">
+                            <Calendar className="w-3 h-3" />
+                            {formatDate(article.published_at || article.created_at)}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <Eye className="w-3 h-3" />
+                            {article.views_count || 0} {tr.views}
+                          </span>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
                 ))}
               </div>
             </div>
