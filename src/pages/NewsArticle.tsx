@@ -1,12 +1,14 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import DynamicNavigation from "@/components/DynamicNavigation";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, ArrowLeft, Share2, User } from "lucide-react";
+import { Calendar, ArrowLeft, Share2, User, Eye, Loader2 } from "lucide-react";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import ag1 from "@/assets/ag-2026-1.jpg";
 import ag2 from "@/assets/ag-2026-2.jpg";
@@ -14,13 +16,17 @@ import ag3 from "@/assets/ag-2026-3.jpg";
 import ag4 from "@/assets/ag-2026-4.jpg";
 import ag5 from "@/assets/ag-2026-5.jpg";
 
-// First featured article data (AG 2026) - Complete content
-const articleData: Record<string, any> = {
+// Hardcoded AG article (always available)
+const agArticle: Record<string, any> = {
   "assemblee-generale-2026": {
     id: "ag-2026",
     slug: "assemblee-generale-2026",
     title_fr: "AGRICAPITAL | Assemblée Générale Ordinaire Annuelle 2026",
     title_en: "AGRICAPITAL | Annual General Meeting 2026",
+    title_ar: "أغريكابيتال | الجمعية العمومية العادية السنوية 2026",
+    title_es: "AGRICAPITAL | Asamblea General Ordinaria Anual 2026",
+    title_de: "AGRICAPITAL | Jährliche Ordentliche Hauptversammlung 2026",
+    title_zh: "AGRICAPITAL | 2026年度普通股东大会",
     content_fr: `Le 07 janvier 2026, AgriCapital SARL a tenu sa première Assemblée Générale Ordinaire Annuelle, réunissant l'ensemble de ses associés.
 
 Fidèle à son identité, la rencontre s'est déroulée en plein air, directement sur le terrain, là où les décisions prennent tout leur sens.
@@ -162,66 +168,61 @@ For more information on participation terms, please contact us directly.
     images: [ag1, ag2, ag3, ag4, ag5],
     published_at: "2026-01-07T12:00:00Z",
     author: "AgriCapital",
-    category: "corporate"
+    category: "corporate",
+    views_count: 0
   }
 };
 
 const translations = {
-  fr: {
-    back: "Retour aux actualités",
-    by: "Par",
-    share: "Partager",
-    notFound: "Article non trouvé",
-    notFoundDesc: "L'article que vous recherchez n'existe pas ou a été déplacé."
-  },
-  en: {
-    back: "Back to news",
-    by: "By",
-    share: "Share",
-    notFound: "Article not found",
-    notFoundDesc: "The article you're looking for doesn't exist or has been moved."
-  },
-  ar: {
-    back: "العودة إلى الأخبار",
-    by: "بواسطة",
-    share: "مشاركة",
-    notFound: "المقال غير موجود",
-    notFoundDesc: "المقال الذي تبحث عنه غير موجود أو تم نقله."
-  },
-  es: {
-    back: "Volver a noticias",
-    by: "Por",
-    share: "Compartir",
-    notFound: "Artículo no encontrado",
-    notFoundDesc: "El artículo que busca no existe o ha sido movido."
-  },
-  de: {
-    back: "Zurück zu Nachrichten",
-    by: "Von",
-    share: "Teilen",
-    notFound: "Artikel nicht gefunden",
-    notFoundDesc: "Der Artikel, den Sie suchen, existiert nicht oder wurde verschoben."
-  },
-  zh: {
-    back: "返回新闻",
-    by: "作者",
-    share: "分享",
-    notFound: "文章未找到",
-    notFoundDesc: "您要查找的文章不存在或已被移动。"
-  }
+  fr: { back: "Retour aux actualités", by: "Par", share: "Partager", views: "vues", notFound: "Article non trouvé", notFoundDesc: "L'article que vous recherchez n'existe pas ou a été déplacé." },
+  en: { back: "Back to news", by: "By", share: "Share", views: "views", notFound: "Article not found", notFoundDesc: "The article you're looking for doesn't exist or has been moved." },
+  ar: { back: "العودة إلى الأخبار", by: "بواسطة", share: "مشاركة", views: "مشاهدات", notFound: "المقال غير موجود", notFoundDesc: "المقال الذي تبحث عنه غير موجود أو تم نقله." },
+  es: { back: "Volver a noticias", by: "Por", share: "Compartir", views: "vistas", notFound: "Artículo no encontrado", notFoundDesc: "El artículo que busca no existe o ha sido movido." },
+  de: { back: "Zurück zu Nachrichten", by: "Von", share: "Teilen", views: "Aufrufe", notFound: "Artikel nicht gefunden", notFoundDesc: "Der Artikel, den Sie suchen, existiert nicht oder wurde verschoben." },
+  zh: { back: "返回新闻", by: "作者", share: "分享", views: "浏览量", notFound: "文章未找到", notFoundDesc: "您要查找的文章不存在或已被移动。" }
 };
 
 const NewsArticle = () => {
   const { slug } = useParams<{ slug: string }>();
   const { language } = useLanguage();
   const tr = translations[language as keyof typeof translations] || translations.fr;
+  const [viewCounted, setViewCounted] = useState(false);
 
-  // Scroll to top on mount
+  // Fetch from DB if not hardcoded
+  const { data: dbArticle, isLoading } = useQuery({
+    queryKey: ["news-article", slug],
+    queryFn: async () => {
+      if (!slug || agArticle[slug]) return null;
+      const { data, error } = await supabase
+        .from("news")
+        .select("*")
+        .eq("slug", slug)
+        .eq("is_published", true)
+        .single();
+      if (error) return null;
+      return data;
+    },
+    enabled: !!slug && !agArticle[slug]
+  });
+
+  // Determine the article source
+  const article = slug ? (agArticle[slug] || dbArticle) : null;
+
+  // Increment view count for DB articles
+  useEffect(() => {
+    if (dbArticle && !viewCounted) {
+      setViewCounted(true);
+      supabase
+        .from("news")
+        .update({ views_count: (dbArticle.views_count || 0) + 1 })
+        .eq("id", dbArticle.id)
+        .then(() => {});
+    }
+  }, [dbArticle, viewCounted]);
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [slug]);
-
-  const article = slug ? articleData[slug] : null;
 
   const getLocalizedField = (item: any, field: string) => {
     if (!item) return "";
@@ -230,17 +231,16 @@ const NewsArticle = () => {
   };
 
   const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleDateString(language === 'fr' ? 'fr-FR' : language === 'en' ? 'en-US' : 'fr-FR', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric'
-    });
+    return new Date(dateStr).toLocaleDateString(
+      language === 'fr' ? 'fr-FR' : language === 'en' ? 'en-US' : language === 'es' ? 'es-ES' : language === 'de' ? 'de-DE' : language === 'zh' ? 'zh-CN' : 'fr-FR',
+      { day: 'numeric', month: 'long', year: 'numeric' }
+    );
   };
 
-  // Parse markdown-like content to HTML
   const parseContent = (content: string) => {
     return content
       .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.*?)\*/g, '<em>$1</em>')
       .replace(/### (.*?)$/gm, '<h3 class="text-xl font-bold mt-8 mb-4 text-foreground">$1</h3>')
       .replace(/## (.*?)$/gm, '<h2 class="text-2xl font-bold mt-10 mb-6 text-foreground border-b pb-2">$1</h2>')
       .replace(/- (.*?)$/gm, '<li class="ml-4 mb-2">$1</li>')
@@ -248,6 +248,19 @@ const NewsArticle = () => {
       .replace(/\n\n/g, '</p><p class="mb-4 leading-relaxed text-muted-foreground">')
       .replace(/\n/g, '<br />');
   };
+
+  if (isLoading) {
+    return (
+      <>
+        <SEOHead />
+        <DynamicNavigation />
+        <main className="pt-24 min-h-screen bg-background flex items-center justify-center">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        </main>
+        <Footer />
+      </>
+    );
+  }
 
   if (!article) {
     return (
@@ -271,13 +284,20 @@ const NewsArticle = () => {
     );
   }
 
+  // Get images - either local array or from DB JSON
+  const images = article.images 
+    ? (Array.isArray(article.images) ? article.images : JSON.parse(article.images || '[]'))
+    : [];
+  
+  // For DB articles, use featured_image if no images array
+  const displayImages = images.length > 0 ? images : (article.featured_image ? [article.featured_image] : []);
+
   return (
     <>
       <SEOHead />
       <DynamicNavigation />
       
       <main className="pt-24 min-h-screen bg-background">
-        {/* Back Button */}
         <div className="container mx-auto px-4 py-4">
           <Button variant="ghost" asChild className="text-muted-foreground hover:text-foreground">
             <Link to="/actualites">
@@ -287,34 +307,33 @@ const NewsArticle = () => {
           </Button>
         </div>
 
-        {/* Article Header */}
         <article className="container mx-auto px-4 max-w-4xl">
-          {/* Category Badge */}
           <Badge className="mb-4 bg-agri-orange/20 text-agri-orange border-0">
-            {article.category === 'corporate' ? 'Corporate' : article.category}
+            {article.category || 'Actualité'}
           </Badge>
 
-          {/* Title */}
           <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-6 leading-tight">
             {getLocalizedField(article, 'title')}
           </h1>
 
-          {/* Meta Info */}
           <div className="flex flex-wrap items-center gap-4 text-muted-foreground mb-8 pb-6 border-b">
             <span className="flex items-center gap-2">
               <Calendar className="w-4 h-4" />
-              {formatDate(article.published_at)}
+              {formatDate(article.published_at || article.created_at)}
             </span>
             <span className="flex items-center gap-2">
               <User className="w-4 h-4" />
-              {tr.by} {article.author}
+              {tr.by} {article.author || 'AgriCapital'}
             </span>
+            {article.views_count > 0 && (
+              <span className="flex items-center gap-2">
+                <Eye className="w-4 h-4" />
+                {article.views_count} {tr.views}
+              </span>
+            )}
             <Button variant="ghost" size="sm" className="ml-auto" onClick={() => {
               if (navigator.share) {
-                navigator.share({
-                  title: getLocalizedField(article, 'title'),
-                  url: window.location.href
-                });
+                navigator.share({ title: getLocalizedField(article, 'title'), url: window.location.href });
               }
             }}>
               <Share2 className="w-4 h-4 mr-2" />
@@ -322,12 +341,11 @@ const NewsArticle = () => {
             </Button>
           </div>
 
-          {/* Image Carousel */}
-          {article.images && article.images.length > 0 && (
+          {displayImages.length > 0 && (
             <div className="mb-10 rounded-xl overflow-hidden shadow-lg">
               <Carousel className="w-full">
                 <CarouselContent>
-                  {article.images.map((img: string, index: number) => (
+                  {displayImages.map((img: string, index: number) => (
                     <CarouselItem key={index}>
                       <div className="aspect-video md:aspect-[16/9]">
                         <img 
@@ -339,13 +357,16 @@ const NewsArticle = () => {
                     </CarouselItem>
                   ))}
                 </CarouselContent>
-                <CarouselPrevious className="left-4" />
-                <CarouselNext className="right-4" />
+                {displayImages.length > 1 && (
+                  <>
+                    <CarouselPrevious className="left-4" />
+                    <CarouselNext className="right-4" />
+                  </>
+                )}
               </Carousel>
             </div>
           )}
 
-          {/* Article Content */}
           <div 
             className="prose prose-lg max-w-none mb-16"
             dangerouslySetInnerHTML={{ 
@@ -353,14 +374,10 @@ const NewsArticle = () => {
             }}
           />
 
-          {/* Share Again */}
           <div className="flex justify-center py-8 border-t">
             <Button className="bg-agri-green hover:bg-agri-green/90" onClick={() => {
               if (navigator.share) {
-                navigator.share({
-                  title: getLocalizedField(article, 'title'),
-                  url: window.location.href
-                });
+                navigator.share({ title: getLocalizedField(article, 'title'), url: window.location.href });
               }
             }}>
               <Share2 className="w-4 h-4 mr-2" />

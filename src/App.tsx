@@ -39,7 +39,7 @@ const AdminBlocs = lazy(() => import("./pages/admin/AdminBlocs"));
 const AdminCMS = lazy(() => import("./pages/admin/AdminCMS"));
 const AdminMediaLibrary = lazy(() => import("./pages/admin/AdminMediaLibrary"));
 const AdminPageBuilder = lazy(() => import("./pages/admin/AdminPageBuilder"));
-const AdminSiteBuilder = lazy(() => import("./pages/admin/AdminSiteBuilder"));
+
 const AdminContactMessages = lazy(() => import("./pages/admin/AdminContactMessages"));
 const AdminAIConversations = lazy(() => import("./pages/admin/AdminAIConversations"));
 const AdminAutoResponses = lazy(() => import("./pages/admin/AdminAutoResponses"));
@@ -145,7 +145,7 @@ const AppContent = () => {
         <Route path="/admin/cms" element={<AdminCMS />} />
         <Route path="/admin/media-library" element={<AdminMediaLibrary />} />
         <Route path="/admin/page-builder" element={<AdminPageBuilder />} />
-        <Route path="/admin/site-builder" element={<AdminSiteBuilder />} />
+        
         <Route path="/admin/contact-messages" element={<AdminContactMessages />} />
         <Route path="/admin/ai-conversations" element={<AdminAIConversations />} />
         <Route path="/admin/auto-responses" element={<AdminAutoResponses />} />
