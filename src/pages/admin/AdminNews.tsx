@@ -1,5 +1,3 @@
-// ============= Full file contents =============
-
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -14,23 +12,42 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, Eye, EyeOff, Upload, Image, Video, Calendar, Loader2, Sparkles, Wand2, Hash, FileText } from "lucide-react";
+import { Plus, Pencil, Trash2, Eye, EyeOff, Upload, Image, Video, Calendar, Loader2, Sparkles, Wand2, Hash, FileText, Globe, Languages } from "lucide-react";
 import WYSIWYGEditor from "@/components/admin/WYSIWYGEditor";
 
-// Simple markdown to HTML converter for AI output
+// Enhanced markdown to HTML converter
 const markdownToHtml = (md: string): string => {
-  return md
-    .replace(/^### (.+)$/gm, '<h3>$1</h3>')
-    .replace(/^## (.+)$/gm, '<h2>$1</h2>')
-    .replace(/^# (.+)$/gm, '<h1>$1</h1>')
+  let html = md
+    // Tables
+    .replace(/^\|(.+)\|\s*\n\|[-:\s|]+\|\s*\n((?:\|.+\|\s*\n?)*)/gm, (_, header, body) => {
+      const headers = header.split('|').map((h: string) => h.trim()).filter(Boolean);
+      const rows = body.trim().split('\n').map((row: string) => 
+        row.split('|').map((c: string) => c.trim()).filter(Boolean)
+      );
+      return `<table class="w-full border-collapse my-4"><thead><tr>${headers.map((h: string) => `<th class="border border-border bg-muted px-3 py-2 text-left font-semibold">${h}</th>`).join('')}</tr></thead><tbody>${rows.map((row: string[]) => `<tr>${row.map((c: string) => `<td class="border border-border px-3 py-2">${c}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+    })
+    // Headers
+    .replace(/^#### (.+)$/gm, '<h4 class="text-base font-semibold mt-6 mb-2">$1</h4>')
+    .replace(/^### (.+)$/gm, '<h3 class="text-lg font-bold mt-8 mb-3">$1</h3>')
+    .replace(/^## (.+)$/gm, '<h2 class="text-xl font-bold mt-10 mb-4">$1</h2>')
+    .replace(/^# (.+)$/gm, '<h1 class="text-2xl font-bold mt-10 mb-4">$1</h1>')
+    // Text formatting
     .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
     .replace(/\*(.+?)\*/g, '<em>$1</em>')
-    .replace(/^- (.+)$/gm, '<li>$1</li>')
-    .replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>')
-    .replace(/^---$/gm, '<hr>')
-    .replace(/\n{2,}/g, '</p><p>')
-    .replace(/^(?!<[hulo]|<li|<hr)(.+)$/gm, '<p>$1</p>')
-    .replace(/<p><\/p>/g, '');
+    // Lists
+    .replace(/^(\d+)\. (.+)$/gm, '<li class="ml-6 mb-1">$2</li>')
+    .replace(/^- (.+)$/gm, '<li class="ml-6 mb-1 list-disc">$1</li>')
+    // Horizontal rule
+    .replace(/^---$/gm, '<hr class="my-6 border-border">')
+    // Blockquotes
+    .replace(/^> (.+)$/gm, '<blockquote class="border-l-4 border-primary pl-4 py-2 my-4 italic bg-muted/50 rounded-r">$1</blockquote>')
+    // Paragraphs - double newlines
+    .replace(/\n{2,}/g, '</p><p class="mb-4 leading-relaxed">')
+    // Regular lines
+    .replace(/^(?!<[hultbdo]|<li|<hr|<block|<table)(.+)$/gm, '<p class="mb-4 leading-relaxed">$1</p>')
+    .replace(/<p class="mb-4 leading-relaxed"><\/p>/g, '');
+
+  return html;
 };
 
 interface NewsArticle {
@@ -61,15 +78,29 @@ const AdminNews = () => {
   const [uploadingImages, setUploadingImages] = useState(false);
   const [uploadingVideos, setUploadingVideos] = useState(false);
   const [generatingAI, setGeneratingAI] = useState(false);
+  const [translating, setTranslating] = useState(false);
+  const [translationProgress, setTranslationProgress] = useState("");
   
   const [formData, setFormData] = useState({
     slug: "",
     title_fr: "",
     title_en: "",
+    title_ar: "",
+    title_es: "",
+    title_de: "",
+    title_zh: "",
     content_fr: "",
     content_en: "",
+    content_ar: "",
+    content_es: "",
+    content_de: "",
+    content_zh: "",
     excerpt_fr: "",
     excerpt_en: "",
+    excerpt_ar: "",
+    excerpt_es: "",
+    excerpt_de: "",
+    excerpt_zh: "",
     featured_image: "",
     images: [] as string[],
     videos: [] as string[],
@@ -79,7 +110,6 @@ const AdminNews = () => {
     author: "AgriCapital"
   });
 
-  // Fetch news
   const { data: news, isLoading } = useQuery({
     queryKey: ["admin-news"],
     queryFn: async () => {
@@ -92,7 +122,6 @@ const AdminNews = () => {
     }
   });
 
-  // Create/Update mutation
   const saveMutation = useMutation({
     mutationFn: async (data: typeof formData) => {
       const slug = data.slug || data.title_fr.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
@@ -106,15 +135,10 @@ const AdminNews = () => {
       };
 
       if (editingArticle) {
-        const { error } = await supabase
-          .from("news")
-          .update(payload)
-          .eq("id", editingArticle.id);
+        const { error } = await supabase.from("news").update(payload).eq("id", editingArticle.id);
         if (error) throw error;
       } else {
-        const { error } = await supabase
-          .from("news")
-          .insert([payload]);
+        const { error } = await supabase.from("news").insert([payload]);
         if (error) throw error;
       }
     },
@@ -130,7 +154,6 @@ const AdminNews = () => {
     }
   });
 
-  // Delete mutation
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase.from("news").delete().eq("id", id);
@@ -142,15 +165,11 @@ const AdminNews = () => {
     }
   });
 
-  // Toggle publish mutation
   const togglePublishMutation = useMutation({
     mutationFn: async ({ id, is_published }: { id: string; is_published: boolean }) => {
       const { error } = await supabase
         .from("news")
-        .update({ 
-          is_published, 
-          published_at: is_published ? new Date().toISOString() : null 
-        })
+        .update({ is_published, published_at: is_published ? new Date().toISOString() : null })
         .eq("id", id);
       if (error) throw error;
     },
@@ -160,7 +179,58 @@ const AdminNews = () => {
     }
   });
 
-  // AI Generation function
+  // Auto-translate to all languages
+  const translateToAllLanguages = async () => {
+    if (!formData.title_fr || !formData.content_fr) {
+      toast.error("L'article en français est requis avant la traduction");
+      return;
+    }
+
+    setTranslating(true);
+    const languages = [
+      { code: 'en', name: 'Anglais' },
+      { code: 'ar', name: 'Arabe' },
+      { code: 'es', name: 'Espagnol' },
+      { code: 'de', name: 'Allemand' },
+      { code: 'zh', name: 'Chinois' },
+    ];
+
+    const plainContent = formData.content_fr.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+
+    for (const lang of languages) {
+      setTranslationProgress(`Traduction en ${lang.name}...`);
+      try {
+        const { data, error } = await supabase.functions.invoke('translate-article', {
+          body: {
+            title: formData.title_fr,
+            content: plainContent.slice(0, 4000),
+            excerpt: formData.excerpt_fr || "",
+            targetLanguage: lang.code,
+          }
+        });
+
+        if (error) throw error;
+
+        if (data) {
+          setFormData(prev => ({
+            ...prev,
+            [`title_${lang.code}`]: data.title || prev[`title_${lang.code}` as keyof typeof prev],
+            [`content_${lang.code}`]: data.content ? markdownToHtml(data.content) : prev[`content_${lang.code}` as keyof typeof prev],
+            [`excerpt_${lang.code}`]: data.excerpt || prev[`excerpt_${lang.code}` as keyof typeof prev],
+          }));
+        }
+      } catch (error) {
+        console.error(`Translation error (${lang.code}):`, error);
+        toast.error(`Erreur traduction ${lang.name}`);
+      }
+    }
+
+    setTranslating(false);
+    setTranslationProgress("");
+    toast.success("Traduction automatique terminée pour 5 langues !");
+  };
+
+  // AI Generation function - improved prompt
   const generateArticleWithAI = async () => {
     if (!formData.content_fr.trim()) {
       toast.error("Veuillez entrer une idée ou du contenu brut à développer");
@@ -168,7 +238,6 @@ const AdminNews = () => {
     }
 
     setGeneratingAI(true);
-    
     const plainText = formData.content_fr.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
     
     try {
@@ -177,36 +246,43 @@ const AdminNews = () => {
           messages: [
             {
               role: 'user',
-              content: `Tu es un rédacteur professionnel pour AgriCapital, une entreprise ivoirienne d'impact social pilotant le programme "Palmier Solidaire".
-Ton rôle est de transformer des idées brutes en articles professionnels, structurés et engageants.
+              content: `Tu es un rédacteur en chef professionnel pour AgriCapital, une entreprise sociale ivoirienne pilotant le programme "Palmier Solidaire".
 
-CONTEXTE ET TON :
-- AgriCapital est une ENTREPRISE SOCIALE (pas une ONG, pas une multinationale capitaliste).
-- Le ton doit être professionnel, chaleureux, inspirant et orienté vers l'impact social.
-- Mets en avant l'autonomisation des familles rurales, les femmes et les jeunes.
-- Ne mentionne JAMAIS de montants financiers spécifiques ou de prix (confidentialité).
-- L'orthographe et la grammaire doivent être irréprochables.
+MISSION : Transformer cette idée brute en un article de presse professionnel, moderne, bien structuré et engageant.
 
-CONTENU À TRAITER :
+═══ CONTEXTE ═══
+- AgriCapital = entreprise SOCIALE (pas une ONG, pas capitaliste)
+- Ton : professionnel, chaleureux, inspirant, orienté impact social
+- Public cible : partenaires, investisseurs sociaux, communautés rurales
+- JAMAIS mentionner de montants financiers (confidentialité)
+- Orthographe et grammaire irréprochables
+
+═══ IDÉE À DÉVELOPPER ═══
 "${plainText}"
 
-INSTRUCTIONS DE GÉNÉRATION :
-1. TITRE : En MAJUSCULES, impactant et professionnel (max 80 caractères).
-2. CONTENU : 
-   - Structure claire avec introduction, développement et conclusion.
-   - Utilise le format Markdown pour la mise en forme (gras, italique, listes).
-   - Paragraphes courts et aérés pour une lecture facile.
-   - Sous-titres pertinents si nécessaire.
-   - Pas de balises HTML, utilise uniquement Markdown.
-3. EXTRAIT : Un résumé accrocheur de 2-3 phrases en italique.
-4. HASHTAGS : 5 hashtags pertinents (ex: #PalmierSolidaire #AgriCapital #ImpactSocial).
+═══ STRUCTURE ATTENDUE ═══
+Génère un article professionnel avec :
 
-FORMAT DE RÉPONSE ATTENDU (JSON STRICT) :
+1. **TITRE** : En MAJUSCULES, percutant, max 80 caractères
+2. **CONTENU** en Markdown :
+   - **Introduction** : 2-3 phrases d'accroche en italique (*texte*)
+   - **Développement** : 3-5 paragraphes bien séparés avec sous-titres (## ou ###)
+   - Utilise des **listes à puces** pour les points clés
+   - Inclus un **tableau Markdown** si pertinent (comparaisons, données, étapes)
+   - **Paragraphes aérés** : chaque paragraphe fait 3-4 phrases max, séparés par des lignes vides
+   - **Citations** ou points forts en gras
+   - **Conclusion** inspirante avec appel à l'action
+3. **EXTRAIT** : Résumé accrocheur de 2-3 phrases
+4. **HASHTAGS** : 5-7 hashtags pertinents
+5. **CATÉGORIE** : une parmi [actualites, evenements, partenariats, agriculture, formation, general]
+
+═══ FORMAT JSON STRICT ═══
 {
   "title": "TITRE EN MAJUSCULES",
-  "content": "Contenu complet en markdown...",
-  "excerpt": "Extrait court...",
-  "hashtags": ["tag1", "tag2", "tag3", "tag4", "tag5"]
+  "content": "Contenu complet en Markdown avec paragraphes bien espacés, sous-titres, listes, tableaux...",
+  "excerpt": "Extrait court et accrocheur",
+  "hashtags": ["tag1", "tag2", "tag3", "tag4", "tag5"],
+  "category": "actualites"
 }`
             }
           ],
@@ -216,7 +292,6 @@ FORMAT DE RÉPONSE ATTENDU (JSON STRICT) :
 
       if (response.error) throw response.error;
 
-      // Parse SSE stream response
       let fullText = '';
       const reader = response.data.getReader?.();
       
@@ -241,7 +316,6 @@ FORMAT DE RÉPONSE ATTENDU (JSON STRICT) :
           }
         }
       } else {
-        // Fallback: response.data is already text/json
         fullText = typeof response.data === 'string' ? response.data : JSON.stringify(response.data);
       }
 
@@ -259,21 +333,22 @@ FORMAT DE RÉPONSE ATTENDU (JSON STRICT) :
               ...prev,
               title_fr: parsed.title || prev.title_fr,
               content_fr: htmlContent,
-              excerpt_fr: parsed.excerpt || prev.excerpt_fr
+              excerpt_fr: parsed.excerpt || prev.excerpt_fr,
+              category: parsed.category || prev.category,
             }));
-            toast.success("Article généré avec succès ! Vérifiez et ajustez si nécessaire.");
+            toast.success("Article généré ! Vous pouvez maintenant traduire automatiquement.");
           } else {
             setFormData(prev => ({ ...prev, content_fr: markdownToHtml(fullText) }));
             toast.success("Contenu généré, veuillez ajouter un titre");
           }
         } catch {
           setFormData(prev => ({ ...prev, content_fr: markdownToHtml(fullText) }));
-          toast.success("Contenu enrichi, veuillez vérifier la mise en forme");
+          toast.success("Contenu enrichi, vérifiez la mise en forme");
         }
       }
     } catch (error) {
       console.error('AI generation error:', error);
-      toast.error("Erreur lors de la génération IA. Vérifiez votre connexion.");
+      toast.error("Erreur lors de la génération IA");
     } finally {
       setGeneratingAI(false);
     }
@@ -281,41 +356,29 @@ FORMAT DE RÉPONSE ATTENDU (JSON STRICT) :
 
   const resetForm = () => {
     setFormData({
-      slug: "",
-      title_fr: "",
-      title_en: "",
-      content_fr: "",
-      content_en: "",
-      excerpt_fr: "",
-      excerpt_en: "",
-      featured_image: "",
-      images: [],
-      videos: [],
-      category: "general",
-      is_published: false,
-      is_featured: false,
-      author: "AgriCapital"
+      slug: "", title_fr: "", title_en: "", title_ar: "", title_es: "", title_de: "", title_zh: "",
+      content_fr: "", content_en: "", content_ar: "", content_es: "", content_de: "", content_zh: "",
+      excerpt_fr: "", excerpt_en: "", excerpt_ar: "", excerpt_es: "", excerpt_de: "", excerpt_zh: "",
+      featured_image: "", images: [], videos: [],
+      category: "general", is_published: false, is_featured: false, author: "AgriCapital"
     });
     setEditingArticle(null);
   };
 
   const handleEdit = (article: NewsArticle) => {
     setEditingArticle(article);
+    const a = article as any;
     setFormData({
-      slug: article.slug,
-      title_fr: article.title_fr,
-      title_en: article.title_en || "",
-      content_fr: article.content_fr,
-      content_en: article.content_en || "",
-      excerpt_fr: article.excerpt_fr || "",
-      excerpt_en: article.excerpt_en || "",
-      featured_image: article.featured_image || "",
-      images: Array.isArray(article.images) ? article.images : [],
-      videos: Array.isArray(article.videos) ? article.videos : [],
-      category: article.category,
-      is_published: article.is_published,
-      is_featured: article.is_featured,
-      author: article.author
+      slug: a.slug, title_fr: a.title_fr, title_en: a.title_en || "", title_ar: a.title_ar || "",
+      title_es: a.title_es || "", title_de: a.title_de || "", title_zh: a.title_zh || "",
+      content_fr: a.content_fr, content_en: a.content_en || "", content_ar: a.content_ar || "",
+      content_es: a.content_es || "", content_de: a.content_de || "", content_zh: a.content_zh || "",
+      excerpt_fr: a.excerpt_fr || "", excerpt_en: a.excerpt_en || "", excerpt_ar: a.excerpt_ar || "",
+      excerpt_es: a.excerpt_es || "", excerpt_de: a.excerpt_de || "", excerpt_zh: a.excerpt_zh || "",
+      featured_image: a.featured_image || "",
+      images: Array.isArray(a.images) ? a.images : [],
+      videos: Array.isArray(a.videos) ? a.videos : [],
+      category: a.category, is_published: a.is_published, is_featured: a.is_featured, author: a.author
     });
     setIsDialogOpen(true);
   };
@@ -323,32 +386,21 @@ FORMAT DE RÉPONSE ATTENDU (JSON STRICT) :
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files?.length) return;
-
     setUploadingImages(true);
     const uploadedUrls: string[] = [];
-
     try {
       for (const file of Array.from(files)) {
         const fileName = `news/${Date.now()}-${file.name}`;
-        const { error } = await supabase.storage
-          .from("media")
-          .upload(fileName, file);
-        
+        const { error } = await supabase.storage.from("media").upload(fileName, file);
         if (error) throw error;
-        
-        const { data: urlData } = supabase.storage
-          .from("media")
-          .getPublicUrl(fileName);
-        
+        const { data: urlData } = supabase.storage.from("media").getPublicUrl(fileName);
         uploadedUrls.push(urlData.publicUrl);
       }
-
       setFormData(prev => ({
         ...prev,
         images: [...prev.images, ...uploadedUrls],
         featured_image: prev.featured_image || uploadedUrls[0]
       }));
-      
       toast.success(`${uploadedUrls.length} image(s) téléchargée(s)`);
     } catch (error) {
       console.error(error);
@@ -361,31 +413,17 @@ FORMAT DE RÉPONSE ATTENDU (JSON STRICT) :
   const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files?.length) return;
-
     setUploadingVideos(true);
     const uploadedUrls: string[] = [];
-
     try {
       for (const file of Array.from(files)) {
         const fileName = `news/videos/${Date.now()}-${file.name}`;
-        const { error } = await supabase.storage
-          .from("media")
-          .upload(fileName, file);
-        
+        const { error } = await supabase.storage.from("media").upload(fileName, file);
         if (error) throw error;
-        
-        const { data: urlData } = supabase.storage
-          .from("media")
-          .getPublicUrl(fileName);
-        
+        const { data: urlData } = supabase.storage.from("media").getPublicUrl(fileName);
         uploadedUrls.push(urlData.publicUrl);
       }
-
-      setFormData(prev => ({
-        ...prev,
-        videos: [...prev.videos, ...uploadedUrls]
-      }));
-      
+      setFormData(prev => ({ ...prev, videos: [...prev.videos, ...uploadedUrls] }));
       toast.success(`${uploadedUrls.length} vidéo(s) téléchargée(s)`);
     } catch (error) {
       console.error(error);
@@ -398,27 +436,23 @@ FORMAT DE RÉPONSE ATTENDU (JSON STRICT) :
   return (
     <AdminLayout title="Gestion des Actualités">
       <div className="space-y-6">
-        {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <h2 className="text-xl sm:text-2xl font-bold">Actualités</h2>
-            <p className="text-sm text-muted-foreground">Gérez les articles et publications avec l'IA</p>
+            <h2 className="text-xl sm:text-2xl font-bold">Actualités & Blogs</h2>
+            <p className="text-sm text-muted-foreground">Éditeur IA avancé avec traduction automatique multilingue</p>
           </div>
-          <Dialog open={isDialogOpen} onOpenChange={(open) => {
-            setIsDialogOpen(open);
-            if (!open) resetForm();
-          }}>
+          <Dialog open={isDialogOpen} onOpenChange={(open) => { setIsDialogOpen(open); if (!open) resetForm(); }}>
             <DialogTrigger asChild>
               <Button className="bg-agri-green hover:bg-agri-green/90 w-full sm:w-auto">
                 <Plus className="w-4 h-4 mr-2" />
                 Nouvel article
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogContent className="max-w-5xl max-h-[92vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle className="flex items-center gap-2">
                   <FileText className="w-5 h-5" />
-                  {editingArticle ? "Modifier l'article" : "Nouvel article avec IA"}
+                  {editingArticle ? "Modifier l'article" : "Nouvel article IA"}
                 </DialogTitle>
               </DialogHeader>
               
@@ -428,7 +462,10 @@ FORMAT DE RÉPONSE ATTENDU (JSON STRICT) :
                     <Sparkles className="w-3 h-3 mr-1 hidden sm:inline" />
                     Contenu FR
                   </TabsTrigger>
-                  <TabsTrigger value="content-en" className="text-xs sm:text-sm">EN</TabsTrigger>
+                  <TabsTrigger value="translations" className="text-xs sm:text-sm">
+                    <Languages className="w-3 h-3 mr-1 hidden sm:inline" />
+                    Traductions
+                  </TabsTrigger>
                   <TabsTrigger value="media" className="text-xs sm:text-sm">
                     <Image className="w-3 h-3 mr-1 hidden sm:inline" />
                     Médias
@@ -438,38 +475,48 @@ FORMAT DE RÉPONSE ATTENDU (JSON STRICT) :
                 
                 <TabsContent value="content" className="space-y-4">
                   {/* AI Generation Section */}
-                  <div className="bg-gradient-to-r from-agri-green/10 to-accent/10 rounded-lg p-4 border border-agri-green/20">
+                  <div className="bg-gradient-to-r from-agri-green/10 to-accent/10 rounded-xl p-4 border border-agri-green/20">
                     <div className="flex items-center gap-2 mb-3">
                       <Wand2 className="w-5 h-5 text-agri-green" />
-                      <span className="font-semibold text-sm">Assistant IA</span>
+                      <span className="font-semibold text-sm">Assistant IA Avancé</span>
+                      <Badge variant="secondary" className="text-[10px]">Gemini 3</Badge>
                     </div>
                     <p className="text-xs text-muted-foreground mb-3">
-                      Écrivez votre idée ou contenu brut ci-dessous, puis cliquez sur "Générer avec IA" pour obtenir un article professionnel structuré avec titre, contenu formaté et hashtags.
+                      Écrivez votre idée ci-dessous. L'IA génère un article professionnel structuré avec sous-titres, tableaux, listes et hashtags. Puis traduisez automatiquement en 5 langues.
                     </p>
-                    <Button
-                      type="button"
-                      onClick={generateArticleWithAI}
-                      disabled={generatingAI || !formData.content_fr.trim()}
-                      className="bg-gradient-to-r from-agri-green to-green-600 hover:from-agri-green/90 hover:to-green-600/90"
-                    >
-                      {generatingAI ? (
-                        <>
-                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                          Génération en cours...
-                        </>
-                      ) : (
-                        <>
-                          <Sparkles className="w-4 h-4 mr-2" />
-                          Générer l'article avec IA
-                        </>
-                      )}
-                    </Button>
+                    <div className="flex flex-col sm:flex-row gap-2">
+                      <Button
+                        type="button"
+                        onClick={generateArticleWithAI}
+                        disabled={generatingAI || translating || !formData.content_fr.trim()}
+                        className="bg-gradient-to-r from-agri-green to-green-600 hover:from-agri-green/90 hover:to-green-600/90"
+                      >
+                        {generatingAI ? (
+                          <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Génération...</>
+                        ) : (
+                          <><Sparkles className="w-4 h-4 mr-2" />Générer avec IA</>
+                        )}
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={translateToAllLanguages}
+                        disabled={translating || generatingAI || !formData.title_fr || !formData.content_fr}
+                        className="border-blue-300 text-blue-700 hover:bg-blue-50"
+                      >
+                        {translating ? (
+                          <><Loader2 className="w-4 h-4 mr-2 animate-spin" />{translationProgress}</>
+                        ) : (
+                          <><Globe className="w-4 h-4 mr-2" />Traduire en 5 langues</>
+                        )}
+                      </Button>
+                    </div>
                   </div>
 
                   <div className="space-y-2">
                     <Label className="flex items-center gap-2">
                       Titre (Français) *
-                      {formData.title_fr && <Badge variant="secondary" className="text-xs">Généré</Badge>}
+                      {formData.title_fr && <Badge variant="secondary" className="text-xs">✓</Badge>}
                     </Label>
                     <Input
                       value={formData.title_fr}
@@ -478,7 +525,7 @@ FORMAT DE RÉPONSE ATTENDU (JSON STRICT) :
                       className="text-base font-bold"
                     />
                   </div>
-                  
+
                   <div className="space-y-2">
                     <Label className="flex items-center gap-2">
                       <Hash className="w-4 h-4" />
@@ -501,151 +548,131 @@ FORMAT DE RÉPONSE ATTENDU (JSON STRICT) :
                       placeholder="Écrivez votre idée ici. L'IA la transformera en article professionnel..."
                     />
                     <p className="text-xs text-muted-foreground">
-                      💡 Astuce: Écrivez simplement vos idées, l'IA se charge de la mise en forme professionnelle.
+                      💡 Écrivez simplement vos idées, l'IA se charge de la mise en forme professionnelle avec sous-titres, tableaux et paragraphes aérés.
                     </p>
                   </div>
                 </TabsContent>
                 
-                <TabsContent value="content-en" className="space-y-4">
-                  <div className="space-y-2">
-                    <Label>Title (English)</Label>
-                    <Input
-                      value={formData.title_en}
-                      onChange={(e) => setFormData({ ...formData, title_en: e.target.value })}
-                      placeholder="Article title in English"
-                    />
+                <TabsContent value="translations" className="space-y-4">
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <h3 className="font-semibold">Traductions multilingues</h3>
+                      <p className="text-xs text-muted-foreground">Générées automatiquement par l'IA ou saisissez manuellement</p>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={translateToAllLanguages}
+                      disabled={translating || !formData.title_fr || !formData.content_fr}
+                    >
+                      {translating ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : <Globe className="w-3 h-3 mr-1" />}
+                      Tout traduire
+                    </Button>
                   </div>
-                  <div className="space-y-2">
-                    <Label>Excerpt (English)</Label>
-                    <Textarea
-                      value={formData.excerpt_en}
-                      onChange={(e) => setFormData({ ...formData, excerpt_en: e.target.value })}
-                      placeholder="Short summary for preview"
-                      rows={2}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Content (English)</Label>
-                    <Textarea
-                      value={formData.content_en}
-                      onChange={(e) => setFormData({ ...formData, content_en: e.target.value })}
-                      placeholder="Full article content in English (Markdown supported)"
-                      rows={10}
-                    />
-                  </div>
+
+                  {[
+                    { code: 'en', label: '🇬🇧 English', flag: 'EN' },
+                    { code: 'ar', label: '🇸🇦 العربية', flag: 'AR' },
+                    { code: 'es', label: '🇪🇸 Español', flag: 'ES' },
+                    { code: 'de', label: '🇩🇪 Deutsch', flag: 'DE' },
+                    { code: 'zh', label: '🇨🇳 中文', flag: 'ZH' },
+                  ].map(lang => (
+                    <details key={lang.code} className="border rounded-lg">
+                      <summary className="p-3 cursor-pointer hover:bg-muted/50 flex items-center justify-between">
+                        <span className="font-medium text-sm">{lang.label}</span>
+                        {formData[`title_${lang.code}` as keyof typeof formData] ? (
+                          <Badge variant="secondary" className="text-[10px]">✓ Traduit</Badge>
+                        ) : (
+                          <Badge variant="outline" className="text-[10px]">Vide</Badge>
+                        )}
+                      </summary>
+                      <div className="p-3 space-y-3 border-t">
+                        <div className="space-y-1">
+                          <Label className="text-xs">Titre ({lang.flag})</Label>
+                          <Input
+                            value={formData[`title_${lang.code}` as keyof typeof formData] as string}
+                            onChange={(e) => setFormData(prev => ({ ...prev, [`title_${lang.code}`]: e.target.value }))}
+                            placeholder={`Title in ${lang.label}`}
+                            className="text-sm"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-xs">Extrait ({lang.flag})</Label>
+                          <Textarea
+                            value={formData[`excerpt_${lang.code}` as keyof typeof formData] as string}
+                            onChange={(e) => setFormData(prev => ({ ...prev, [`excerpt_${lang.code}`]: e.target.value }))}
+                            rows={2}
+                            className="text-sm"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-xs">Contenu ({lang.flag})</Label>
+                          <Textarea
+                            value={formData[`content_${lang.code}` as keyof typeof formData] as string}
+                            onChange={(e) => setFormData(prev => ({ ...prev, [`content_${lang.code}`]: e.target.value }))}
+                            rows={6}
+                            className="text-sm"
+                          />
+                        </div>
+                      </div>
+                    </details>
+                  ))}
                 </TabsContent>
                 
                 <TabsContent value="media" className="space-y-6">
-                  {/* Images Upload */}
                   <div className="space-y-4">
                     <Label className="flex items-center gap-2">
                       <Image className="w-4 h-4" />
-                      Images (multiples)
+                      Images
                     </Label>
                     <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
                       <Button
-                        type="button"
-                        variant="outline"
+                        type="button" variant="outline"
                         onClick={() => document.getElementById("image-upload")?.click()}
                         disabled={uploadingImages}
                         className="w-full sm:w-auto"
                       >
-                        {uploadingImages ? (
-                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        ) : (
-                          <Upload className="w-4 h-4 mr-2" />
-                        )}
+                        {uploadingImages ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Upload className="w-4 h-4 mr-2" />}
                         Ajouter des images
                       </Button>
-                      <input
-                        id="image-upload"
-                        type="file"
-                        accept="image/*"
-                        multiple
-                        className="hidden"
-                        onChange={handleImageUpload}
-                      />
-                      <span className="text-xs text-muted-foreground">
-                        Formats: JPG, PNG, WebP • Max: 10MB par image
-                      </span>
+                      <input id="image-upload" type="file" accept="image/*" multiple className="hidden" onChange={handleImageUpload} />
+                      <span className="text-xs text-muted-foreground">JPG, PNG, WebP • Max 10MB</span>
                     </div>
                     {formData.images.length > 0 && (
                       <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
                         {formData.images.map((url, index) => (
                           <div key={index} className="relative group aspect-square">
-                            <img 
-                              src={url} 
-                              alt={`Image ${index + 1}`}
-                              className={`w-full h-full object-cover rounded-lg ${
-                                formData.featured_image === url ? 'ring-2 ring-agri-green ring-offset-2' : ''
-                              }`}
-                            />
+                            <img src={url} alt={`Image ${index + 1}`}
+                              className={`w-full h-full object-cover rounded-lg ${formData.featured_image === url ? 'ring-2 ring-agri-green ring-offset-2' : ''}`} />
                             <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-1">
-                              <Button
-                                size="sm"
-                                variant="secondary"
-                                className="h-7 w-7 p-0"
-                                onClick={() => setFormData({ ...formData, featured_image: url })}
-                                title="Définir comme image principale"
-                              >
-                                ⭐
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="destructive"
-                                className="h-7 w-7 p-0"
+                              <Button size="sm" variant="secondary" className="h-7 w-7 p-0"
+                                onClick={() => setFormData({ ...formData, featured_image: url })} title="Image principale">⭐</Button>
+                              <Button size="sm" variant="destructive" className="h-7 w-7 p-0"
                                 onClick={() => setFormData({
                                   ...formData,
                                   images: formData.images.filter((_, i) => i !== index),
                                   featured_image: formData.featured_image === url ? "" : formData.featured_image
-                                })}
-                              >
-                                ✕
-                              </Button>
+                                })}>✕</Button>
                             </div>
-                            {formData.featured_image === url && (
-                              <Badge className="absolute top-1 left-1 text-[10px]">
-                                Principal
-                              </Badge>
-                            )}
+                            {formData.featured_image === url && <Badge className="absolute top-1 left-1 text-[10px]">Principal</Badge>}
                           </div>
                         ))}
                       </div>
                     )}
                   </div>
                   
-                  {/* Videos Upload */}
                   <div className="space-y-4">
-                    <Label className="flex items-center gap-2">
-                      <Video className="w-4 h-4" />
-                      Vidéos (multiples)
-                    </Label>
+                    <Label className="flex items-center gap-2"><Video className="w-4 h-4" />Vidéos</Label>
                     <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                      <Button
-                        type="button"
-                        variant="outline"
+                      <Button type="button" variant="outline"
                         onClick={() => document.getElementById("video-upload")?.click()}
-                        disabled={uploadingVideos}
-                        className="w-full sm:w-auto"
-                      >
-                        {uploadingVideos ? (
-                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        ) : (
-                          <Upload className="w-4 h-4 mr-2" />
-                        )}
+                        disabled={uploadingVideos} className="w-full sm:w-auto">
+                        {uploadingVideos ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Upload className="w-4 h-4 mr-2" />}
                         Ajouter des vidéos
                       </Button>
-                      <input
-                        id="video-upload"
-                        type="file"
-                        accept="video/*"
-                        multiple
-                        className="hidden"
-                        onChange={handleVideoUpload}
-                      />
-                      <span className="text-xs text-muted-foreground">
-                        Formats: MP4, WebM • Max: 50MB par vidéo
-                      </span>
+                      <input id="video-upload" type="file" accept="video/*" multiple className="hidden" onChange={handleVideoUpload} />
+                      <span className="text-xs text-muted-foreground">MP4, WebM • Max 50MB</span>
                     </div>
                     {formData.videos.length > 0 && (
                       <div className="space-y-2">
@@ -655,14 +682,8 @@ FORMAT DE RÉPONSE ATTENDU (JSON STRICT) :
                               <Video className="w-4 h-4 text-muted-foreground" />
                               <span className="truncate text-sm max-w-[200px]">{url.split('/').pop()}</span>
                             </div>
-                            <Button
-                              size="sm"
-                              variant="destructive"
-                              onClick={() => setFormData({
-                                ...formData,
-                                videos: formData.videos.filter((_, i) => i !== index)
-                              })}
-                            >
+                            <Button size="sm" variant="destructive"
+                              onClick={() => setFormData({ ...formData, videos: formData.videos.filter((_, i) => i !== index) })}>
                               <Trash2 className="w-4 h-4" />
                             </Button>
                           </div>
@@ -676,11 +697,9 @@ FORMAT DE RÉPONSE ATTENDU (JSON STRICT) :
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label>Catégorie</Label>
-                      <select
-                        value={formData.category}
+                      <select value={formData.category}
                         onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                        className="w-full p-2 border rounded-md bg-background"
-                      >
+                        className="w-full p-2 border rounded-md bg-background">
                         <option value="general">Général</option>
                         <option value="actualites">Actualités</option>
                         <option value="evenements">Événements</option>
@@ -691,51 +710,39 @@ FORMAT DE RÉPONSE ATTENDU (JSON STRICT) :
                     </div>
                     <div className="space-y-2">
                       <Label>Auteur</Label>
-                      <Input
-                        value={formData.author}
+                      <Input value={formData.author}
                         onChange={(e) => setFormData({ ...formData, author: e.target.value })}
-                        placeholder="Nom de l'auteur"
-                      />
+                        placeholder="Nom de l'auteur" />
                     </div>
                   </div>
-                  
                   <div className="space-y-4 pt-4 border-t">
                     <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
                       <div>
                         <Label className="text-sm font-medium">Publier immédiatement</Label>
-                        <p className="text-xs text-muted-foreground">L'article sera visible sur le site</p>
+                        <p className="text-xs text-muted-foreground">Visible sur le site</p>
                       </div>
-                      <Switch
-                        checked={formData.is_published}
-                        onCheckedChange={(checked) => setFormData({ ...formData, is_published: checked })}
-                      />
+                      <Switch checked={formData.is_published}
+                        onCheckedChange={(checked) => setFormData({ ...formData, is_published: checked })} />
                     </div>
                     <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
                       <div>
                         <Label className="text-sm font-medium">Article à la une</Label>
-                        <p className="text-xs text-muted-foreground">Affiché en priorité sur la page d'accueil</p>
+                        <p className="text-xs text-muted-foreground">Priorité sur la page d'accueil</p>
                       </div>
-                      <Switch
-                        checked={formData.is_featured}
-                        onCheckedChange={(checked) => setFormData({ ...formData, is_featured: checked })}
-                      />
+                      <Switch checked={formData.is_featured}
+                        onCheckedChange={(checked) => setFormData({ ...formData, is_featured: checked })} />
                     </div>
                   </div>
                 </TabsContent>
               </Tabs>
               
               <div className="flex flex-col sm:flex-row justify-end gap-3 pt-4 border-t">
-                <Button variant="outline" onClick={() => setIsDialogOpen(false)} className="w-full sm:w-auto">
-                  Annuler
-                </Button>
+                <Button variant="outline" onClick={() => setIsDialogOpen(false)} className="w-full sm:w-auto">Annuler</Button>
                 <Button 
                   onClick={() => saveMutation.mutate(formData)}
                   disabled={!formData.title_fr || !formData.content_fr || saveMutation.isPending}
-                  className="bg-agri-green hover:bg-agri-green/90 w-full sm:w-auto"
-                >
-                  {saveMutation.isPending ? (
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  ) : null}
+                  className="bg-agri-green hover:bg-agri-green/90 w-full sm:w-auto">
+                  {saveMutation.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                   {editingArticle ? "Mettre à jour" : "Publier l'article"}
                 </Button>
               </div>
@@ -751,16 +758,12 @@ FORMAT DE RÉPONSE ATTENDU (JSON STRICT) :
         ) : news && news.length > 0 ? (
           <div className="grid gap-4">
             {news.map((article) => (
-              <Card key={article.id} className="overflow-hidden">
+              <Card key={article.id} className="overflow-hidden hover:shadow-md transition-shadow">
                 <CardContent className="p-0">
                   <div className="flex flex-col sm:flex-row">
                     {article.featured_image && (
                       <div className="w-full sm:w-40 h-32 sm:h-auto flex-shrink-0">
-                        <img 
-                          src={article.featured_image}
-                          alt={article.title_fr}
-                          className="w-full h-full object-cover"
-                        />
+                        <img src={article.featured_image} alt={article.title_fr} className="w-full h-full object-cover" />
                       </div>
                     )}
                     <div className="flex-1 p-4">
@@ -768,7 +771,7 @@ FORMAT DE RÉPONSE ATTENDU (JSON STRICT) :
                         <div className="flex-1 min-w-0">
                           <h3 className="font-semibold text-base sm:text-lg line-clamp-2">{article.title_fr}</h3>
                           <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
-                            {article.excerpt_fr || article.content_fr.substring(0, 120)}...
+                            {article.excerpt_fr || article.content_fr.replace(/<[^>]*>/g, '').substring(0, 120)}...
                           </p>
                           <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-3 text-xs text-muted-foreground">
                             <span className="flex items-center gap-1">
@@ -776,50 +779,29 @@ FORMAT DE RÉPONSE ATTENDU (JSON STRICT) :
                               {new Date(article.created_at).toLocaleDateString('fr-FR')}
                             </span>
                             <span className="flex items-center gap-1">
-                              <Eye className="w-3 h-3" />
-                              {article.views_count} vues
+                              <Eye className="w-3 h-3" />{article.views_count} vues
                             </span>
                             <Badge variant={article.is_published ? "default" : "secondary"} className="text-xs">
                               {article.is_published ? "Publié" : "Brouillon"}
                             </Badge>
                             {article.is_featured && (
-                              <Badge variant="outline" className="text-xs text-amber-600 border-amber-600">
-                                ⭐ À la une
-                              </Badge>
+                              <Badge variant="outline" className="text-xs text-amber-600 border-amber-600">⭐ À la une</Badge>
+                            )}
+                            {(article as any).title_en && (
+                              <Badge variant="outline" className="text-[10px]">🌍 Multilingue</Badge>
                             )}
                           </div>
                         </div>
-                        <div className="flex items-center gap-1 sm:gap-2">
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => togglePublishMutation.mutate({ 
-                              id: article.id, 
-                              is_published: !article.is_published 
-                            })}
-                            title={article.is_published ? "Dépublier" : "Publier"}
-                          >
+                        <div className="flex items-center gap-1">
+                          <Button size="sm" variant="ghost"
+                            onClick={() => togglePublishMutation.mutate({ id: article.id, is_published: !article.is_published })}>
                             {article.is_published ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                           </Button>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => handleEdit(article)}
-                            title="Modifier"
-                          >
+                          <Button size="sm" variant="ghost" onClick={() => handleEdit(article)}>
                             <Pencil className="w-4 h-4" />
                           </Button>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="text-destructive hover:text-destructive"
-                            onClick={() => {
-                              if (confirm("Supprimer cet article définitivement ?")) {
-                                deleteMutation.mutate(article.id);
-                              }
-                            }}
-                            title="Supprimer"
-                          >
+                          <Button size="sm" variant="ghost" className="text-destructive hover:text-destructive"
+                            onClick={() => { if (confirm("Supprimer cet article ?")) deleteMutation.mutate(article.id); }}>
                             <Trash2 className="w-4 h-4" />
                           </Button>
                         </div>
