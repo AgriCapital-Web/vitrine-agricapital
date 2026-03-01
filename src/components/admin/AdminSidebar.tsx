@@ -1,10 +1,8 @@
 import { Link, useLocation } from "react-router-dom";
 import { 
-  BarChart3, MessageSquare, Users, Image, Handshake, 
-  Mail, Settings, FileText, Home, Send, Bell, Search, 
-  Shield, TrendingUp, Database, Palette, Globe,
-  FormInput, ImageIcon, MailOpen, Inbox,
-  Bot, Reply, UserCircle, Newspaper
+  BarChart3, MessageSquare, Users, Handshake, 
+  Mail, Settings, Search, Bell, Shield, TrendingUp, 
+  Database, Globe, Bot, UserCircle, Newspaper, Home
 } from "lucide-react";
 import logo from "@/assets/logo.png";
 import { cn } from "@/lib/utils";
@@ -16,28 +14,22 @@ interface AdminSidebarProps {
 
 const menuItems = [
   { icon: BarChart3, label: "Tableau de bord", path: "/admin/dashboard" },
-  { icon: TrendingUp, label: "Analytiques", path: "/admin/analytics" },
-  { icon: TrendingUp, label: "Analytics Avancés", path: "/admin/advanced-analytics" },
+  { icon: TrendingUp, label: "Analytiques", path: "/admin/advanced-analytics" },
   { divider: true, label: "Contenu" },
   { icon: Newspaper, label: "Actualités / Blogs", path: "/admin/news" },
   { icon: MessageSquare, label: "Témoignages", path: "/admin/testimonials" },
-  { icon: Users, label: "Abonnés Newsletter", path: "/admin/newsletter" },
-  { icon: Handshake, label: "Demandes Partenariat", path: "/admin/partnership-requests" },
+  { icon: Users, label: "Newsletter", path: "/admin/newsletter" },
+  { icon: Handshake, label: "Partenariats", path: "/admin/partnership-requests" },
   { divider: true, label: "Communication" },
-  { icon: Mail, label: "Communications", path: "/admin/communications" },
-  { divider: true, label: "Intelligence Artificielle" },
+  { icon: Mail, label: "Messagerie", path: "/admin/communications" },
   { icon: Bot, label: "Conversations IA", path: "/admin/ai-conversations" },
   { icon: UserCircle, label: "Contacts Visiteurs", path: "/admin/visitor-contacts" },
-  { icon: Reply, label: "Réponses Auto", path: "/admin/auto-responses" },
   { divider: true, label: "Configuration" },
-  { icon: Database, label: "Base de données", path: "/admin/database" },
-  { icon: FileText, label: "Journal d'Audit", path: "/admin/audit-log" },
-  { icon: Palette, label: "Design & Branding", path: "/admin/branding" },
   { icon: Globe, label: "Traductions", path: "/admin/translations" },
   { icon: Search, label: "SEO", path: "/admin/seo" },
-  { icon: Bell, label: "Notifications Push", path: "/admin/push-notifications" },
+  { icon: Bell, label: "Notifications", path: "/admin/push-notifications" },
   { icon: Shield, label: "Utilisateurs", path: "/admin/users" },
-  { icon: Shield, label: "Permissions", path: "/admin/permissions" },
+  { icon: Database, label: "Base de données", path: "/admin/database" },
   { icon: Settings, label: "Paramètres", path: "/admin/settings" },
 ];
 

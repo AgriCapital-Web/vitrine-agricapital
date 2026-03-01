@@ -26,3 +26,6 @@ verify_jwt = false
 
 [functions.prerender]
 verify_jwt = false
+
+[functions.translate-article]
+verify_jwt = false
