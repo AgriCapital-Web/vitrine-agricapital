@@ -15,6 +15,23 @@ import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2, Eye, EyeOff, Upload, Image, Video, Calendar, Loader2, Sparkles, Wand2, Hash, FileText } from "lucide-react";
+import WYSIWYGEditor from "@/components/admin/WYSIWYGEditor";
+
+// Simple markdown to HTML converter for AI output
+const markdownToHtml = (md: string): string => {
+  return md
+    .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+    .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+    .replace(/^# (.+)$/gm, '<h1>$1</h1>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    .replace(/^- (.+)$/gm, '<li>$1</li>')
+    .replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>')
+    .replace(/^---$/gm, '<hr>')
+    .replace(/\n{2,}/g, '</p><p>')
+    .replace(/^(?!<[hulo]|<li|<hr)(.+)$/gm, '<p>$1</p>')
+    .replace(/<p><\/p>/g, '');
+};
 
 interface NewsArticle {
   id: string;
@@ -152,6 +169,8 @@ const AdminNews = () => {
 
     setGeneratingAI(true);
     
+    const plainText = formData.content_fr.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+    
     try {
       const response = await supabase.functions.invoke('ai-chat', {
         body: {
@@ -169,7 +188,7 @@ CONTEXTE ET TON :
 - L'orthographe et la grammaire doivent être irréprochables.
 
 CONTENU À TRAITER :
-"${formData.content_fr}"
+"${plainText}"
 
 INSTRUCTIONS DE GÉNÉRATION :
 1. TITRE : En MAJUSCULES, impactant et professionnel (max 80 caractères).
@@ -234,19 +253,21 @@ FORMAT DE RÉPONSE ATTENDU (JSON STRICT) :
             const contentWithHashtags = parsed.content + 
               (parsed.hashtags ? `\n\n---\n\n${parsed.hashtags.map((h: string) => `#${h.replace(/^#/, '')}`).join(' ')}` : '');
             
+            const htmlContent = markdownToHtml(contentWithHashtags);
+            
             setFormData(prev => ({
               ...prev,
               title_fr: parsed.title || prev.title_fr,
-              content_fr: contentWithHashtags,
+              content_fr: htmlContent,
               excerpt_fr: parsed.excerpt || prev.excerpt_fr
             }));
             toast.success("Article généré avec succès ! Vérifiez et ajustez si nécessaire.");
           } else {
-            setFormData(prev => ({ ...prev, content_fr: fullText }));
+            setFormData(prev => ({ ...prev, content_fr: markdownToHtml(fullText) }));
             toast.success("Contenu généré, veuillez ajouter un titre");
           }
         } catch {
-          setFormData(prev => ({ ...prev, content_fr: fullText }));
+          setFormData(prev => ({ ...prev, content_fr: markdownToHtml(fullText) }));
           toast.success("Contenu enrichi, veuillez vérifier la mise en forme");
         }
       }
@@ -474,12 +495,10 @@ FORMAT DE RÉPONSE ATTENDU (JSON STRICT) :
                   
                   <div className="space-y-2">
                     <Label>Contenu / Idée (Français) *</Label>
-                    <Textarea
-                      value={formData.content_fr}
-                      onChange={(e) => setFormData({ ...formData, content_fr: e.target.value })}
-                      placeholder="Écrivez votre idée, notes ou contenu brut ici. L'IA le transformera en article professionnel structuré avec mise en forme, sous-titres et hashtags..."
-                      rows={12}
-                      className="font-mono text-sm leading-relaxed"
+                    <WYSIWYGEditor
+                      content={formData.content_fr}
+                      onChange={(content) => setFormData(prev => ({ ...prev, content_fr: content }))}
+                      placeholder="Écrivez votre idée ici. L'IA la transformera en article professionnel..."
                     />
                     <p className="text-xs text-muted-foreground">
                       💡 Astuce: Écrivez simplement vos idées, l'IA se charge de la mise en forme professionnelle.
