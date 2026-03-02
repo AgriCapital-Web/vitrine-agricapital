@@ -5,36 +5,6 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// Process base64 in chunks to prevent memory issues
-function processBase64Chunks(base64String: string, chunkSize = 32768): Uint8Array {
-  const chunks: Uint8Array[] = [];
-  let position = 0;
-  
-  while (position < base64String.length) {
-    const chunk = base64String.slice(position, position + chunkSize);
-    const binaryChunk = atob(chunk);
-    const bytes = new Uint8Array(binaryChunk.length);
-    
-    for (let i = 0; i < binaryChunk.length; i++) {
-      bytes[i] = binaryChunk.charCodeAt(i);
-    }
-    
-    chunks.push(bytes);
-    position += chunkSize;
-  }
-
-  const totalLength = chunks.reduce((acc, chunk) => acc + chunk.length, 0);
-  const result = new Uint8Array(totalLength);
-  let offset = 0;
-
-  for (const chunk of chunks) {
-    result.set(chunk, offset);
-    offset += chunk.length;
-  }
-
-  return result;
-}
-
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -47,59 +17,66 @@ serve(async (req) => {
       throw new Error("No audio data provided");
     }
 
-    const ELEVENLABS_API_KEY = Deno.env.get("ELEVENLABS_API_KEY");
-    
-    if (!ELEVENLABS_API_KEY) {
-      throw new Error("ELEVENLABS_API_KEY not configured");
+    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    if (!LOVABLE_API_KEY) {
+      throw new Error("LOVABLE_API_KEY not configured");
     }
 
-    // Process audio in chunks
-    const binaryAudio = processBase64Chunks(audio);
-    
-    // Determine file extension based on mime type
-    let extension = "webm";
-    if (mimeType?.includes("mp4") || mimeType?.includes("m4a")) {
-      extension = "m4a";
-    } else if (mimeType?.includes("wav")) {
-      extension = "wav";
-    } else if (mimeType?.includes("mp3") || mimeType?.includes("mpeg")) {
-      extension = "mp3";
-    } else if (mimeType?.includes("ogg")) {
-      extension = "ogg";
-    }
-    
-    // Prepare form data for ElevenLabs Speech-to-Text
-    const formData = new FormData();
-    const blob = new Blob([binaryAudio.buffer as ArrayBuffer], { type: mimeType || "audio/webm" });
-    formData.append("file", blob, `audio.${extension}`);
-    formData.append("model_id", "scribe_v1");
+    console.log("Sending audio to Gemini for transcription...");
 
-    console.log("Sending audio to ElevenLabs for transcription...");
-
-    // Send to ElevenLabs Speech-to-Text API
-    const response = await fetch("https://api.elevenlabs.io/v1/speech-to-text", {
+    // Use Gemini multimodal for transcription (replaces ElevenLabs)
+    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
-        "xi-api-key": ELEVENLABS_API_KEY,
+        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        "Content-Type": "application/json",
       },
-      body: formData,
+      body: JSON.stringify({
+        model: "google/gemini-2.5-flash",
+        messages: [
+          {
+            role: "user",
+            content: [
+              {
+                type: "text",
+                text: "Transcris exactement ce message audio mot pour mot. Retourne UNIQUEMENT le texte transcrit, sans commentaire, sans guillemets, sans préfixe. Si l'audio est en français, transcris en français. Si dans une autre langue, transcris dans cette langue."
+              },
+              {
+                type: "image_url",
+                image_url: {
+                  url: `data:${mimeType || "audio/webm"};base64,${audio}`
+                }
+              }
+            ]
+          }
+        ],
+      }),
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error("ElevenLabs API error:", errorText);
-      throw new Error(`ElevenLabs API error: ${errorText}`);
+      console.error("Gemini API error:", response.status, errorText);
+      
+      if (response.status === 429) {
+        return new Response(JSON.stringify({ error: "Limite de requêtes atteinte. Réessayez dans quelques instants." }), {
+          status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      if (response.status === 402) {
+        return new Response(JSON.stringify({ error: "Crédits IA épuisés." }), {
+          status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      throw new Error(`AI gateway error: ${response.status}`);
     }
 
     const result = await response.json();
-    console.log("Transcription successful:", result.text?.substring(0, 100));
+    const text = result.choices?.[0]?.message?.content?.trim() || "";
+    
+    console.log("Transcription successful:", text.substring(0, 100));
 
     return new Response(
-      JSON.stringify({ 
-        text: result.text,
-        words: result.words,
-        language: result.language_code 
-      }),
+      JSON.stringify({ text, language: "auto" }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
 
