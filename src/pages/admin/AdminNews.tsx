@@ -12,7 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, Eye, EyeOff, Upload, Image, Video, Calendar, Loader2, Sparkles, Wand2, Hash, FileText, Globe, Languages } from "lucide-react";
+import { Plus, Pencil, Trash2, Eye, EyeOff, Upload, Image, Video, Calendar, Loader2, Sparkles, Wand2, Hash, FileText, Globe, Languages, ImagePlus, Clapperboard } from "lucide-react";
 import WYSIWYGEditor from "@/components/admin/WYSIWYGEditor";
 
 // Enhanced markdown to HTML converter
@@ -80,6 +80,10 @@ const AdminNews = () => {
   const [generatingAI, setGeneratingAI] = useState(false);
   const [translating, setTranslating] = useState(false);
   const [translationProgress, setTranslationProgress] = useState("");
+  const [generatingImage, setGeneratingImage] = useState(false);
+  const [imagePrompt, setImagePrompt] = useState("");
+  const [generatingVideo, setGeneratingVideo] = useState(false);
+  const [videoPrompt, setVideoPrompt] = useState("");
   
   const [formData, setFormData] = useState({
     slug: "",
@@ -354,6 +358,65 @@ Génère un article professionnel avec :
     }
   };
 
+  // AI Image Generation
+  const generateAIImage = async () => {
+    if (!imagePrompt.trim()) {
+      toast.error("Décrivez l'image à générer");
+      return;
+    }
+    setGeneratingImage(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-article-image', {
+        body: { prompt: imagePrompt, quality: "high" }
+      });
+      if (error) throw error;
+      if (data?.url) {
+        setFormData(prev => ({
+          ...prev,
+          images: [...prev.images, data.url],
+          featured_image: prev.featured_image || data.url,
+        }));
+        setImagePrompt("");
+        toast.success("Image IA générée et ajoutée !");
+      }
+    } catch (error: any) {
+      console.error("AI image error:", error);
+      toast.error(error?.message || "Erreur lors de la génération d'image");
+    } finally {
+      setGeneratingImage(false);
+    }
+  };
+
+  // AI Video Generation (placeholder - uses prompt description)
+  const generateAIVideo = async () => {
+    if (!videoPrompt.trim()) {
+      toast.error("Décrivez la vidéo à générer");
+      return;
+    }
+    setGeneratingVideo(true);
+    toast.info("Génération vidéo en cours... Cela peut prendre quelques minutes.");
+    try {
+      // Generate a still image first, then we note it as a video concept
+      const { data, error } = await supabase.functions.invoke('generate-article-image', {
+        body: { prompt: `Cinematic still frame for video: ${videoPrompt}. Professional documentary style, Ivory Coast agriculture context.`, quality: "high" }
+      });
+      if (error) throw error;
+      if (data?.url) {
+        setFormData(prev => ({
+          ...prev,
+          images: [...prev.images, data.url],
+        }));
+        setVideoPrompt("");
+        toast.success("Image de couverture vidéo générée ! La génération vidéo complète sera disponible prochainement.");
+      }
+    } catch (error: any) {
+      console.error("AI video error:", error);
+      toast.error(error?.message || "Erreur lors de la génération");
+    } finally {
+      setGeneratingVideo(false);
+    }
+  };
+
   const resetForm = () => {
     setFormData({
       slug: "", title_fr: "", title_en: "", title_ar: "", title_es: "", title_de: "", title_zh: "",
@@ -621,10 +684,75 @@ Génère un article professionnel avec :
                 </TabsContent>
                 
                 <TabsContent value="media" className="space-y-6">
+                  {/* AI Image Generation */}
+                  <div className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-xl p-4 border border-purple-300/30">
+                    <div className="flex items-center gap-2 mb-3">
+                      <ImagePlus className="w-5 h-5 text-purple-600" />
+                      <span className="font-semibold text-sm">Génération d'images IA</span>
+                      <Badge variant="secondary" className="text-[10px]">Gemini Image</Badge>
+                    </div>
+                    <p className="text-xs text-muted-foreground mb-3">
+                      Décrivez l'image souhaitée. L'IA génère une photo ultra-réaliste dans le contexte ivoirien et agricole.
+                    </p>
+                    <div className="flex flex-col sm:flex-row gap-2">
+                      <Input
+                        value={imagePrompt}
+                        onChange={(e) => setImagePrompt(e.target.value)}
+                        placeholder="Ex: Pépinière de palmiers à huile à Daloa avec des ouvriers agricoles"
+                        className="flex-1 text-sm"
+                      />
+                      <Button
+                        type="button"
+                        onClick={generateAIImage}
+                        disabled={generatingImage || !imagePrompt.trim()}
+                        className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shrink-0"
+                      >
+                        {generatingImage ? (
+                          <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Génération...</>
+                        ) : (
+                          <><ImagePlus className="w-4 h-4 mr-2" />Générer</>
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* AI Video Generation */}
+                  <div className="bg-gradient-to-r from-blue-500/10 to-cyan-500/10 rounded-xl p-4 border border-blue-300/30">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Clapperboard className="w-5 h-5 text-blue-600" />
+                      <span className="font-semibold text-sm">Génération vidéo IA</span>
+                      <Badge variant="secondary" className="text-[10px]">Bientôt</Badge>
+                    </div>
+                    <p className="text-xs text-muted-foreground mb-3">
+                      Décrivez la scène. L'IA génère une image cinématique de couverture. La vidéo complète sera bientôt disponible.
+                    </p>
+                    <div className="flex flex-col sm:flex-row gap-2">
+                      <Input
+                        value={videoPrompt}
+                        onChange={(e) => setVideoPrompt(e.target.value)}
+                        placeholder="Ex: Vue aérienne d'une plantation de palmiers au coucher du soleil"
+                        className="flex-1 text-sm"
+                      />
+                      <Button
+                        type="button"
+                        onClick={generateAIVideo}
+                        disabled={generatingVideo || !videoPrompt.trim()}
+                        className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white shrink-0"
+                      >
+                        {generatingVideo ? (
+                          <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Génération...</>
+                        ) : (
+                          <><Clapperboard className="w-4 h-4 mr-2" />Générer</>
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Upload Images */}
                   <div className="space-y-4">
                     <Label className="flex items-center gap-2">
                       <Image className="w-4 h-4" />
-                      Images
+                      Images ({formData.images.length})
                     </Label>
                     <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
                       <Button
@@ -634,7 +762,7 @@ Génère un article professionnel avec :
                         className="w-full sm:w-auto"
                       >
                         {uploadingImages ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Upload className="w-4 h-4 mr-2" />}
-                        Ajouter des images
+                        Importer des images
                       </Button>
                       <input id="image-upload" type="file" accept="image/*" multiple className="hidden" onChange={handleImageUpload} />
                       <span className="text-xs text-muted-foreground">JPG, PNG, WebP • Max 10MB</span>
@@ -644,7 +772,7 @@ Génère un article professionnel avec :
                         {formData.images.map((url, index) => (
                           <div key={index} className="relative group aspect-square">
                             <img src={url} alt={`Image ${index + 1}`}
-                              className={`w-full h-full object-cover rounded-lg ${formData.featured_image === url ? 'ring-2 ring-agri-green ring-offset-2' : ''}`} />
+                              className={`w-full h-full object-cover rounded-lg ${formData.featured_image === url ? 'ring-2 ring-primary ring-offset-2' : ''}`} />
                             <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-1">
                               <Button size="sm" variant="secondary" className="h-7 w-7 p-0"
                                 onClick={() => setFormData({ ...formData, featured_image: url })} title="Image principale">⭐</Button>
@@ -662,14 +790,15 @@ Génère un article professionnel avec :
                     )}
                   </div>
                   
+                  {/* Upload Videos */}
                   <div className="space-y-4">
-                    <Label className="flex items-center gap-2"><Video className="w-4 h-4" />Vidéos</Label>
+                    <Label className="flex items-center gap-2"><Video className="w-4 h-4" />Vidéos ({formData.videos.length})</Label>
                     <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
                       <Button type="button" variant="outline"
                         onClick={() => document.getElementById("video-upload")?.click()}
                         disabled={uploadingVideos} className="w-full sm:w-auto">
                         {uploadingVideos ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Upload className="w-4 h-4 mr-2" />}
-                        Ajouter des vidéos
+                        Importer des vidéos
                       </Button>
                       <input id="video-upload" type="file" accept="video/*" multiple className="hidden" onChange={handleVideoUpload} />
                       <span className="text-xs text-muted-foreground">MP4, WebM • Max 50MB</span>
