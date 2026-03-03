@@ -333,14 +333,56 @@ Génère un article professionnel avec :
             
             const htmlContent = markdownToHtml(contentWithHashtags);
             
-            setFormData(prev => ({
-              ...prev,
-              title_fr: parsed.title || prev.title_fr,
+            const newFormData = {
+              ...formData,
+              title_fr: parsed.title || formData.title_fr,
               content_fr: htmlContent,
-              excerpt_fr: parsed.excerpt || prev.excerpt_fr,
-              category: parsed.category || prev.category,
-            }));
-            toast.success("Article généré ! Vous pouvez maintenant traduire automatiquement.");
+              excerpt_fr: parsed.excerpt || formData.excerpt_fr,
+              category: parsed.category || formData.category,
+            };
+            setFormData(newFormData);
+            toast.success("Article généré ! Traduction automatique en cours...");
+
+            // Auto-translate to all languages after generation
+            setTranslating(true);
+            const langs = [
+              { code: 'en', name: 'Anglais' },
+              { code: 'ar', name: 'Arabe' },
+              { code: 'es', name: 'Espagnol' },
+              { code: 'de', name: 'Allemand' },
+              { code: 'zh', name: 'Chinois' },
+            ];
+            const plainForTranslation = (parsed.content || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+            const titleForTranslation = parsed.title || newFormData.title_fr;
+            const excerptForTranslation = parsed.excerpt || newFormData.excerpt_fr || '';
+
+            for (const lang of langs) {
+              setTranslationProgress(`Traduction en ${lang.name}...`);
+              try {
+                const { data: trData, error: trError } = await supabase.functions.invoke('translate-article', {
+                  body: {
+                    title: titleForTranslation,
+                    content: plainForTranslation.slice(0, 4000),
+                    excerpt: excerptForTranslation,
+                    targetLanguage: lang.code,
+                  }
+                });
+                if (trError) throw trError;
+                if (trData) {
+                  setFormData(prev => ({
+                    ...prev,
+                    [`title_${lang.code}`]: trData.title || prev[`title_${lang.code}` as keyof typeof prev],
+                    [`content_${lang.code}`]: trData.content ? markdownToHtml(trData.content) : prev[`content_${lang.code}` as keyof typeof prev],
+                    [`excerpt_${lang.code}`]: trData.excerpt || prev[`excerpt_${lang.code}` as keyof typeof prev],
+                  }));
+                }
+              } catch (trErr) {
+                console.error(`Auto-translation error (${lang.code}):`, trErr);
+              }
+            }
+            setTranslating(false);
+            setTranslationProgress("");
+            toast.success("Article généré et traduit en 5 langues !");
           } else {
             setFormData(prev => ({ ...prev, content_fr: markdownToHtml(fullText) }));
             toast.success("Contenu généré, veuillez ajouter un titre");
