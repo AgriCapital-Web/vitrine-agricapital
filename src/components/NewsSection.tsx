@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, ArrowRight, Newspaper, TrendingUp } from "lucide-react";
 import { Link } from "react-router-dom";
-import ag1 from "@/assets/ag-2026-1.jpg";
+
 
 const translations = {
   fr: {
@@ -59,24 +59,10 @@ const translations = {
   }
 };
 
-// First article for display
-const firstArticle = {
-  id: "ag-2026",
-  slug: "assemblee-generale-2026",
-  title_fr: "AGRICAPITAL | Assemblée Générale Ordinaire Annuelle 2026",
-  title_en: "AGRICAPITAL | Annual General Meeting 2026",
-  excerpt_fr: "Le 07 janvier 2026, AgriCapital SARL a tenu sa première Assemblée Générale Ordinaire Annuelle, réunissant l'ensemble de ses associés pour valider les orientations stratégiques 2026.",
-  excerpt_en: "On January 7, 2026, AgriCapital SARL held its first Annual General Meeting, bringing together all its partners to validate the 2026 strategic orientations.",
-  featured_image: ag1,
-  published_at: "2026-01-07T12:00:00Z",
-  category: "corporate"
-};
-
 const NewsSection = () => {
   const { language } = useLanguage();
   const tr = translations[language as keyof typeof translations] || translations.fr;
 
-  // Fetch latest 3 news from database
   const { data: newsFromDb } = useQuery({
     queryKey: ["news-section"],
     queryFn: async () => {
@@ -85,14 +71,14 @@ const NewsSection = () => {
         .select("*")
         .eq("is_published", true)
         .order("published_at", { ascending: false })
-        .limit(2);
+        .order("created_at", { ascending: false })
+        .limit(3);
       if (error) throw error;
       return data || [];
     }
   });
 
-  // Combine with first article
-  const newsItems = [firstArticle, ...(newsFromDb || [])].slice(0, 3);
+  const newsItems = newsFromDb || [];
 
   const getLocalizedField = (item: any, field: string) => {
     const langField = `${field}_${language}`;
@@ -131,12 +117,13 @@ const NewsSection = () => {
               }`}
             >
               <div className="aspect-video overflow-hidden">
-                <img 
-                  src={article.featured_image || ag1} 
-                  alt={getLocalizedField(article, 'title')}
-                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
-                  loading="lazy"
-                />
+                  <img 
+                    src={article.featured_image || "/placeholder.svg"} 
+                    alt={getLocalizedField(article, 'title')}
+                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                    loading="lazy"
+                    onError={(e) => { e.currentTarget.src = '/placeholder.svg'; }}
+                  />
               </div>
               <CardContent className="p-4 md:p-6">
                 {index === 0 && (

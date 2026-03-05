@@ -110,13 +110,22 @@ RÉPONSE STRICTEMENT EN JSON:
     const data = await response.json();
     const rawContent = data.choices?.[0]?.message?.content || "";
 
-    // Extract JSON from response
-    const jsonMatch = rawContent.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) {
-      throw new Error("Failed to parse AI response as JSON");
-    }
+    const parseAIJson = (text: string) => {
+      try {
+        return JSON.parse(text);
+      } catch {
+        const fenced = text.match(/```json\s*([\s\S]*?)```/i)?.[1] || text.match(/```\s*([\s\S]*?)```/i)?.[1] || text;
+        const objectLike = fenced.match(/\{[\s\S]*\}/)?.[0];
+        if (!objectLike) throw new Error("Failed to parse AI response as JSON");
+        return JSON.parse(objectLike);
+      }
+    };
 
-    const article = JSON.parse(jsonMatch[0]);
+    const article = parseAIJson(rawContent);
+
+    if (!article?.title || !article?.content) {
+      throw new Error("Réponse IA incomplète");
+    }
 
     return new Response(JSON.stringify(article), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },

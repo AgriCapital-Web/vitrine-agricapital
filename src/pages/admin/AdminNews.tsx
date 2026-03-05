@@ -131,6 +131,8 @@ const AdminNews = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-news"] });
+      queryClient.invalidateQueries({ queryKey: ["news"] });
+      queryClient.invalidateQueries({ queryKey: ["news-section"] });
       toast.success(editingArticle ? "Article mis à jour" : "Article créé avec succès");
       resetForm();
       setIsDialogOpen(false);
@@ -148,6 +150,8 @@ const AdminNews = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-news"] });
+      queryClient.invalidateQueries({ queryKey: ["news"] });
+      queryClient.invalidateQueries({ queryKey: ["news-section"] });
       toast.success("Article supprimé avec succès");
     },
     onError: (error: any) => {
@@ -166,6 +170,8 @@ const AdminNews = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-news"] });
+      queryClient.invalidateQueries({ queryKey: ["news"] });
+      queryClient.invalidateQueries({ queryKey: ["news-section"] });
       toast.success("Statut mis à jour");
     },
     onError: (error: any) => {

@@ -450,6 +450,7 @@ export type Database = {
           is_featured: boolean
           is_published: boolean
           published_at: string | null
+          shares_count: number
           slug: string
           title_ar: string | null
           title_de: string | null
@@ -483,6 +484,7 @@ export type Database = {
           is_featured?: boolean
           is_published?: boolean
           published_at?: string | null
+          shares_count?: number
           slug: string
           title_ar?: string | null
           title_de?: string | null
@@ -516,6 +518,7 @@ export type Database = {
           is_featured?: boolean
           is_published?: boolean
           published_at?: string | null
+          shares_count?: number
           slug?: string
           title_ar?: string | null
           title_de?: string | null
@@ -1264,6 +1267,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_public_visitor_count: { Args: never; Returns: number }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1271,6 +1275,8 @@ export type Database = {
         }
         Returns: boolean
       }
+      increment_news_share: { Args: { p_news_id: string }; Returns: number }
+      increment_news_view: { Args: { p_news_id: string }; Returns: number }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
