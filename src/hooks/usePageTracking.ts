@@ -19,9 +19,8 @@ const getGeolocation = async (): Promise<{ country: string; city: string; latitu
   try {
     // Use ipapi.co for free IP geolocation
     const response = await fetch('https://ipapi.co/json/', { 
-      signal: AbortSignal.timeout(5000) // 5 second timeout
+      signal: AbortSignal.timeout(2000) // 2 second timeout
     });
-    
     if (!response.ok) return null;
     
     const data = await response.json();
@@ -48,8 +47,11 @@ export const usePageTracking = () => {
       if (location.pathname.startsWith('/admin')) return;
 
       try {
-        // Get geolocation data
-        const geoData = await getGeolocation();
+        // Get geolocation data without blocking tracking for too long
+        const geoData = await Promise.race([
+          getGeolocation(),
+          new Promise<null>((resolve) => setTimeout(() => resolve(null), 1200))
+        ]);
         
         await supabase.from('page_visits').insert({
           page_path: location.pathname,

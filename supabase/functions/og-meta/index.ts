@@ -55,6 +55,14 @@ const seoTranslations: Record<Language, SEOData> = {
 
 const validLanguages: Language[] = ["fr", "en", "ar", "es", "de", "zh"];
 
+const escapeHtml = (value: string) =>
+  value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -62,18 +70,59 @@ serve(async (req) => {
 
   const url = new URL(req.url);
   const pathParam = url.searchParams.get("path") || "/";
-  
-  // Detect language from path
-  let lang: Language = "fr";
   const pathParts = pathParam.split("/").filter(Boolean);
-  
+
+  let lang: Language = "fr";
   if (pathParts.length > 0 && validLanguages.includes(pathParts[0] as Language)) {
     lang = pathParts[0] as Language;
   }
 
-  const seo = seoTranslations[lang];
+  const contentPath = lang === "fr" ? pathParts : pathParts.slice(1);
+
   const baseUrl = "https://agricapital.ci";
-  const currentUrl = lang === "fr" ? baseUrl : `${baseUrl}/${lang}`;
+  const defaultSeo = seoTranslations[lang];
+  let ogType = "website";
+  let title = defaultSeo.title;
+  let description = defaultSeo.description;
+  let image = `${baseUrl}/og-image.png`;
+
+  if (contentPath[0] === "actualites" && contentPath[1]) {
+    const slug = contentPath[1];
+    try {
+      const supabaseUrl = Deno.env.get("SUPABASE_URL");
+      const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
+
+      if (supabaseUrl && supabaseAnonKey) {
+        const articleResp = await fetch(
+          `${supabaseUrl}/rest/v1/news?select=*&slug=eq.${encodeURIComponent(slug)}&is_published=eq.true&limit=1`,
+          {
+            headers: {
+              apikey: supabaseAnonKey,
+              Authorization: `Bearer ${supabaseAnonKey}`,
+              "Content-Type": "application/json",
+            },
+          },
+        );
+
+        if (articleResp.ok) {
+          const rows = await articleResp.json();
+          const article = rows?.[0];
+          if (article) {
+            ogType = "article";
+            title = article[`title_${lang}`] || article.title_fr || defaultSeo.title;
+            const rawDescription = article[`excerpt_${lang}`] || article.excerpt_fr || defaultSeo.description;
+            description = String(rawDescription).replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim().slice(0, 160) || defaultSeo.description;
+            image = article.featured_image || image;
+          }
+        }
+      }
+    } catch (error) {
+      console.error("og-meta article lookup failed", error);
+    }
+  }
+
+  const locale = defaultSeo.locale;
+  const currentUrl = `${baseUrl}${pathParam}`;
   const dir = lang === "ar" ? "rtl" : "ltr";
 
   const html = `<!DOCTYPE html>
@@ -81,34 +130,27 @@ serve(async (req) => {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <!-- Primary Meta Tags -->
-  <title>${seo.title} | ${seo.slogan}</title>
-  <meta name="title" content="${seo.title}">
-  <meta name="description" content="${seo.description}">
-  
-  <!-- Open Graph / Facebook -->
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="${currentUrl}">
-  <meta property="og:title" content="${seo.title}">
-  <meta property="og:description" content="${seo.description}">
-  <meta property="og:image" content="${baseUrl}/og-image.png">
+  <title>${escapeHtml(title)} | ${escapeHtml(defaultSeo.slogan)}</title>
+  <meta name="title" content="${escapeHtml(title)}">
+  <meta name="description" content="${escapeHtml(description)}">
+
+  <meta property="og:type" content="${ogType}">
+  <meta property="og:url" content="${escapeHtml(currentUrl)}">
+  <meta property="og:title" content="${escapeHtml(title)}">
+  <meta property="og:description" content="${escapeHtml(description)}">
+  <meta property="og:image" content="${escapeHtml(image)}">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:locale" content="${seo.locale}">
+  <meta property="og:locale" content="${locale}">
   <meta property="og:site_name" content="AgriCapital">
-  
-  <!-- Twitter -->
+
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:url" content="${currentUrl}">
-  <meta name="twitter:title" content="${seo.title}">
-  <meta name="twitter:description" content="${seo.description}">
-  <meta name="twitter:image" content="${baseUrl}/og-image.png">
-  
-  <!-- Canonical -->
-  <link rel="canonical" href="${currentUrl}">
-  
-  <!-- Hreflang -->
+  <meta name="twitter:url" content="${escapeHtml(currentUrl)}">
+  <meta name="twitter:title" content="${escapeHtml(title)}">
+  <meta name="twitter:description" content="${escapeHtml(description)}">
+  <meta name="twitter:image" content="${escapeHtml(image)}">
+
+  <link rel="canonical" href="${escapeHtml(currentUrl)}">
   <link rel="alternate" hreflang="fr" href="${baseUrl}">
   <link rel="alternate" hreflang="en" href="${baseUrl}/en">
   <link rel="alternate" hreflang="ar" href="${baseUrl}/ar">
@@ -116,15 +158,11 @@ serve(async (req) => {
   <link rel="alternate" hreflang="de" href="${baseUrl}/de">
   <link rel="alternate" hreflang="zh" href="${baseUrl}/zh">
   <link rel="alternate" hreflang="x-default" href="${baseUrl}">
-  
-  <!-- Favicon -->
   <link rel="icon" type="image/png" href="${baseUrl}/favicon.png">
-  
-  <!-- Redirect to main site for browsers -->
-  <meta http-equiv="refresh" content="0; url=${currentUrl}">
+  <meta http-equiv="refresh" content="0; url=${escapeHtml(currentUrl)}">
 </head>
 <body>
-  <p>Redirecting to <a href="${currentUrl}">${seo.title}</a>...</p>
+  <p>Redirecting to <a href="${escapeHtml(currentUrl)}">${escapeHtml(title)}</a>...</p>
 </body>
 </html>`;
 

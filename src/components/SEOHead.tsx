@@ -10,6 +10,13 @@ interface SEOData {
   slogan: string;
 }
 
+interface SEOHeadProps {
+  title?: string;
+  description?: string;
+  image?: string;
+  type?: "website" | "article";
+}
+
 const seoTranslations: Record<Language, SEOData> = {
   fr: {
     title: "AgriCapital - Le partenaire idéal des producteurs agricoles en Côte d'Ivoire",
@@ -60,7 +67,7 @@ const localeMap: Record<Language, string> = {
 
 const languages: Language[] = ["fr", "en", "ar", "es", "de", "zh"];
 
-const SEOHead = () => {
+const SEOHead = ({ title, description, image, type = "website" }: SEOHeadProps) => {
   const { language } = useLanguage();
   const location = useLocation();
   
@@ -68,6 +75,9 @@ const SEOHead = () => {
     const seo = seoTranslations[language] || seoTranslations.fr;
     const locale = localeMap[language] || "fr_FR";
     const baseUrl = "https://agricapital.ci";
+    const finalTitle = title || seo.title;
+    const finalDescription = description || seo.description;
+    const finalImage = image || `${baseUrl}/og-image.png`;
     
     // Determine the current URL based on the actual path
     // French is the default, so root URL is always French
@@ -77,7 +87,7 @@ const SEOHead = () => {
       : `${baseUrl}${currentPath}`;
     
     // Update document title with slogan
-    document.title = `${seo.title} | ${seo.slogan}`;
+    document.title = `${finalTitle} | ${seo.slogan}`;
     
     // Update or create meta tags
     const updateMeta = (name: string, content: string, property = false) => {
@@ -107,8 +117,8 @@ const SEOHead = () => {
     };
     
     // Primary meta tags
-    updateMeta("title", seo.title);
-    updateMeta("description", seo.description);
+    updateMeta("title", finalTitle);
+    updateMeta("description", finalDescription);
     updateMeta("keywords", seo.keywords);
     
     // Geo and language targeting for Côte d'Ivoire
@@ -117,13 +127,13 @@ const SEOHead = () => {
     updateMeta("content-language", language);
     
     // Open Graph - critical for social media sharing
-    updateMeta("og:type", "website", true);
+    updateMeta("og:type", type, true);
     updateMeta("og:site_name", "AgriCapital", true);
-    updateMeta("og:title", seo.title, true);
-    updateMeta("og:description", seo.description, true);
+    updateMeta("og:title", finalTitle, true);
+    updateMeta("og:description", finalDescription, true);
     updateMeta("og:url", currentUrl, true);
     updateMeta("og:locale", locale, true);
-    updateMeta("og:image", `${baseUrl}/og-image.png`, true);
+    updateMeta("og:image", finalImage, true);
     updateMeta("og:image:width", "1200", true);
     updateMeta("og:image:height", "630", true);
     updateMeta("og:image:alt", seo.slogan, true);
@@ -131,10 +141,10 @@ const SEOHead = () => {
     // Twitter Card
     updateMeta("twitter:card", "summary_large_image");
     updateMeta("twitter:site", "@AgriCapitalCI");
-    updateMeta("twitter:title", seo.title);
-    updateMeta("twitter:description", seo.description);
+    updateMeta("twitter:title", finalTitle);
+    updateMeta("twitter:description", finalDescription);
     updateMeta("twitter:url", currentUrl);
-    updateMeta("twitter:image", `${baseUrl}/og-image.png`);
+    updateMeta("twitter:image", finalImage);
     updateMeta("twitter:image:alt", seo.slogan);
     
     // Additional locale variants for OG - French first as primary
@@ -160,7 +170,7 @@ const SEOHead = () => {
     document.documentElement.lang = language;
     document.documentElement.dir = language === "ar" ? "rtl" : "ltr";
     
-  }, [language, location.pathname]);
+  }, [language, location.pathname, title, description, image, type]);
   
   return null;
 };

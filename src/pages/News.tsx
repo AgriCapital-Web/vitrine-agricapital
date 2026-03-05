@@ -102,7 +102,7 @@ const News = () => {
                           {getFeaturedImages(featuredArticle).map((img: string, index: number) => (
                             <CarouselItem key={index}>
                               <div className="aspect-video">
-                                <img src={img} alt={`Image ${index + 1}`} className="w-full h-full object-cover" loading="lazy" />
+                                <img src={img} alt={`Image ${index + 1}`} className="w-full h-full object-cover" loading="lazy" onError={(e) => { e.currentTarget.src = '/placeholder.svg'; }} />
                               </div>
                             </CarouselItem>
                           ))}
@@ -183,6 +183,7 @@ const News = () => {
                               alt={getLocalizedField(article, 'title')}
                               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                               loading="lazy"
+                              onError={(e) => { e.currentTarget.src = '/placeholder.svg'; }}
                             />
                           </div>
                         ) : (

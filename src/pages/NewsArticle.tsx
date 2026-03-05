@@ -12,19 +12,20 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Calendar, ArrowLeft, Share2, User, Eye, Loader2, ChevronLeft, ChevronRight, X, Play } from "lucide-react";
 
 const translations = {
-  fr: { back: "Retour aux actualités", by: "Par", share: "Partager", views: "vues", notFound: "Article non trouvé", notFoundDesc: "L'article que vous recherchez n'existe pas ou a été déplacé.", gallery: "Galerie photos" },
-  en: { back: "Back to news", by: "By", share: "Share", views: "views", notFound: "Article not found", notFoundDesc: "The article you're looking for doesn't exist or has been moved.", gallery: "Photo gallery" },
-  ar: { back: "العودة إلى الأخبار", by: "بواسطة", share: "مشاركة", views: "مشاهدات", notFound: "المقال غير موجود", notFoundDesc: "المقال الذي تبحث عنه غير موجود أو تم نقله.", gallery: "معرض الصور" },
-  es: { back: "Volver a noticias", by: "Por", share: "Compartir", views: "vistas", notFound: "Artículo no encontrado", notFoundDesc: "El artículo que busca no existe o ha sido movido.", gallery: "Galería de fotos" },
-  de: { back: "Zurück zu Nachrichten", by: "Von", share: "Teilen", views: "Aufrufe", notFound: "Artikel nicht gefunden", notFoundDesc: "Der Artikel, den Sie suchen, existiert nicht oder wurde verschoben.", gallery: "Fotogalerie" },
-  zh: { back: "返回新闻", by: "作者", share: "分享", views: "浏览量", notFound: "文章未找到", notFoundDesc: "您要查找的文章不存在或已被移动。", gallery: "图片库" }
+  fr: { back: "Retour aux actualités", by: "Par", share: "Partager", views: "vues", shares: "partages", notFound: "Article non trouvé", notFoundDesc: "L'article que vous recherchez n'existe pas ou a été déplacé.", gallery: "Galerie photos" },
+  en: { back: "Back to news", by: "By", share: "Share", views: "views", shares: "shares", notFound: "Article not found", notFoundDesc: "The article you're looking for doesn't exist or has been moved.", gallery: "Photo gallery" },
+  ar: { back: "العودة إلى الأخبار", by: "بواسطة", share: "مشاركة", views: "مشاهدات", shares: "مشاركات", notFound: "المقال غير موجود", notFoundDesc: "المقال الذي تبحث عنه غير موجود أو تم نقله.", gallery: "معرض الصور" },
+  es: { back: "Volver a noticias", by: "Por", share: "Compartir", views: "vistas", shares: "compartidos", notFound: "Artículo no encontrado", notFoundDesc: "El artículo que busca no existe o ha sido movido.", gallery: "Galería de fotos" },
+  de: { back: "Zurück zu Nachrichten", by: "Von", share: "Teilen", views: "Aufrufe", shares: "geteilt", notFound: "Artikel nicht gefunden", notFoundDesc: "Der Artikel, den Sie suchen, existiert nicht oder wurde verschoben.", gallery: "Fotogalerie" },
+  zh: { back: "返回新闻", by: "作者", share: "分享", views: "浏览量", shares: "分享", notFound: "文章未找到", notFoundDesc: "您要查找的文章不存在或已被移动。", gallery: "图片库" }
 };
 
 const NewsArticle = () => {
   const { slug } = useParams<{ slug: string }>();
   const { language } = useLanguage();
   const tr = translations[language as keyof typeof translations] || translations.fr;
-  const [viewCounted, setViewCounted] = useState(false);
+  const [articleViews, setArticleViews] = useState(0);
+  const [articleShares, setArticleShares] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
 
@@ -44,13 +45,28 @@ const NewsArticle = () => {
     enabled: !!slug
   });
 
-  // Increment view count
   useEffect(() => {
-    if (article && !viewCounted) {
-      setViewCounted(true);
-      supabase.from("news").update({ views_count: (article.views_count || 0) + 1 }).eq("id", article.id).then(() => {});
-    }
-  }, [article, viewCounted]);
+    if (!article) return;
+
+    setArticleViews(article.views_count ?? 0);
+    setArticleShares((article as any).shares_count ?? 0);
+
+    const viewKey = `news-viewed-${article.id}`;
+    if (sessionStorage.getItem(viewKey)) return;
+
+    const incrementView = async () => {
+      try {
+        sessionStorage.setItem(viewKey, '1');
+        
+        const { data } = await supabase.rpc('increment_news_view' as never, { p_news_id: article.id } as never);
+        if (typeof data === 'number') setArticleViews(data);
+      } catch {
+        sessionStorage.removeItem(viewKey);
+      }
+    };
+
+    incrementView();
+  }, [article]);
 
   useEffect(() => { window.scrollTo(0, 0); }, [slug]);
 
@@ -86,7 +102,7 @@ const NewsArticle = () => {
   if (isLoading) {
     return (
       <>
-        <SEOHead />
+        <SEOHead type="article" />
         <DynamicNavigation />
         <main className="pt-24 min-h-screen bg-background flex items-center justify-center">
           <Loader2 className="w-8 h-8 animate-spin text-primary" />
@@ -99,7 +115,7 @@ const NewsArticle = () => {
   if (!article) {
     return (
       <>
-        <SEOHead />
+        <SEOHead type="article" />
         <DynamicNavigation />
         <main className="pt-24 min-h-screen bg-background">
           <div className="container mx-auto px-4 py-20 text-center">
@@ -115,14 +131,49 @@ const NewsArticle = () => {
     );
   }
 
-  // Parse images and videos from JSON
-  const images: string[] = article.images
-    ? (Array.isArray(article.images) ? article.images : JSON.parse(article.images as string || '[]'))
-    : [];
-  const videos: string[] = article.videos
-    ? (Array.isArray(article.videos) ? article.videos : JSON.parse(article.videos as string || '[]'))
-    : [];
+  const parseMediaArray = (value: unknown): string[] => {
+    if (!value) return [];
+    if (Array.isArray(value)) return value.filter((v): v is string => typeof v === 'string');
+    if (typeof value === 'string') {
+      try {
+        const parsed = JSON.parse(value);
+        return Array.isArray(parsed) ? parsed.filter((v): v is string => typeof v === 'string') : [];
+      } catch {
+        return [];
+      }
+    }
+    return [];
+  };
+
+  const images = parseMediaArray(article.images);
+  const videos = parseMediaArray(article.videos);
   const displayImages = images.length > 0 ? images : (article.featured_image ? [article.featured_image] : []);
+
+  const seoTitle = getLocalizedField(article, 'title') || 'Actualité AgriCapital';
+  const seoDescription = (getLocalizedField(article, 'excerpt') || getLocalizedField(article, 'content') || '')
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 160);
+  const seoImage = displayImages[0] || undefined;
+
+  const handleShare = async () => {
+    const shareKey = `news-shared-${article.id}`;
+
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: seoTitle, text: seoDescription, url: window.location.href });
+      } else if (navigator.clipboard) {
+        await navigator.clipboard.writeText(window.location.href);
+      }
+
+      const { data } = await supabase.rpc('increment_news_share' as never, { p_news_id: article.id } as never);
+      if (typeof data === 'number') setArticleShares(data);
+      sessionStorage.setItem(shareKey, '1');
+    } catch {
+      // no-op
+    }
+  };
 
   const openLightbox = (index: number) => { setLightboxIndex(index); setLightboxOpen(true); };
   const nextImage = () => setLightboxIndex((prev) => (prev + 1) % displayImages.length);
@@ -130,7 +181,7 @@ const NewsArticle = () => {
 
   return (
     <>
-      <SEOHead />
+      <SEOHead type="article" title={seoTitle} description={seoDescription} image={seoImage} />
       <DynamicNavigation />
       
       <main className="pt-24 min-h-screen bg-background">
@@ -158,15 +209,19 @@ const NewsArticle = () => {
               <User className="w-4 h-4" />
               {tr.by} {article.author || 'AgriCapital'}
             </span>
-            {(article.views_count ?? 0) > 0 && (
+            {articleViews > 0 && (
               <span className="flex items-center gap-2">
                 <Eye className="w-4 h-4" />
-                {article.views_count} {tr.views}
+                {articleViews} {tr.views}
               </span>
             )}
-            <Button variant="ghost" size="sm" className="ml-auto" onClick={() => {
-              if (navigator.share) navigator.share({ title: getLocalizedField(article, 'title'), url: window.location.href });
-            }}>
+            {articleShares > 0 && (
+              <span className="flex items-center gap-2">
+                <Share2 className="w-4 h-4" />
+                {articleShares} {tr.shares}
+              </span>
+            )}
+            <Button variant="ghost" size="sm" className="ml-auto" onClick={handleShare}>
               <Share2 className="w-4 h-4 mr-2" />{tr.share}
             </Button>
           </div>
@@ -234,9 +289,7 @@ const NewsArticle = () => {
           />
 
           <div className="flex justify-center py-8 border-t">
-            <Button className="bg-primary hover:bg-primary/90" onClick={() => {
-              if (navigator.share) navigator.share({ title: getLocalizedField(article, 'title'), url: window.location.href });
-            }}>
+            <Button className="bg-primary hover:bg-primary/90" onClick={handleShare}>
               <Share2 className="w-4 h-4 mr-2" />{tr.share}
             </Button>
           </div>

@@ -6,25 +6,23 @@ export const useVisitorCount = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    let isMounted = true;
+
     const fetchVisitorCount = async () => {
       try {
-        const { count, error } = await supabase
-          .from("page_visits")
-          .select("visitor_id", { count: "exact", head: true });
-        
-        if (!error && count !== null) {
-          setTotalVisitors(count);
+        const { data, error } = await supabase.rpc('get_public_visitor_count' as never, {} as never);
+        if (!error && typeof data === 'number' && isMounted) {
+          setTotalVisitors(data);
         }
       } catch (error) {
         console.error("Error fetching visitor count:", error);
       } finally {
-        setIsLoading(false);
+        if (isMounted) setIsLoading(false);
       }
     };
 
     fetchVisitorCount();
 
-    // Subscribe to realtime updates
     const channel = supabase
       .channel('visitor-count')
       .on(
@@ -36,7 +34,11 @@ export const useVisitorCount = () => {
       )
       .subscribe();
 
+    const interval = window.setInterval(fetchVisitorCount, 15000);
+
     return () => {
+      isMounted = false;
+      window.clearInterval(interval);
       supabase.removeChannel(channel);
     };
   }, []);
@@ -45,3 +47,4 @@ export const useVisitorCount = () => {
 };
 
 export default useVisitorCount;
+

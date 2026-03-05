@@ -38,7 +38,7 @@ const DynamicNavigation = () => {
   const langMenuRef = useRef<HTMLDivElement>(null);
   const mobileLangMenuRef = useRef<HTMLDivElement>(null);
   const { menuItems, isLoading } = useDynamicMenu();
-  const { totalVisitors } = useVisitorCount();
+  const { totalVisitors, isLoading: isLoadingVisitors } = useVisitorCount();
 
   // Use fallback menu if database menu is empty
   const displayMenu = menuItems.length > 0 ? menuItems : fallbackMenu;
@@ -116,7 +116,7 @@ const DynamicNavigation = () => {
             {/* Visitor Counter */}
             <div className="flex items-center gap-1.5 text-muted-foreground text-sm bg-muted/50 px-3 py-1.5 rounded-full">
               <Users size={14} />
-              <span className="font-medium">{totalVisitors.toLocaleString()}</span>
+              <span className="font-medium">{isLoadingVisitors ? '…' : totalVisitors.toLocaleString()}</span>
               <span className="hidden xl:inline text-xs">{visitorTranslations[language as keyof typeof visitorTranslations]}</span>
             </div>
             
@@ -176,7 +176,7 @@ const DynamicNavigation = () => {
             {/* Visitor Counter Mobile */}
             <div className="flex items-center gap-1 text-muted-foreground text-xs bg-muted/50 px-2 py-1 rounded-full">
               <Users size={12} />
-              <span className="font-medium">{totalVisitors.toLocaleString()}</span>
+              <span className="font-medium">{isLoadingVisitors ? '…' : totalVisitors.toLocaleString()}</span>
             </div>
             
             <div className="relative" ref={mobileLangMenuRef}>
