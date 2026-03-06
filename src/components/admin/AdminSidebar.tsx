@@ -2,7 +2,7 @@ import { Link, useLocation } from "react-router-dom";
 import { 
   BarChart3, MessageSquare, Users, Handshake, 
   Mail, Settings, Search, Bell, Shield, TrendingUp, 
-  Database, Globe, Bot, UserCircle, Newspaper, Home
+  Database, Globe, Bot, UserCircle, Newspaper, Home, ImageIcon
 } from "lucide-react";
 import logo from "@/assets/logo.png";
 import { cn } from "@/lib/utils";
@@ -29,6 +29,7 @@ const menuItems = [
   { icon: Search, label: "SEO", path: "/admin/seo" },
   { icon: Bell, label: "Notifications", path: "/admin/push-notifications" },
   { icon: Shield, label: "Utilisateurs", path: "/admin/users" },
+  { icon: ImageIcon, label: "Qualité Média", path: "/admin/media-quality" },
   { icon: Database, label: "Base de données", path: "/admin/database" },
   { icon: Settings, label: "Paramètres", path: "/admin/settings" },
 ];
