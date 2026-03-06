@@ -58,6 +58,7 @@ const AdminPermissions = lazy(() => import("./pages/admin/AdminPermissions"));
 const AdminAuditLog = lazy(() => import("./pages/admin/AdminAuditLog"));
 const AdminCommunications = lazy(() => import("./pages/admin/AdminCommunications"));
 const AdminDatabase = lazy(() => import("./pages/admin/AdminDatabase"));
+const AdminMediaQuality = lazy(() => import("./pages/admin/AdminMediaQuality"));
 
 const queryClient = new QueryClient();
 
@@ -159,6 +160,7 @@ const AppContent = () => {
         <Route path="/admin/audit-log" element={<AdminAuditLog />} />
         <Route path="/admin/communications" element={<AdminCommunications />} />
         <Route path="/admin/database" element={<AdminDatabase />} />
+        <Route path="/admin/media-quality" element={<AdminMediaQuality />} />
         
         {/* 404 */}
         <Route path="*" element={<NotFound />} />

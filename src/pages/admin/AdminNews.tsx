@@ -214,6 +214,8 @@ const AdminNews = () => {
         excerpt_fr: articleData.excerpt || prev.excerpt_fr,
         category: articleData.category || prev.category,
         slug: articleData.slug || prev.slug,
+        is_published: true,
+        is_featured: true,
       }));
 
       toast.success("Article généré avec succès !");
