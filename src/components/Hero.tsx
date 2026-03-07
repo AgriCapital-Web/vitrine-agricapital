@@ -1,12 +1,26 @@
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, ExternalLink } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import heroImage from "@/assets/nursery-site.webp";
 import SocialShareButtons from "@/components/SocialShareButtons";
-import OptimizedImage from "@/components/OptimizedImage";
+
+import heroImage1 from "@/assets/nursery-site.webp";
+import heroImage2 from "@/assets/nursery-palm.jpg";
+import heroImage3 from "@/assets/founder-palm-field.jpg";
+import heroImage4 from "@/assets/nursery-dec-2025-1.jpg";
+
+const heroImages = [heroImage1, heroImage2, heroImage3, heroImage4];
 
 const Hero = () => {
   const { t, language } = useLanguage();
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % heroImages.length);
+    }, 6000);
+    return () => clearInterval(interval);
+  }, []);
 
   const subscriberText: Record<string, string> = {
     fr: "Espace Clients",
@@ -29,21 +43,31 @@ const Hero = () => {
   };
 
   return (
-    <section id="hero" className="relative min-h-screen flex items-center justify-center pt-16 sm:pt-20">
-      {/* Background Image with Overlay - Optimized for mobile */}
+    <section id="hero" className="relative min-h-screen flex items-center justify-center pt-16 sm:pt-20 overflow-hidden">
+      {/* Animated Background Images with Ken Burns effect */}
       <div className="absolute inset-0 z-0">
-        <OptimizedImage
-          src={heroImage}
-          alt="Site de pépinière AgriCapital - Agriculture moderne en Côte d'Ivoire"
-          className="w-full h-full"
-          priority={true}
-          objectFit="cover"
-          sizes="100vw"
-        />
+        {heroImages.map((img, index) => (
+          <div
+            key={index}
+            className="absolute inset-0 transition-opacity duration-[2000ms] ease-in-out"
+            style={{ opacity: currentIndex === index ? 1 : 0 }}
+          >
+            <img
+              src={img}
+              alt="AgriCapital - Agriculture moderne en Côte d'Ivoire"
+              className="w-full h-full object-cover"
+              style={{
+                animation: currentIndex === index ? 'heroKenBurns 12s ease-in-out infinite alternate' : 'none',
+              }}
+              loading={index === 0 ? "eager" : "lazy"}
+              draggable={false}
+            />
+          </div>
+        ))}
         <div className="absolute inset-0 bg-gradient-hero"></div>
       </div>
 
-      {/* Content - Enhanced mobile spacing */}
+      {/* Content */}
       <div className="container mx-auto px-3 sm:px-4 relative z-10">
         <div className="max-w-4xl mx-auto text-center">
           <div className="inline-block px-3 sm:px-6 py-2 sm:py-3 bg-accent/20 backdrop-blur-sm rounded-full mb-3 sm:mb-6">
@@ -58,7 +82,7 @@ const Hero = () => {
             {t.hero.description}
           </p>
 
-          {/* CTA Buttons - Better touch targets for mobile */}
+          {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center px-2">
             <Button
               size="lg"
@@ -77,7 +101,7 @@ const Hero = () => {
             </Button>
           </div>
 
-          {/* Subscriber Portal Button - Enhanced touch */}
+          {/* Subscriber Portal Button */}
           <div className="mt-4 sm:mt-6">
             <button
               onClick={openSubscriberPortal}
