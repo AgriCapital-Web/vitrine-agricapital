@@ -9,7 +9,7 @@ import SEOHead from "@/components/SEOHead";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Calendar, ArrowLeft, Share2, User, Eye, Loader2, ChevronLeft, ChevronRight, X, Play } from "lucide-react";
+import { Calendar, ArrowLeft, Share2, User, Eye, Loader2, ChevronLeft, ChevronRight, X } from "lucide-react";
 
 const translations = {
   fr: { back: "Retour aux actualités", by: "Par", share: "Partager", views: "vues", shares: "partages", notFound: "Article non trouvé", notFoundDesc: "L'article que vous recherchez n'existe pas ou a été déplacé.", gallery: "Galerie photos" },
@@ -49,7 +49,7 @@ const NewsArticle = () => {
     if (!article) return;
 
     setArticleViews(article.views_count ?? 0);
-    setArticleShares((article as any).shares_count ?? 0);
+    setArticleShares(article.shares_count ?? 0);
 
     const viewKey = `news-viewed-${article.id}`;
     if (sessionStorage.getItem(viewKey)) return;
@@ -57,8 +57,7 @@ const NewsArticle = () => {
     const incrementView = async () => {
       try {
         sessionStorage.setItem(viewKey, '1');
-        
-        const { data } = await supabase.rpc('increment_news_view' as never, { p_news_id: article.id } as never);
+        const { data } = await supabase.rpc('increment_news_view', { p_news_id: article.id });
         if (typeof data === 'number') setArticleViews(data);
       } catch {
         sessionStorage.removeItem(viewKey);
@@ -84,7 +83,6 @@ const NewsArticle = () => {
 
   const parseContent = (content: string) => {
     if (!content) return "";
-    // If content already contains HTML tags, return as-is
     if (content.includes('<h2') || content.includes('<h3') || content.includes('<p ')) {
       return content;
     }
@@ -158,8 +156,6 @@ const NewsArticle = () => {
   const seoImage = displayImages[0] || undefined;
 
   const handleShare = async () => {
-    const shareKey = `news-shared-${article.id}`;
-
     try {
       if (navigator.share) {
         await navigator.share({ title: seoTitle, text: seoDescription, url: window.location.href });
@@ -167,9 +163,8 @@ const NewsArticle = () => {
         await navigator.clipboard.writeText(window.location.href);
       }
 
-      const { data } = await supabase.rpc('increment_news_share' as never, { p_news_id: article.id } as never);
+      const { data } = await supabase.rpc('increment_news_share', { p_news_id: article.id });
       if (typeof data === 'number') setArticleShares(data);
-      sessionStorage.setItem(shareKey, '1');
     } catch {
       // no-op
     }
@@ -209,12 +204,10 @@ const NewsArticle = () => {
               <User className="w-4 h-4" />
               {tr.by} {article.author || 'AgriCapital'}
             </span>
-            {articleViews > 0 && (
-              <span className="flex items-center gap-2">
-                <Eye className="w-4 h-4" />
-                {articleViews} {tr.views}
-              </span>
-            )}
+            <span className="flex items-center gap-2">
+              <Eye className="w-4 h-4" />
+              {articleViews} {tr.views}
+            </span>
             {articleShares > 0 && (
               <span className="flex items-center gap-2">
                 <Share2 className="w-4 h-4" />
@@ -234,6 +227,7 @@ const NewsArticle = () => {
                   src={displayImages[0]} 
                   alt={getLocalizedField(article, 'title')}
                   className="w-full aspect-video object-cover hover:scale-105 transition-transform duration-500"
+                  onError={(e) => { e.currentTarget.src = '/placeholder.svg'; }}
                 />
               </div>
             </div>
@@ -250,7 +244,7 @@ const NewsArticle = () => {
                     className="aspect-square rounded-lg overflow-hidden cursor-pointer group relative"
                     onClick={() => openLightbox(index + 1)}
                   >
-                    <img src={img} alt={`Image ${index + 2}`} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" />
+                    <img src={img} alt={`Image ${index + 2}`} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" onError={(e) => { e.currentTarget.src = '/placeholder.svg'; }} />
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
                   </div>
                 ))}

@@ -2,7 +2,6 @@ import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 
-// Persistent domain for tracking - always use www.agricapital.ci
 const TRACKING_DOMAIN = "www.agricapital.ci";
 
 const getVisitorId = (): string => {
@@ -14,26 +13,20 @@ const getVisitorId = (): string => {
   return visitorId;
 };
 
-// Get visitor's geolocation using IP-based service
 const getGeolocation = async (): Promise<{ country: string; city: string; latitude: number; longitude: number } | null> => {
   try {
-    // Use ipapi.co for free IP geolocation
     const response = await fetch('https://ipapi.co/json/', { 
-      signal: AbortSignal.timeout(2000) // 2 second timeout
+      signal: AbortSignal.timeout(1500)
     });
     if (!response.ok) return null;
-    
     const data = await response.json();
-    
     return {
       country: data.country_name || 'Unknown',
       city: data.city || 'Unknown',
       latitude: data.latitude || 0,
       longitude: data.longitude || 0
     };
-  } catch (error) {
-    // Fallback - don't block tracking if geolocation fails
-    console.log('Geolocation service unavailable');
+  } catch {
     return null;
   }
 };
@@ -43,30 +36,38 @@ export const usePageTracking = () => {
 
   useEffect(() => {
     const trackVisit = async () => {
-      // Don't track admin pages
       if (location.pathname.startsWith('/admin')) return;
 
       try {
-        // Get geolocation data without blocking tracking for too long
-        const geoData = await Promise.race([
-          getGeolocation(),
-          new Promise<null>((resolve) => setTimeout(() => resolve(null), 1200))
-        ]);
+        // Don't await geolocation - fire and forget
+        const geoPromise = getGeolocation();
         
-        await supabase.from('page_visits').insert({
+        // Insert immediately without geo, then update
+        const visitorId = getVisitorId();
+        const insertData: any = {
           page_path: location.pathname,
-          visitor_id: getVisitorId(),
+          visitor_id: visitorId,
           user_agent: navigator.userAgent,
           referrer: document.referrer || null,
           domain: TRACKING_DOMAIN,
-          country: geoData?.country || null,
-          city: geoData?.city || null,
-          latitude: geoData?.latitude || null,
-          longitude: geoData?.longitude || null,
-        });
-      } catch (error) {
-        // Silently fail - don't affect user experience
-        console.error('Error tracking page visit:', error);
+        };
+
+        // Try to get geo data quickly
+        const geoData = await Promise.race([
+          geoPromise,
+          new Promise<null>((resolve) => setTimeout(() => resolve(null), 1000))
+        ]);
+
+        if (geoData) {
+          insertData.country = geoData.country;
+          insertData.city = geoData.city;
+          insertData.latitude = geoData.latitude;
+          insertData.longitude = geoData.longitude;
+        }
+
+        await supabase.from('page_visits').insert(insertData);
+      } catch {
+        // Silently fail
       }
     };
 
