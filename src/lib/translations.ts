@@ -220,8 +220,8 @@ const fr = {
     signature: "Agro-entrepreneur et Stratège du Développement Agricole",
     quote: {
       part1: "L'agriculture représente bien plus qu'une activité économique : c'est le fondement de tout patrimoine durable. Mon ambition est de permettre à chaque personne qui le souhaite de disposer de sa propre plantation agricole, dans un cadre sécurisé et professionnel.",
-      part2: "Après douze années d'immersion dans les communautés rurales ivoiriennes et plus de 360 localités parcourues, j'ai structuré un modèle qui répond à un besoin réel : accéder à l'agriculture sans en subir la complexité.",
-      part3: "AgriCapital incarne cette vision : bâtir un écosystème où chaque acteur — souscripteur ou propriétaire foncier — trouve sa place et construit un patrimoine concret, tangible et créateur de valeur.",
+      part2: "Fort d'une immersion de plus de douze années dans les communautés rurales ivoiriennes, j'ai développé une expertise approfondie du terrain et des réalités agricoles du pays. C'est cette connaissance intime du secteur qui a permis de structurer un modèle répondant à un besoin réel : accéder à l'agriculture sans en subir la complexité.",
+      part3: "AgriCapital incarne cette vision : bâtir un écosystème où chaque acteur — avec ou sans terre — trouve sa place et construit un patrimoine concret, tangible et créateur de valeur.",
       part4: "Ensemble, construisons votre patrimoine agricole.",
     },
     attribution: "— Inocent KOFFI, Fondateur & Directeur Général",

@@ -5,7 +5,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Language, languageNames } from "@/lib/translations";
 import { useDynamicMenu } from "@/hooks/useDynamicMenu";
 import { useVisitorCount } from "@/hooks/useVisitorCount";
-import logo from "@/assets/logo.png";
+import logo from "@/assets/logo-agricapital-v2.png";
 
 const languages: Language[] = ["fr", "en", "ar", "es", "de", "zh"];
 

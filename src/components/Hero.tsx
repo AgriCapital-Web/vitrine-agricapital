@@ -8,6 +8,8 @@ import heroImage1 from "@/assets/nursery-site.webp";
 import heroImage2 from "@/assets/nursery-palm.jpg";
 import heroImage3 from "@/assets/founder-palm-field.jpg";
 import heroImage4 from "@/assets/nursery-dec-2025-1.jpg";
+import posterImage from "@/assets/poster-agricapital.jpg";
+import logoWhite from "@/assets/logo-agricapital-v2-white.png";
 
 const heroImages = [heroImage1, heroImage2, heroImage3, heroImage4];
 
@@ -70,8 +72,18 @@ const Hero = () => {
       {/* Content */}
       <div className="container mx-auto px-3 sm:px-4 relative z-10">
         <div className="max-w-4xl mx-auto text-center">
+          {/* Poster Image */}
+          <div className="mb-4 sm:mb-6">
+            <img 
+              src={posterImage} 
+              alt="AgriCapital - Devenez planteur de palmier à huile" 
+              className="w-full max-w-lg mx-auto rounded-xl shadow-2xl"
+              loading="eager"
+            />
+          </div>
+
           <div className="inline-block px-3 sm:px-6 py-2 sm:py-3 bg-accent/20 backdrop-blur-sm rounded-full mb-3 sm:mb-6">
-            <p className="text-agri-orange font-bold text-sm sm:text-lg md:text-xl lg:text-2xl">{t.hero.badge}</p>
+            <p className="text-white font-bold text-sm sm:text-lg md:text-xl lg:text-2xl">{t.hero.badge}</p>
           </div>
           
           <h1 className="text-xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-white mb-3 sm:mb-6 leading-tight px-1 sm:px-2">
