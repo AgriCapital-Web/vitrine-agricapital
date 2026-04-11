@@ -1,4 +1,4 @@
-import logoWhite from "@/assets/logo-white.png";
+import logoWhite from "@/assets/logo-agricapital-v2-white.png";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { HelpCircle } from "lucide-react";
