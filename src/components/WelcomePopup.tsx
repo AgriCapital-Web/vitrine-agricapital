@@ -23,17 +23,17 @@ interface PopupTranslation {
 
 const popupTranslations: Record<Language, PopupTranslation> = {
   fr: {
-    line1: "Avec nous",
-    line2: "vos",
-    line3: "TERRES",
-    line4: "Reprennent",
-    line5: "vie",
+    line1: "Devenez",
+    line2: "planteur de",
+    line3: "PALMIER À HUILE",
+    line4: "avec",
+    line5: "AgriCapital",
     tagline: "Avec AgriCapital,",
-    description: "devenez planteur de palmier à huile et faisons pousser votre",
-    prosperity: "prospérité",
-    hectare: "hectare après hectare",
+    description: "créez votre plantation clé en main et bâtissez votre",
+    prosperity: "patrimoine agricole",
+    hectare: "durable et sécurisé",
     cta: "NOUS CONTACTER",
-    slogan: "Le partenaire idéal des producteurs agricoles",
+    slogan: "Investir la terre. Cultiver l'avenir.",
     subscriberPortal: "Espace Clients",
     subscriberQuestion: "Déjà client AgriCapital ?"
   },
