@@ -2,8 +2,8 @@ import { useEffect, useState, useCallback } from "react";
 import { Phone, Mail, Globe, ExternalLink, X } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { Language } from "@/lib/translations";
-import posterImage from "@/assets/poster-agricapital.png";
-import logoAgriCapital from "@/assets/logo-agricapital-white.png";
+import posterImage from "@/assets/poster-agricapital.jpg";
+import logoAgriCapital from "@/assets/logo-agricapital-v2-white.png";
 
 interface PopupTranslation {
   line1: string;
