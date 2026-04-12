@@ -74,8 +74,8 @@ serve(async (req) => {
       const errorText = await response.text();
       console.error("ElevenLabs API error:", response.status, errorText);
       return new Response(
-        JSON.stringify({ error: "Failed to generate speech" }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        JSON.stringify({ error: "SPEECH_GENERATION_FAILED", fallback: true }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
