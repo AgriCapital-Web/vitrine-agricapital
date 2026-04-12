@@ -275,7 +275,20 @@ const AIChatbot = () => {
     }
   }, [collectionStep, visitorInfo, t, saveVisitorContact]);
 
-  // Text-to-Speech function
+  // Browser TTS fallback
+  const speakWithBrowser = useCallback((text: string) => {
+    if (!('speechSynthesis' in window)) return;
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text.slice(0, 500));
+    const langMap: Record<string, string> = { fr: 'fr-FR', en: 'en-US', ar: 'ar-SA', es: 'es-ES', de: 'de-DE', zh: 'zh-CN' };
+    utterance.lang = langMap[language] || 'fr-FR';
+    utterance.rate = 0.95;
+    utterance.onend = () => setIsPlayingAudio(false);
+    utterance.onerror = () => setIsPlayingAudio(false);
+    window.speechSynthesis.speak(utterance);
+  }, [language]);
+
+  // Text-to-Speech function with ElevenLabs + browser fallback
   const speakText = useCallback(async (text: string) => {
     if (!isTTSEnabled || !text || text.length < 10) return;
     
@@ -296,8 +309,22 @@ const AIChatbot = () => {
         body: JSON.stringify({ text: text.slice(0, 500), language }),
       });
 
+      // Check if response is JSON (error/fallback) or audio
+      const contentType = response.headers.get("Content-Type") || "";
+      if (contentType.includes("application/json")) {
+        const data = await response.json();
+        if (data?.fallback) {
+          console.warn("ElevenLabs unavailable, using browser TTS");
+          speakWithBrowser(text);
+          return;
+        }
+        setIsPlayingAudio(false);
+        return;
+      }
+
       if (!response.ok) {
-        console.error("TTS request failed:", response.status);
+        console.warn("TTS failed, falling back to browser");
+        speakWithBrowser(text);
         return;
       }
 
@@ -314,14 +341,15 @@ const AIChatbot = () => {
       audio.onerror = () => {
         setIsPlayingAudio(false);
         URL.revokeObjectURL(audioUrl);
+        speakWithBrowser(text);
       };
 
       await audio.play();
     } catch (error) {
       console.error("TTS error:", error);
-      setIsPlayingAudio(false);
+      speakWithBrowser(text);
     }
-  }, [isTTSEnabled, language]);
+  }, [isTTSEnabled, language, speakWithBrowser]);
 
   const stopAudio = useCallback(() => {
     if (audioRef.current) {
