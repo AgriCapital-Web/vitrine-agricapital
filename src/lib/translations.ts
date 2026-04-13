@@ -27,22 +27,22 @@ const fr = {
   hero: {
     badge: "Investir la terre. Cultiver l'avenir.",
     title: "Créez votre plantation de palmier à huile avec AgriCapital",
-    description: "Accédez à votre propre patrimoine agricole durable, sécurisé et accompagné professionnellement. Que vous soyez souscripteur ou propriétaire foncier, AgriCapital structure votre projet de A à Z.",
+    description: "Accédez à votre propre patrimoine agricole durable, sécurisé et accompagné professionnellement. Avec ou sans terre, AgriCapital structure votre projet de A à Z.",
     btnApproach: "Découvrir nos offres",
     btnPartner: "Rejoindre la liste d'attente",
   },
   ambitions: {
     title: "Deux profils, une même ambition",
     objectives: {
-      hectares: { title: "Souscripteurs", desc: "Créez votre plantation clé en main, même sans terre, et bâtissez un patrimoine concret sur 28 ans" },
-      farmers: { title: "Propriétaires fonciers", desc: "Confiez votre terre à AgriCapital pour sa mise en valeur, sans aucun frais de votre part" },
+      hectares: { title: "Investisseurs Agricoles", desc: "Créez votre plantation clé en main, même sans terre, et bâtissez un patrimoine concret sur 28 ans" },
+      farmers: { title: "Propriétaires Fonciers", desc: "Confiez votre terre à AgriCapital pour sa mise en valeur, sans aucun frais de votre part" },
       guarantee: { title: "25 ans", desc: "de garantie d'écoulement de la production à prix du marché" },
     },
     why: "Pourquoi choisir AgriCapital ?",
     pillars: {
       accessibility: { title: "Patrimoine Durable", desc: "Constituez un actif agricole tangible qui se valorise dans le temps. Une alternative concrète pour diversifier vos investissements et préparer l'avenir." },
       expertise: { title: "Accompagnement Intégral", desc: "De la sécurisation foncière à la commercialisation : AgriCapital prend en charge l'intégralité du processus avec rigueur et transparence." },
-      sustainability: { title: "Sécurité Contractuelle", desc: "Contrats notariés, documents cartographiques GPS, Acte de Jouissance opposable aux tiers — chaque étape est juridiquement encadrée." },
+      sustainability: { title: "Sécurité Contractuelle", desc: "Contrats certifiés, documents cartographiques GPS, cadre juridique solide — chaque étape est sécurisée et transparente." },
     },
   },
   about: {
@@ -77,18 +77,18 @@ const fr = {
       support: { title: "Transparence Totale", desc: "Documents contractuels et cartographiques remis dès le premier versement. Suivi accessible en permanence." },
       innovation: { title: "Excellence Technique", desc: "Plants certifiés, intrants de qualité, suivi agronomique rigoureux et 6 visites techniques par cycle." },
       development: { title: "Vision Long Terme", desc: "Un modèle pensé sur 28 ans pour construire un patrimoine durable et générer des revenus stables." },
-      transparency: { title: "Sécurité Juridique", desc: "Contrats notariés, Acte de Jouissance opposable aux tiers, architecture contractuelle robuste." },
+      transparency: { title: "Sécurité Contractuelle", desc: "Contrats sécurisés, cadre juridique rigoureux et architecture contractuelle robuste pour votre sérénité." },
     },
   },
   approach: {
     title: "Comment ça fonctionne",
     subtitle: "Un processus structuré en 5 étapes",
     steps: {
-      prospecting: { title: "Identification et Validation", desc: "Prospection terrain, validation technique de la parcelle. Minimum 2 hectares exploitables requis pour garantir la viabilité du projet." },
-      development: { title: "Sécurisation Foncière", desc: "Convention de mise en valeur à long terme, juridiquement encadrée. Polygonage GPS et cartographie pris en charge par AgriCapital." },
-      followup: { title: "Souscription", desc: "Choix de votre formule, remise immédiate du contrat et du plan polygonal GPS. L'Acte de Jouissance est délivré après solde complet." },
-      harvest: { title: "Mise en Valeur — 36 mois", desc: "143 plants certifiés par hectare, défrichage, piquetage, planting, intrants et fertilisation. 6 visites techniques de suivi." },
-      payment: { title: "Remise en Jouissance", desc: "Plantation productive remise clé en main. Suivi agronomique maintenu et garantie d'écoulement sur 25 ans." },
+      prospecting: { title: "Identification, Validation et Sécurisation Foncière", desc: "AgriCapital identifie et sécurise les terres adaptées, en partenariat avec les propriétaires fonciers. Chaque parcelle est validée techniquement pour garantir la viabilité du projet." },
+      development: { title: "Référencement et Cartographie", desc: "Polygonage GPS, cartographie détaillée et référencement complet de chaque parcelle. Des documents précis pour un suivi rigoureux et une traçabilité totale." },
+      followup: { title: "Engagement et Formalisation", desc: "Choix de votre formule d'accompagnement. Remise de votre contrat sécurisé et de votre plan cartographique personnalisé." },
+      harvest: { title: "Développement de la Plantation — 36 mois", desc: "AgriCapital prend en charge l'intégralité de la mise en valeur : 143 plants certifiés par hectare, défrichage, piquetage, planting, intrants et fertilisation. 6 visites techniques de suivi." },
+      payment: { title: "Remise de Plantation", desc: "Plantation productive remise clé en main. Suivi agronomique offert, fourniture d'intrants, et garantie d'écoulement sur toute la durée du cycle du palmier." },
     },
     services: {
       title: "Ce que nous offrons",
