@@ -609,8 +609,8 @@ const en: typeof fr = {
     signature: "Agro-entrepreneur and Agricultural Development Strategist",
     quote: {
       part1: "Agriculture represents much more than an economic activity: it is the foundation of all lasting heritage. My ambition is to enable anyone who wishes to have their own agricultural plantation, in a secure and professional framework.",
-      part2: "After twelve years of immersion in Ivorian rural communities and over 360 localities visited, I have structured a model that meets a real need: accessing agriculture without bearing its complexity.",
-      part3: "AgriCapital embodies this vision: building an ecosystem where every stakeholder — subscriber or landowner — finds their place and builds tangible, value-creating heritage.",
+      part2: "From 2012 to 2024, **Inocent KOFFI**, founder of AgriCapital, developed exceptional field expertise through over a decade of immersion in Ivorian rural communities. This intimate knowledge of the territory, agricultural realities and land potential is a major strategic asset for identifying and securing the best lands for our clients.",
+      part3: "AgriCapital embodies this vision: building an ecosystem where every stakeholder — with or without land — finds their place and builds tangible, value-creating heritage.",
       part4: "Together, let's build your agricultural heritage.",
     },
     attribution: "— Inocent KOFFI, Founder & CEO",
