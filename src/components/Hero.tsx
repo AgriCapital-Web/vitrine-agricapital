@@ -9,7 +9,7 @@ import heroImage2 from "@/assets/nursery-palm.jpg";
 import heroImage3 from "@/assets/founder-palm-field.jpg";
 import heroImage4 from "@/assets/nursery-dec-2025-1.jpg";
 import posterImage from "@/assets/poster-agricapital.jpg";
-import logoWhite from "@/assets/logo-agricapital-v2-white.png";
+import logoV2 from "@/assets/logo-agricapital-v2.png";
 
 const heroImages = [heroImage1, heroImage2, heroImage3, heroImage4];
 
