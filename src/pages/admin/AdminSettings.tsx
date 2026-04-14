@@ -14,17 +14,25 @@ const AdminSettings = () => {
   const [newPassword, setNewPassword] = useState("");
   const [isChangingPassword, setIsChangingPassword] = useState(false);
 
+  const generateSecurePassword = (): string => {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%&*';
+    const array = new Uint8Array(16);
+    crypto.getRandomValues(array);
+    return Array.from(array, b => chars[b % chars.length]).join('');
+  };
+
   const handleCreateAdmin = async () => {
     if (!newAdminEmail) {
       toast.error("Veuillez entrer un email");
       return;
     }
     setIsCreatingAdmin(true);
+    const tempPassword = generateSecurePassword();
 
     try {
       const { data: userData, error: signUpError } = await supabase.auth.signUp({
         email: newAdminEmail,
-        password: '@AgriCapital2025',
+        password: tempPassword,
         options: {
           emailRedirectTo: `${window.location.origin}/admin`,
         },
@@ -46,7 +54,7 @@ const AdminSettings = () => {
       if (roleError) {
         toast.error("Erreur lors de l'attribution du rôle");
       } else {
-        toast.success("Administrateur créé avec succès. Mot de passe: @AgriCapital2025");
+        toast.success(`Administrateur créé. Un email de confirmation a été envoyé à ${newAdminEmail}. Le mot de passe temporaire doit être changé à la première connexion.`);
         setNewAdminEmail("");
       }
     } catch (error) {

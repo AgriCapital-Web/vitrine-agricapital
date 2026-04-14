@@ -1,4 +1,5 @@
 import { useState } from "react";
+import DOMPurify from "dompurify";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import AdminLayout from "@/components/admin/AdminLayout";
@@ -320,7 +321,7 @@ const AdminInbox = () => {
 
                   <div 
                     className="prose prose-sm max-w-none"
-                    dangerouslySetInnerHTML={{ __html: selectedEmail.body }}
+                    dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(selectedEmail.body, { FORBID_TAGS: ['script','style'], FORBID_ATTR: ['onerror','onload'] }) }}
                   />
                 </div>
               </ScrollArea>
