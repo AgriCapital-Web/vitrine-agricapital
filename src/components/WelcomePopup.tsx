@@ -16,7 +16,7 @@ interface PopupTranslation {
 const popupTranslations: Record<Language, PopupTranslation> = {
   fr: {
     headline: "Votre plantation de palmier à huile, clé en main.",
-    description: "Avec AgriCapital, créez votre plantation de palmier à huile clé en main et bâtissez ensemble votre patrimoine agricole durable et rentable.",
+    description: "Avec AgriCapital, créez votre plantation et bâtissons ensemble votre patrimoine agricole durable et rentable.",
     cta: "NOUS CONTACTER",
     subscriberPortal: "Espace Clients",
     subscriberQuestion: "Déjà client AgriCapital ?"
@@ -158,7 +158,7 @@ const WelcomePopup = () => {
         <div className="relative z-10 p-3 sm:p-5 md:p-6 overflow-y-auto max-h-[90vh]">
           {/* Logo - larger for readability */}
           <div className="flex justify-center mb-3 sm:mb-4 pt-8 sm:pt-6">
-            <img src={logoAgriCapital} alt="AgriCapital" className="h-20 sm:h-24 md:h-28 w-auto object-contain drop-shadow-lg" loading="eager" />
+            <img src={logoAgriCapital} alt="AgriCapital" className="h-24 sm:h-28 md:h-32 w-auto object-contain drop-shadow-lg" loading="eager" />
           </div>
 
           {/* Headline */}
@@ -175,7 +175,7 @@ const WelcomePopup = () => {
                 src={teamImage} 
                 alt="Équipe AgriCapital"
                 className="w-full h-auto object-contain mx-auto"
-                style={{ maxHeight: '40vh', minHeight: '180px', mixBlendMode: 'multiply' }}
+                style={{ maxHeight: '45vh', minHeight: '200px', mixBlendMode: 'multiply' }}
                 loading="eager"
               />
             </div>

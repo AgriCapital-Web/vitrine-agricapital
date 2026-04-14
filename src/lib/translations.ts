@@ -34,8 +34,8 @@ const fr = {
   ambitions: {
     title: "Deux profils, une même ambition",
     objectives: {
-      hectares: { title: "Investisseurs Agricoles", desc: "Créez votre plantation clé en main, même sans terre, et bâtissez un patrimoine concret sur 28 ans" },
-      farmers: { title: "Propriétaires Fonciers", desc: "Confiez votre terre à AgriCapital pour sa mise en valeur, sans aucun frais de votre part" },
+      hectares: { title: "Particuliers et Professionnels", desc: "Créez votre plantation clé en main, même sans terre, et bâtissez un patrimoine concret sur 28 ans" },
+      farmers: { title: "Propriétaires Fonciers", desc: "Confiez-nous votre terre, nous en faisons une plantation de palmier à huile productive sans aucun frais de votre part" },
       guarantee: { title: "25 ans", desc: "de garantie d'écoulement de la production à prix du marché" },
     },
     why: "Pourquoi choisir AgriCapital ?",
@@ -423,8 +423,8 @@ const en: typeof fr = {
   ambitions: {
     title: "Two profiles, one ambition",
     objectives: {
-      hectares: { title: "Agricultural Investors", desc: "Create your turnkey plantation, even without land, and build tangible heritage over 28 years" },
-      farmers: { title: "Landowners", desc: "Entrust your land to AgriCapital for development, at no cost to you" },
+      hectares: { title: "Individuals & Professionals", desc: "Create your turnkey plantation, even without land, and build tangible heritage over 28 years" },
+      farmers: { title: "Landowners", desc: "Entrust us with your land and we turn it into a productive oil palm plantation at no cost to you" },
       guarantee: { title: "25 years", desc: "of guaranteed production offtake at market prices" },
     },
     why: "Why choose AgriCapital?",

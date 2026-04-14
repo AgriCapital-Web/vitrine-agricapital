@@ -12,6 +12,7 @@ import CommunityProspecting from "@/components/CommunityProspecting";
 import IvoryCoastMap from "@/components/IvoryCoastMap";
 import Milestones from "@/components/Milestones";
 import Founder from "@/components/Founder";
+import Team from "@/components/Team";
 import Partnership from "@/components/Partnership";
 import TestimonialsDisplay from "@/components/TestimonialsDisplay";
 import Testimonials from "@/components/Testimonials";
@@ -123,6 +124,7 @@ const HomePage = () => {
       <IvoryCoastMap />
       <Milestones />
       <Founder />
+      <Team />
       <Partnership />
       <TestimonialsDisplay />
       <Testimonials />
