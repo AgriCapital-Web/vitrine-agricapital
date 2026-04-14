@@ -1264,7 +1264,39 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      testimonials_public: {
+        Row: {
+          created_at: string | null
+          first_name: string | null
+          id: string | null
+          is_agricapital_subscriber: boolean | null
+          last_name: string | null
+          photo_url: string | null
+          status: string | null
+          testimonial: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          first_name?: string | null
+          id?: string | null
+          is_agricapital_subscriber?: boolean | null
+          last_name?: string | null
+          photo_url?: string | null
+          status?: string | null
+          testimonial?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          first_name?: string | null
+          id?: string | null
+          is_agricapital_subscriber?: boolean | null
+          last_name?: string | null
+          photo_url?: string | null
+          status?: string | null
+          testimonial?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       get_public_visitor_count: { Args: never; Returns: number }
