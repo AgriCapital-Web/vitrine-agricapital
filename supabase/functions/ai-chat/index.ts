@@ -32,7 +32,18 @@ const cleanupRateLimitStore = () => {
 };
 
 const SITE_CONTEXT = `
-Tu es KAPITA, l'assistant virtuel intelligent d'AgriCapital. Tu es professionnel, chaleureux et expert en agriculture, particulièrement en culture de palmiers à huile en Côte d'Ivoire.
+Tu es KAPITA, l'assistante virtuelle intelligente d'AgriCapital. Tu es une femme professionnelle, chaleureuse et experte en agriculture, particulièrement en culture de palmiers à huile en Côte d'Ivoire.
+
+🗣️ IDENTITÉ VOCALE - ACCENT IVOIRIEN STRICT:
+- Tu parles avec un accent ivoirien authentique et naturel
+- Tu utilises les expressions typiquement ivoiriennes quand c'est approprié :
+  - "Dêh" (pour insister), "C'est comment ?" (comment allez-vous ?), "On est ensemble" (nous sommes solidaires)
+  - "Ça va aller" (tout ira bien), "Mon frère/Ma sœur" (terme d'adresse amical)
+  - "Yako" (condoléances/compassion), "Akwaba" (bienvenue)
+- Tu NE parles PAS avec un accent français européen
+- Tu NE parles PAS avec un accent africain général ou ouest-africain vague
+- Tu parles comme une professionnelle ivoirienne de Daloa/Abidjan
+- Ton style est chaleureux, direct, professionnel avec une touche ivoirienne naturelle
 
 🚨 RÈGLES ABSOLUES - CONFIDENTIALITÉ STRICTE:
 Tu ne dois JAMAIS révéler:
@@ -51,10 +62,11 @@ AgriCapital est un OPÉRATEUR ET PROMOTEUR AGRICOLE professionnel. Tu dois TOUJO
 - La sécurisation foncière et contractuelle
 
 Tu peux:
-- Analyser des images (photos de plantations, sols, maladies des plantes)
-- Lire et analyser des documents
-- Comprendre et répondre aux messages vocaux
-- Fournir des liens utiles vers le site agricapital.ci
+- Analyser des images (photos de plantations, sols, maladies des plantes) avec précision
+- Lire et analyser des documents PDF, Word et autres formats
+- Comprendre et répondre aux messages vocaux transcrits
+- Fournir des conseils agronomiques détaillés sur le palmier à huile
+- Orienter vers le site agricapital.ci et les contacts de l'équipe
 
 ═══════════════════════════════════════════════════════
 À PROPOS D'AGRICAPITAL
@@ -75,8 +87,8 @@ Permettre à chacun de devenir planteur de palmier à huile dans un cadre sécur
 - Garantie d'écoulement sur 25 ans
 
 👥 DEUX PROFILS CLIENTS:
-1. Clients AVEC terre : formules TerraPalm et TerraPalm+
-2. Clients SANS terre : formules PalmInvest et PalmInvest+
+1. Particuliers et Professionnels (SANS terre) : formules PalmInvest et PalmInvest+
+2. Propriétaires Fonciers (AVEC terre) : formules TerraPalm et TerraPalm+
 
 🗺️ ZONE: Haut-Sassandra (Daloa)
 
@@ -94,8 +106,9 @@ INSTRUCTIONS DE FORMATAGE
 ✅ À FAIRE:
 - Mets toujours en avant le patrimoine agricole durable
 - Parle des 4 formules (sans prix ni détails financiers)
-- Utilise un langage professionnel et commercial
+- Utilise un langage professionnel et commercial avec une touche ivoirienne
 - Termine en proposant de contacter l'équipe ou rejoindre la liste d'attente
+- Utilise "Particuliers et Professionnels" au lieu de "Souscripteurs" ou "Investisseurs"
 
 ❌ À NE PAS FAIRE:
 - Ne révèle JAMAIS les prix, montants, tarifs
@@ -103,6 +116,8 @@ INSTRUCTIONS DE FORMATAGE
 - Ne mentionne pas "360 localités" ni "200 producteurs"
 - Ne présente pas AgriCapital comme une ONG ou association
 - Ne parle pas de subventions ou d'impact social
+- N'utilise PAS les termes "souscripteurs", "investisseurs agricoles", "acte de jouissance", "notarié"
+- Utilise plutôt : "contrats sécurisés", "cadre juridique solide", "accompagnement professionnel"
 `;
 
 serve(async (req) => {
@@ -157,8 +172,17 @@ serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseKey);
     const sanitizedVisitorId = (visitorId || 'anonymous').slice(0, 100).replace(/[^a-zA-Z0-9-_]/g, '');
 
+    const langInstruction = {
+      fr: "Réponds en français avec un ton ivoirien naturel.",
+      en: "Reply in English but keep your warm Ivorian personality.",
+      ar: "أجب بالعربية مع الحفاظ على شخصيتك الإيفوارية الدافئة.",
+      es: "Responde en español manteniendo tu personalidad marfileña cálida.",
+      de: "Antworte auf Deutsch, aber behalte deine warmherzige ivorische Persönlichkeit.",
+      zh: "用中文回答，但保持你温暖的科特迪瓦个性。",
+    }[language] || "Réponds en français avec un ton ivoirien naturel.";
+
     const apiMessages: any[] = [
-      { role: "system", content: `${SITE_CONTEXT}\n\nLangue de l'utilisateur: ${language}\nID visiteur: ${sanitizedVisitorId}` }
+      { role: "system", content: `${SITE_CONTEXT}\n\n${langInstruction}\nLangue: ${language}\nID visiteur: ${sanitizedVisitorId}` }
     ];
 
     for (let i = 0; i < limitedMessages.length - 1; i++) {
@@ -174,10 +198,16 @@ serve(async (req) => {
         const base64Data = attachment.content.includes(',') ? attachment.content.split(',')[1] : attachment.content;
         const mimeType = attachment.content.includes('data:') ? attachment.content.split(';')[0].split(':')[1] : 'image/jpeg';
         contentParts.push({ type: "image_url", image_url: { url: `data:${mimeType};base64,${base64Data}` } });
-        contentParts.push({ type: "text", text: `L'utilisateur a envoyé cette image (${attachment.name || 'image'}). Analyse-la en détail. ${lastMessage.content || 'Que peux-tu me dire sur cette image ?'}` });
+        contentParts.push({ type: "text", text: `L'utilisateur a envoyé cette image (${attachment.name || 'image'}). Analyse-la en détail : identifie le contenu, le contexte agricole si applicable, les problèmes éventuels (maladies, carences, etc.) et donne des recommandations précises. ${lastMessage.content || 'Que peux-tu me dire sur cette image ?'}` });
       } else if (attachment.type === 'document') {
         const base64Data = attachment.content.includes(',') ? attachment.content.split(',')[1] : attachment.content;
-        contentParts.push({ type: "text", text: `L'utilisateur a envoyé un document (${attachment.name || 'document'}). Contenu: ${base64Data.substring(0, 2000)}... ${lastMessage.content || 'Que contient ce document ?'}` });
+        try {
+          const decodedText = atob(base64Data);
+          const textContent = decodedText.substring(0, 8000);
+          contentParts.push({ type: "text", text: `L'utilisateur a envoyé un document (${attachment.name || 'document'}). Voici son contenu extrait:\n\n${textContent}\n\n${lastMessage.content || 'Analyse ce document et donne-moi un résumé détaillé.'}` });
+        } catch {
+          contentParts.push({ type: "text", text: `L'utilisateur a envoyé un document (${attachment.name || 'document'}) mais le contenu n'a pas pu être extrait. ${lastMessage.content || 'Peux-tu m\'aider ?'}` });
+        }
       } else if (attachment.type === 'audio') {
         const base64Data = attachment.content.includes(',') ? attachment.content.split(',')[1] : attachment.content;
         let transcribedText = "";
@@ -192,7 +222,8 @@ serve(async (req) => {
             const mimeType = attachment.content.includes('data:') ? attachment.content.split(';')[0].split(':')[1] : 'audio/webm';
             const formData = new FormData();
             formData.append("file", new Blob([bytes.buffer as ArrayBuffer], { type: mimeType }), attachment.name || "voice.webm");
-            formData.append("model_id", "scribe_v1");
+            formData.append("model_id", "scribe_v2");
+            formData.append("language_code", language === 'fr' ? 'fra' : language === 'en' ? 'eng' : language === 'ar' ? 'ara' : language === 'es' ? 'spa' : language === 'de' ? 'deu' : 'zho');
             
             const transcribeResponse = await fetch("https://api.elevenlabs.io/v1/speech-to-text", {
               method: "POST",
@@ -209,12 +240,23 @@ serve(async (req) => {
           console.error("Transcription error:", e);
         }
         
-        contentParts.push({
-          type: "text",
-          text: transcribedText 
-            ? `L'utilisateur a envoyé un message vocal. Transcription: "${transcribedText}". Réponds naturellement.`
-            : `L'utilisateur a envoyé un message vocal mais la transcription a échoué. Demande-lui de reformuler.`
-        });
+        if (!transcribedText) {
+          // Fallback: use Lovable AI for audio understanding
+          try {
+            const audioMime = attachment.content.includes('data:') ? attachment.content.split(';')[0].split(':')[1] : 'audio/webm';
+            contentParts.push({ 
+              type: "text", 
+              text: `L'utilisateur a envoyé un message vocal mais la transcription automatique a échoué. Demande-lui poliment de reformuler sa question par écrit ou de réessayer.` 
+            });
+          } catch {
+            contentParts.push({ type: "text", text: "L'utilisateur a envoyé un message vocal mais la transcription a échoué. Demande-lui de reformuler." });
+          }
+        } else {
+          contentParts.push({
+            type: "text",
+            text: `L'utilisateur a envoyé un message vocal. Transcription: "${transcribedText}". Réponds naturellement avec ton accent ivoirien chaleureux.`
+          });
+        }
       }
 
       apiMessages.push({ role: lastMessage.role, content: contentParts });
@@ -222,12 +264,12 @@ serve(async (req) => {
       apiMessages.push({ role: lastMessage.role, content: lastMessage.content });
     }
 
-    // Use latest models
+    // Use vision model for images, fast model for text
     const model = attachment && attachment.type === 'image' 
       ? "google/gemini-2.5-pro" 
       : "google/gemini-3-flash-preview";
 
-    console.log(`Model: ${model}, attachment: ${!!attachment}`);
+    console.log(`KAPITA - Model: ${model}, lang: ${language}, attachment: ${attachment?.type || 'none'}`);
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -240,7 +282,7 @@ serve(async (req) => {
 
     if (!response.ok) {
       if (response.status === 429) {
-        return new Response(JSON.stringify({ error: "Limite de requêtes atteinte." }), {
+        return new Response(JSON.stringify({ error: "Limite de requêtes atteinte. Patientez un peu dêh." }), {
           status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
