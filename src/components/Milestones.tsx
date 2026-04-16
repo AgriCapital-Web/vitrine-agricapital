@@ -44,12 +44,18 @@ const Milestones = () => {
       nurseryBadge: "Nouveau - Déc. 2025",
       nurseryDesc: "Installation complète de notre site de pépinière de plus de 100 hectares entre le 19 novembre et le 24 décembre 2025, avec système d'irrigation moderne et plants certifiés Tenera.",
       seeMore: "Voir toute l'évolution du projet",
+      growthTitle: "Pépinière en Pleine Croissance",
+      growthBadge: "Actuel - Avril 2026",
+      growthDesc: "Plus de 100 hectares de pépinière sont actuellement en pleine croissance. La pépinière fait l'objet d'un entretien régulier et structuré. Cette étape représente une avancée concrète dans le déploiement opérationnel du projet AgriCapital.",
     },
     en: {
       nurseryTitle: "100+ Hectare Nursery",
       nurseryBadge: "New - Dec. 2025",
       nurseryDesc: "Complete installation of our 100+ hectare nursery site between November 19 and December 24, 2025, with modern irrigation system and certified Tenera seedlings.",
       seeMore: "See full project evolution",
+      growthTitle: "Nursery in Full Growth",
+      growthBadge: "Current - April 2026",
+      growthDesc: "Over 100 hectares of nursery are currently in full growth. The nursery is regularly and systematically maintained. This stage represents a concrete advance in the operational deployment of the AgriCapital project.",
     }
   };
 
