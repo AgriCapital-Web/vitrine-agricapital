@@ -294,13 +294,17 @@ const NewsArticle = () => {
             </div>
           )}
 
-          {/* Article Content */}
+          {/* Article Content - sanitized */}
           <div 
             className="prose prose-lg max-w-none mb-16 
               prose-headings:text-foreground prose-p:text-muted-foreground prose-strong:text-foreground
-              prose-li:text-muted-foreground prose-a:text-primary"
+              prose-li:text-muted-foreground prose-a:text-primary
+              prose-table:border-collapse prose-th:bg-muted prose-th:p-3 prose-td:p-3 prose-td:border prose-th:border"
             dangerouslySetInnerHTML={{ 
-              __html: `<p class="mb-4 leading-relaxed text-muted-foreground">${parseContent(getLocalizedField(article, 'content'))}</p>` 
+              __html: DOMPurify.sanitize(
+                `<p class="mb-4 leading-relaxed text-muted-foreground">${parseContent(getLocalizedField(article, 'content'))}</p>`,
+                { ALLOWED_TAGS: ['p', 'h1', 'h2', 'h3', 'h4', 'strong', 'em', 'br', 'hr', 'li', 'ul', 'ol', 'a', 'img', 'table', 'thead', 'tbody', 'tr', 'th', 'td', 'blockquote', 'div', 'span'], ALLOWED_ATTR: ['class', 'href', 'src', 'alt', 'target', 'rel'] }
+              )
             }}
           />
 
@@ -311,6 +315,30 @@ const NewsArticle = () => {
           </div>
         </article>
       </main>
+
+      {/* Share Popup */}
+      <Dialog open={sharePopupOpen} onOpenChange={setSharePopupOpen}>
+        <DialogContent className="max-w-sm">
+          <h3 className="text-lg font-bold text-foreground mb-4">{tr.share}</h3>
+          <div className="grid grid-cols-2 gap-3">
+            <Button variant="outline" onClick={shareOnFacebook} className="flex items-center gap-2">
+              <Facebook className="w-5 h-5 text-blue-600" /> Facebook
+            </Button>
+            <Button variant="outline" onClick={shareOnTwitter} className="flex items-center gap-2">
+              <Twitter className="w-5 h-5 text-sky-500" /> Twitter
+            </Button>
+            <Button variant="outline" onClick={shareOnLinkedIn} className="flex items-center gap-2">
+              <Linkedin className="w-5 h-5 text-blue-700" /> LinkedIn
+            </Button>
+            <Button variant="outline" onClick={shareOnWhatsApp} className="flex items-center gap-2">
+              <MessageCircle className="w-5 h-5 text-green-600" /> WhatsApp
+            </Button>
+          </div>
+          <Button variant="secondary" onClick={copyArticleLink} className="w-full mt-3 flex items-center gap-2">
+            <Copy className="w-4 h-4" /> {language === 'fr' ? 'Copier le lien' : 'Copy link'}
+          </Button>
+        </DialogContent>
+      </Dialog>
 
       {/* Lightbox */}
       <Dialog open={lightboxOpen} onOpenChange={setLightboxOpen}>
