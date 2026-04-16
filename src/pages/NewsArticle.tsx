@@ -3,13 +3,15 @@ import { useParams, Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import DOMPurify from "dompurify";
 import DynamicNavigation from "@/components/DynamicNavigation";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Calendar, ArrowLeft, Share2, User, Eye, Loader2, ChevronLeft, ChevronRight, X } from "lucide-react";
+import { Calendar, ArrowLeft, Share2, User, Eye, Loader2, ChevronLeft, ChevronRight, X, Facebook, Twitter, Linkedin, MessageCircle, Copy } from "lucide-react";
+import { toast } from "sonner";
 
 const translations = {
   fr: { back: "Retour aux actualités", by: "Par", share: "Partager", views: "vues", shares: "partages", notFound: "Article non trouvé", notFoundDesc: "L'article que vous recherchez n'existe pas ou a été déplacé.", gallery: "Galerie photos" },
@@ -28,6 +30,7 @@ const NewsArticle = () => {
   const [articleShares, setArticleShares] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
+  const [sharePopupOpen, setSharePopupOpen] = useState(false);
 
   const { data: article, isLoading } = useQuery({
     queryKey: ["news-article", slug],
@@ -155,18 +158,37 @@ const NewsArticle = () => {
     .slice(0, 160);
   const seoImage = displayImages[0] || undefined;
 
-  const handleShare = async () => {
-    try {
-      if (navigator.share) {
-        await navigator.share({ title: seoTitle, text: seoDescription, url: window.location.href });
-      } else if (navigator.clipboard) {
-        await navigator.clipboard.writeText(window.location.href);
-      }
+  const articleUrl = `https://agricapital.ci/actualites/${article.slug}`;
 
+  const handleShare = async () => {
+    setSharePopupOpen(true);
+    try {
       const { data } = await supabase.rpc('increment_news_share', { p_news_id: article.id });
       if (typeof data === 'number') setArticleShares(data);
     } catch {
       // no-op
+    }
+  };
+
+  const shareOnFacebook = () => {
+    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(articleUrl)}&quote=${encodeURIComponent(seoTitle)}`, "_blank", "width=600,height=400");
+  };
+  const shareOnTwitter = () => {
+    window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(articleUrl)}&text=${encodeURIComponent(`${seoTitle} — Découvrez cet article sur AgriCapital 🌴`)}`, "_blank", "width=600,height=400");
+  };
+  const shareOnLinkedIn = () => {
+    window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(articleUrl)}`, "_blank", "width=600,height=400");
+  };
+  const shareOnWhatsApp = () => {
+    const text = `${seoTitle}\n\n${seoDescription}\n\n👉 ${articleUrl}`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
+  };
+  const copyArticleLink = async () => {
+    try {
+      await navigator.clipboard.writeText(articleUrl);
+      toast.success(language === 'fr' ? 'Lien copié !' : 'Link copied!');
+    } catch {
+      toast.error('Copy failed');
     }
   };
 
