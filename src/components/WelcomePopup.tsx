@@ -3,7 +3,7 @@ import { Phone, Mail, Globe, ExternalLink, X } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { Language } from "@/lib/translations";
 import teamImage from "@/assets/agricapital-team.png";
-import logoAgriCapital from "@/assets/logo-agricapital-v2.png";
+import logoWhite from "@/assets/logo-agricapital-v2-white.png";
 
 interface PopupTranslation {
   headline: string;
@@ -37,14 +37,14 @@ const popupTranslations: Record<Language, PopupTranslation> = {
   },
   es: {
     headline: "Su plantación de palma aceitera, llave en mano.",
-    description: "Con AgriCapital, cree su plantación de palma aceitera llave en mano y construya juntos su patrimonio agrícola duradero y rentable.",
+    description: "Con AgriCapital, cree su plantación llave en mano y construya juntos su patrimonio agrícola duradero y rentable.",
     cta: "CONTÁCTENOS",
     subscriberPortal: "Portal de Clientes",
     subscriberQuestion: "¿Ya es cliente de AgriCapital?"
   },
   de: {
     headline: "Ihre Ölpalmenplantage, schlüsselfertig.",
-    description: "Mit AgriCapital erstellen Sie Ihre schlüsselfertige Ölpalmenplantage und bauen gemeinsam Ihr nachhaltiges und rentables landwirtschaftliches Erbe auf.",
+    description: "Mit AgriCapital erstellen Sie Ihre schlüsselfertige Plantage und bauen gemeinsam Ihr nachhaltiges landwirtschaftliches Erbe auf.",
     cta: "KONTAKT",
     subscriberPortal: "Kundenportal",
     subscriberQuestion: "Bereits AgriCapital-Kunde?"
@@ -69,12 +69,12 @@ const WelcomePopup = () => {
   const isRTL = language === "ar";
 
   useEffect(() => {
-    const hasVisited = sessionStorage.getItem("agricapital_popup_v6");
+    const hasVisited = sessionStorage.getItem("agricapital_popup_v7");
     if (!hasVisited) {
       const timer = setTimeout(() => {
         setIsOpen(true);
         setIsAnimating(true);
-        sessionStorage.setItem("agricapital_popup_v6", "true");
+        sessionStorage.setItem("agricapital_popup_v7", "true");
       }, 800);
       return () => clearTimeout(timer);
     }
@@ -152,30 +152,30 @@ const WelcomePopup = () => {
 
         {/* Decorative curve */}
         <div className="absolute top-0 right-0 w-1/2 h-full pointer-events-none"
-          style={{ background: 'linear-gradient(180deg, rgba(218, 165, 32, 0.35) 0%, rgba(218, 165, 32, 0.1) 100%)', clipPath: 'ellipse(100% 80% at 100% 50%)' }}
+          style={{ background: 'linear-gradient(180deg, rgba(218, 165, 32, 0.25) 0%, rgba(218, 165, 32, 0.05) 100%)', clipPath: 'ellipse(100% 80% at 100% 50%)' }}
         />
 
         <div className="relative z-10 p-3 sm:p-5 md:p-6 overflow-y-auto max-h-[90vh]">
-          {/* Logo - larger for readability */}
+          {/* White Logo - slightly larger */}
           <div className="flex justify-center mb-3 sm:mb-4 pt-8 sm:pt-6">
-            <img src={logoAgriCapital} alt="AgriCapital" className="h-24 sm:h-28 md:h-32 w-auto object-contain drop-shadow-lg" loading="eager" />
+            <img src={logoWhite} alt="AgriCapital" className="h-20 sm:h-24 md:h-28 w-auto object-contain drop-shadow-lg" loading="eager" />
           </div>
 
           {/* Headline */}
           <div className="text-center mb-3">
-            <h2 className="text-white text-lg sm:text-xl md:text-2xl font-bold leading-tight mb-2" style={{ fontFamily: 'Georgia, Times New Roman, serif' }}>
+            <h2 className="text-white text-lg sm:text-xl md:text-2xl font-bold leading-tight" style={{ fontFamily: 'Georgia, Times New Roman, serif' }}>
               {t.headline}
             </h2>
           </div>
 
-          {/* Team photo - no white background visible */}
+          {/* Team photo - blend into green background */}
           <div className="relative flex justify-center mb-3 -mx-3 sm:-mx-5 md:-mx-6">
-            <div className="relative w-full overflow-hidden" style={{ background: 'linear-gradient(135deg, #166534 0%, #14532d 100%)' }}>
+            <div className="relative w-full overflow-hidden">
               <img 
                 src={teamImage} 
                 alt="Équipe AgriCapital"
                 className="w-full h-auto object-contain mx-auto"
-                style={{ maxHeight: '45vh', minHeight: '200px', mixBlendMode: 'multiply' }}
+                style={{ maxHeight: '48vh', minHeight: '200px', mixBlendMode: 'multiply' }}
                 loading="eager"
               />
             </div>
