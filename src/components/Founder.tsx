@@ -35,7 +35,7 @@ const Founder = () => {
                     <img
                       src={founderImage}
                       alt={t.founder.name}
-                      className="w-full h-full object-contain bg-secondary/30"
+                      className="w-full h-full object-cover object-top"
                       loading="lazy"
                     />
                   </div>

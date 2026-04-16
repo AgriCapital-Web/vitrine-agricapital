@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Language, languageNames } from "@/lib/translations";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import logo from "@/assets/logo.png";
+import logo from "@/assets/logo-agricapital-v2.png";
 
 const languages: Language[] = ["fr", "en", "ar", "es", "de", "zh"];
 
@@ -95,8 +95,8 @@ const Navigation = () => {
       label: menuLabels.discover,
       children: [
         { label: t.nav.about, action: "apropos" },
-        { label: menuLabels.team, action: "equipe" },
         { label: menuLabels.capacity, action: "impact" },
+        { label: menuLabels.evolution, action: "/evolution", isRoute: true },
       ],
     },
     {
@@ -106,6 +106,7 @@ const Navigation = () => {
         { label: t.nav.partnership, action: "partenariat" },
       ],
     },
+    { label: menuLabels.team, action: "equipe" },
     {
       label: menuLabels.resources,
       children: [
