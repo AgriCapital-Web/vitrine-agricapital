@@ -168,21 +168,21 @@ const WelcomePopup = () => {
             </h2>
           </div>
 
-          {/* Team photo - blend into green background */}
-          <div className="relative flex justify-center mb-3 -mx-3 sm:-mx-5 md:-mx-6">
-            <div className="relative w-full overflow-hidden">
+          {/* Team photo - feet just touch the description card */}
+          <div className="relative flex justify-end -mx-3 sm:-mx-5 md:-mx-6 -mb-6 sm:-mb-8 md:-mb-10 z-10">
+            <div className="relative w-full overflow-hidden flex justify-center items-end">
               <img 
                 src={teamImage} 
                 alt="Équipe AgriCapital"
-                className="w-full h-auto object-contain mx-auto"
-                style={{ maxHeight: '48vh', minHeight: '200px', mixBlendMode: 'multiply' }}
+                className="w-auto h-auto object-contain object-bottom"
+                style={{ maxHeight: '46vh', minHeight: '220px', mixBlendMode: 'multiply', maxWidth: '100%' }}
                 loading="eager"
               />
             </div>
           </div>
 
-          {/* Description */}
-          <div className="bg-white/10 backdrop-blur rounded-xl p-3 sm:p-4 mb-3 border border-white/20">
+          {/* Description - feet of team slightly overlap top of this card */}
+          <div className="relative bg-white/10 backdrop-blur rounded-xl p-3 sm:p-4 mb-3 border border-white/20 z-0">
             <p className="text-white/95 text-xs sm:text-sm md:text-base text-center leading-relaxed">
               {t.description}
             </p>
