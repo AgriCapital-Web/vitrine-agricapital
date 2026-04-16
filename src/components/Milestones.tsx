@@ -14,6 +14,7 @@ import jalonImage5 from "@/assets/jalon-5.jpg";
 import jalonImage6 from "@/assets/jalon-6.jpg";
 import jalonImage7 from "@/assets/jalon-7.jpg";
 import nurseryImage1 from "@/assets/nursery-dec-2025-1.jpg";
+import nurseryApril2026 from "@/assets/palm-nursery-april2026.jpg";
 import {
   Carousel,
   CarouselContent,
@@ -43,12 +44,18 @@ const Milestones = () => {
       nurseryBadge: "Nouveau - Déc. 2025",
       nurseryDesc: "Installation complète de notre site de pépinière de plus de 100 hectares entre le 19 novembre et le 24 décembre 2025, avec système d'irrigation moderne et plants certifiés Tenera.",
       seeMore: "Voir toute l'évolution du projet",
+      growthTitle: "Pépinière en Pleine Croissance",
+      growthBadge: "Actuel - Avril 2026",
+      growthDesc: "Plus de 100 hectares de pépinière sont actuellement en pleine croissance. La pépinière fait l'objet d'un entretien régulier et structuré. Cette étape représente une avancée concrète dans le déploiement opérationnel du projet AgriCapital.",
     },
     en: {
       nurseryTitle: "100+ Hectare Nursery",
       nurseryBadge: "New - Dec. 2025",
       nurseryDesc: "Complete installation of our 100+ hectare nursery site between November 19 and December 24, 2025, with modern irrigation system and certified Tenera seedlings.",
       seeMore: "See full project evolution",
+      growthTitle: "Nursery in Full Growth",
+      growthBadge: "Current - April 2026",
+      growthDesc: "Over 100 hectares of nursery are currently in full growth. The nursery is regularly and systematically maintained. This stage represents a concrete advance in the operational deployment of the AgriCapital project.",
     }
   };
 
@@ -62,6 +69,47 @@ const Milestones = () => {
             {t.milestones.title}
           </h2>
         </div>
+
+        {/* April 2026 Milestone - Nursery in Full Growth (FIRST in timeline) */}
+        <Card className="bg-gradient-to-r from-emerald-500/10 to-agri-green/10 border-agri-green border-2 mb-6 overflow-hidden">
+          <CardContent className="p-6 sm:p-8">
+            <div className="flex flex-col lg:flex-row gap-6 items-center">
+              <div className="lg:w-1/3">
+                <div
+                  className="relative rounded-xl overflow-hidden aspect-[4/3] cursor-pointer shadow-lg"
+                  onClick={() => setSelectedImage(nurseryApril2026)}
+                >
+                  <img
+                    src={nurseryApril2026}
+                    alt={trans.growthTitle}
+                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                  />
+                  <div className="absolute top-3 left-3">
+                    <Badge className="bg-agri-green text-white animate-pulse">
+                      <Sprout className="w-3 h-3 mr-1" />
+                      {trans.growthBadge}
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+              <div className="lg:w-2/3 text-center lg:text-left">
+                <div className="flex items-center gap-2 mb-3 justify-center lg:justify-start">
+                  <Target className="w-6 h-6 text-agri-green" />
+                  <h3 className="text-2xl font-bold text-agri-green">
+                    {trans.growthTitle}
+                  </h3>
+                </div>
+                <div className="flex items-center gap-2 mb-4 justify-center lg:justify-start">
+                  <Badge variant="outline" className="text-muted-foreground">
+                    <Calendar className="w-3 h-3 mr-1" />
+                    {language === 'fr' ? 'Avril 2026' : 'April 2026'}
+                  </Badge>
+                </div>
+                <p className="text-muted-foreground mb-2">{trans.growthDesc}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* New Nursery Milestone Card */}
         <Card className="bg-gradient-to-r from-agri-green/5 to-emerald-500/5 border-agri-green/30 border-2 mb-8 overflow-hidden">

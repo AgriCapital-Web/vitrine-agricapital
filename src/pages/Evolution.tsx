@@ -74,8 +74,8 @@ const Evolution = () => {
       date: language === "fr" ? "En cours" : "Ongoing",
       title: language === "fr" ? "Prospection Communautaire" : "Community Prospecting",
       description: language === "fr"
-        ? "Engagement continu avec les communautés locales et identification des familles bénéficiaires du programme Palmier Solidaire."
-        : "Ongoing engagement with local communities and identification of beneficiary families for the Solidarity Palm program.",
+        ? "Engagement continu avec les communautés locales et identification des propriétaires fonciers et partenaires intéressés par le développement de plantations clé en main avec AgriCapital."
+        : "Ongoing engagement with local communities and identification of landowners and partners interested in turnkey plantation development with AgriCapital.",
       status: "in_progress",
       icon: Users,
     },
