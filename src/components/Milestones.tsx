@@ -70,6 +70,47 @@ const Milestones = () => {
           </h2>
         </div>
 
+        {/* April 2026 Milestone - Nursery in Full Growth (FIRST in timeline) */}
+        <Card className="bg-gradient-to-r from-emerald-500/10 to-agri-green/10 border-agri-green border-2 mb-6 overflow-hidden">
+          <CardContent className="p-6 sm:p-8">
+            <div className="flex flex-col lg:flex-row gap-6 items-center">
+              <div className="lg:w-1/3">
+                <div
+                  className="relative rounded-xl overflow-hidden aspect-[4/3] cursor-pointer shadow-lg"
+                  onClick={() => setSelectedImage(nurseryApril2026)}
+                >
+                  <img
+                    src={nurseryApril2026}
+                    alt={trans.growthTitle}
+                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                  />
+                  <div className="absolute top-3 left-3">
+                    <Badge className="bg-agri-green text-white animate-pulse">
+                      <Sprout className="w-3 h-3 mr-1" />
+                      {trans.growthBadge}
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+              <div className="lg:w-2/3 text-center lg:text-left">
+                <div className="flex items-center gap-2 mb-3 justify-center lg:justify-start">
+                  <Target className="w-6 h-6 text-agri-green" />
+                  <h3 className="text-2xl font-bold text-agri-green">
+                    {trans.growthTitle}
+                  </h3>
+                </div>
+                <div className="flex items-center gap-2 mb-4 justify-center lg:justify-start">
+                  <Badge variant="outline" className="text-muted-foreground">
+                    <Calendar className="w-3 h-3 mr-1" />
+                    {language === 'fr' ? 'Avril 2026' : 'April 2026'}
+                  </Badge>
+                </div>
+                <p className="text-muted-foreground mb-2">{trans.growthDesc}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* New Nursery Milestone Card */}
         <Card className="bg-gradient-to-r from-agri-green/5 to-emerald-500/5 border-agri-green/30 border-2 mb-8 overflow-hidden">
           <CardContent className="p-6 sm:p-8">
