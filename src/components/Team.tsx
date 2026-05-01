@@ -131,12 +131,12 @@ type MemberType = { name: string; role: string; bio: string; image: string | nul
 const MemberCard = ({ member }: { member: MemberType }) => (
   <Card className="bg-card border-border hover:shadow-medium transition-smooth overflow-hidden">
     <CardContent className="p-6 flex flex-col items-center text-center">
-      <div className="w-28 h-28 rounded-full overflow-hidden mb-4 border-4 border-primary/20 bg-secondary/50 flex items-center justify-center">
+      <div className={`w-28 h-28 rounded-full overflow-hidden mb-4 border-4 border-primary/20 flex items-center justify-center ${member.isLogo ? '' : 'bg-secondary/50'}`}>
         {member.image ? (
           <img
             src={member.image}
             alt={member.name}
-            className={`${member.isLogo ? 'w-20 h-20 object-contain' : 'w-full h-full object-cover object-top'}`}
+            className={`${member.isLogo ? 'w-full h-full object-cover' : 'w-full h-full object-cover object-top'}`}
             loading="lazy"
           />
         ) : (
