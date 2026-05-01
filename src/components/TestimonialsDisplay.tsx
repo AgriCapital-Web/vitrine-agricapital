@@ -42,10 +42,10 @@ const TestimonialsDisplay = () => {
 
   const fetchTestimonials = async () => {
     try {
-      const { data, error } = await supabase
-        .from('testimonials')
+      // SECURITY: Use the public-safe view that excludes the email column
+      const { data, error } = await (supabase as any)
+        .from('testimonials_public')
         .select('*')
-        .eq('approved', true)
         .order('created_at', { ascending: false });
 
       if (error) {

@@ -6,13 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
 import { ArrowRight, Calendar, Sprout, Target } from "lucide-react";
-import jalonImage1 from "@/assets/jalon-1.jpg";
-import jalonImage2 from "@/assets/jalon-2.jpg";
-import jalonImage3 from "@/assets/jalon-3.jpg";
-import jalonImage4 from "@/assets/jalon-4.jpg";
-import jalonImage5 from "@/assets/jalon-5.jpg";
-import jalonImage6 from "@/assets/jalon-6.jpg";
-import jalonImage7 from "@/assets/jalon-7.jpg";
+import palmMature from "@/assets/palm-mature-plantation.jpg";
 import nurseryImage1 from "@/assets/nursery-dec-2025-1.jpg";
 import nurseryApril2026 from "@/assets/palm-nursery-april2026.jpg";
 import {
@@ -27,15 +21,12 @@ const Milestones = () => {
   const { t, language } = useLanguage();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
-  // Only launch photos in this section, nursery photos are on /evolution page
+  // Use the new authentic mature palm plantation photo for the gallery (replaces jalon-1..7)
   const galleryImages = [
-    jalonImage1,
-    jalonImage2,
-    jalonImage3,
-    jalonImage4,
-    jalonImage5,
-    jalonImage6,
-    jalonImage7,
+    palmMature,
+    palmMature,
+    palmMature,
+    palmMature,
   ];
 
   const translations = {
