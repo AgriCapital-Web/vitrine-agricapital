@@ -2,7 +2,6 @@ import { useEffect } from "react";
 import { useParams, useLocation } from "react-router-dom";
 import DynamicNavigation from "@/components/DynamicNavigation";
 import Hero from "@/components/Hero";
-import SeasonalPopup from "@/components/SeasonalPopup";
 import AIChatbot from "@/components/AIChatbot";
 import Ambitions from "@/components/Ambitions";
 import About from "@/components/About";
@@ -111,7 +110,6 @@ const HomePage = () => {
     <div className="min-h-screen bg-background overflow-x-hidden max-w-full">
       <SEOHead />
       <SEOJsonLD />
-      <SeasonalPopup />
       <AIChatbot />
       <DynamicNavigation />
       <Hero />
