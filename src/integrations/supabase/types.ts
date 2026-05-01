@@ -1264,6 +1264,45 @@ export type Database = {
       }
     }
     Views: {
+      partnerships_public: {
+        Row: {
+          benefits: string | null
+          created_at: string | null
+          description: string | null
+          id: string | null
+          logo_url: string | null
+          name: string | null
+          partner_count: number | null
+          status: string | null
+          type: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          benefits?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string | null
+          logo_url?: string | null
+          name?: string | null
+          partner_count?: number | null
+          status?: string | null
+          type?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          benefits?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string | null
+          logo_url?: string | null
+          name?: string | null
+          partner_count?: number | null
+          status?: string | null
+          type?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       testimonials_public: {
         Row: {
           created_at: string | null
