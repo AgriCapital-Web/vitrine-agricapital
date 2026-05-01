@@ -8,7 +8,6 @@ import { usePageTracking } from "@/hooks/usePageTracking";
 import { lazy, Suspense } from "react";
 import { Loader2 } from "lucide-react";
 
-// Pages - using lazy loading for better performance
 import HomePage from "./pages/HomePage";
 import NotFound from "./pages/NotFound";
 import AdminLogin from "./pages/AdminLogin";
@@ -16,49 +15,36 @@ import AdminDashboard from "./pages/AdminDashboard";
 import AdminResetPassword from "./pages/AdminResetPassword";
 import AdminSetup from "./pages/AdminSetup";
 
-// Lazy load admin pages
-const AdminTestimonials = lazy(() => import("./pages/admin/AdminTestimonials"));
-const AdminNewsletter = lazy(() => import("./pages/admin/AdminNewsletter"));
-const AdminMessaging = lazy(() => import("./pages/admin/AdminMessaging"));
-const AdminSettings = lazy(() => import("./pages/admin/AdminSettings"));
-const AdminGallery = lazy(() => import("./pages/admin/AdminGallery"));
-const AdminPartnerships = lazy(() => import("./pages/admin/AdminPartnerships"));
-const AdminContent = lazy(() => import("./pages/admin/AdminContent"));
-const AdminNotifications = lazy(() => import("./pages/admin/AdminNotifications"));
-const AdminSEO = lazy(() => import("./pages/admin/AdminSEO"));
-const AdminUsers = lazy(() => import("./pages/admin/AdminUsers"));
-const AdminAnalytics = lazy(() => import("./pages/admin/AdminAnalytics"));
-const AdminPages = lazy(() => import("./pages/admin/AdminPages"));
-const AdminMedia = lazy(() => import("./pages/admin/AdminMedia"));
-const AdminBranding = lazy(() => import("./pages/admin/AdminBranding"));
-const AdminForms = lazy(() => import("./pages/admin/AdminForms"));
-const AdminMenuNav = lazy(() => import("./pages/admin/AdminMenuNav"));
-const AdminSections = lazy(() => import("./pages/admin/AdminSections"));
-const AdminTranslations = lazy(() => import("./pages/admin/AdminTranslations"));
-const AdminBlocs = lazy(() => import("./pages/admin/AdminBlocs"));
-const AdminCMS = lazy(() => import("./pages/admin/AdminCMS"));
-const AdminMediaLibrary = lazy(() => import("./pages/admin/AdminMediaLibrary"));
-const AdminPageBuilder = lazy(() => import("./pages/admin/AdminPageBuilder"));
-
-const AdminContactMessages = lazy(() => import("./pages/admin/AdminContactMessages"));
-const AdminAIConversations = lazy(() => import("./pages/admin/AdminAIConversations"));
-const AdminAutoResponses = lazy(() => import("./pages/admin/AdminAutoResponses"));
-const AdminVisitorContacts = lazy(() => import("./pages/admin/AdminVisitorContacts"));
-const AdminPartnershipRequests = lazy(() => import("./pages/admin/AdminPartnershipRequests"));
+// Lazy-loaded public pages
 const FAQ = lazy(() => import("./pages/FAQ"));
 const Evolution = lazy(() => import("./pages/Evolution"));
 const PartnershipRequest = lazy(() => import("./pages/PartnershipRequest"));
 const News = lazy(() => import("./pages/News"));
 const NewsArticle = lazy(() => import("./pages/NewsArticle"));
+
+// Lazy-loaded admin pages — vitrine: minimal & focused
+const AdminAnalytics = lazy(() => import("./pages/admin/AdminAnalytics"));
 const AdminNews = lazy(() => import("./pages/admin/AdminNews"));
-const AdminAdvancedAnalytics = lazy(() => import("./pages/admin/AdminAdvancedAnalytics"));
-const AdminPushNotificationsPage = lazy(() => import("./pages/admin/AdminPushNotificationsPage"));
-const AdminBackup = lazy(() => import("./pages/admin/AdminBackup"));
+const AdminTestimonials = lazy(() => import("./pages/admin/AdminTestimonials"));
+const AdminNewsletter = lazy(() => import("./pages/admin/AdminNewsletter"));
+const AdminPartnerships = lazy(() => import("./pages/admin/AdminPartnerships"));
+const AdminPartnershipRequests = lazy(() => import("./pages/admin/AdminPartnershipRequests"));
+const AdminInbox = lazy(() => import("./pages/admin/AdminInbox"));
+const AdminContactMessages = lazy(() => import("./pages/admin/AdminContactMessages"));
+const AdminAIConversations = lazy(() => import("./pages/admin/AdminAIConversations"));
+const AdminVisitorContacts = lazy(() => import("./pages/admin/AdminVisitorContacts"));
+const AdminMedia = lazy(() => import("./pages/admin/AdminMedia"));
+const AdminMenuNav = lazy(() => import("./pages/admin/AdminMenuNav"));
+const AdminTranslations = lazy(() => import("./pages/admin/AdminTranslations"));
+const AdminSEO = lazy(() => import("./pages/admin/AdminSEO"));
+const AdminUsers = lazy(() => import("./pages/admin/AdminUsers"));
 const AdminPermissions = lazy(() => import("./pages/admin/AdminPermissions"));
 const AdminAuditLog = lazy(() => import("./pages/admin/AdminAuditLog"));
-const AdminCommunications = lazy(() => import("./pages/admin/AdminCommunications"));
+const AdminBackup = lazy(() => import("./pages/admin/AdminBackup"));
 const AdminDatabase = lazy(() => import("./pages/admin/AdminDatabase"));
-const AdminMediaQuality = lazy(() => import("./pages/admin/AdminMediaQuality"));
+const AdminPushNotificationsPage = lazy(() => import("./pages/admin/AdminPushNotificationsPage"));
+const AdminNotifications = lazy(() => import("./pages/admin/AdminNotifications"));
+const AdminSettings = lazy(() => import("./pages/admin/AdminSettings"));
 
 const queryClient = new QueryClient();
 
@@ -73,10 +59,8 @@ const AppContent = () => {
   return (
     <Suspense fallback={<LoadingFallback />}>
       <Routes>
-        {/* Main routes */}
+        {/* Public */}
         <Route path="/" element={<HomePage />} />
-        
-        {/* Section routes (French) */}
         <Route path="/accueil" element={<HomePage />} />
         <Route path="/a-propos" element={<HomePage />} />
         <Route path="/apropos" element={<HomePage />} />
@@ -97,8 +81,8 @@ const AppContent = () => {
         <Route path="/actualites/:slug" element={<NewsArticle />} />
         <Route path="/news" element={<News />} />
         <Route path="/news/:slug" element={<NewsArticle />} />
-        
-        {/* Section routes (English) */}
+
+        {/* English aliases */}
         <Route path="/home" element={<HomePage />} />
         <Route path="/about" element={<HomePage />} />
         <Route path="/approach" element={<HomePage />} />
@@ -106,63 +90,50 @@ const AppContent = () => {
         <Route path="/founder" element={<HomePage />} />
         <Route path="/partnership" element={<HomePage />} />
         <Route path="/testimonials" element={<HomePage />} />
-        
-        {/* Language routes */}
+
+        {/* Language roots */}
         <Route path="/fr" element={<HomePage />} />
         <Route path="/en" element={<HomePage />} />
         <Route path="/ar" element={<HomePage />} />
         <Route path="/es" element={<HomePage />} />
         <Route path="/de" element={<HomePage />} />
         <Route path="/zh" element={<HomePage />} />
-        
-        {/* Language + Section routes */}
         <Route path="/:lang/:section" element={<HomePage />} />
-        
-        {/* Admin routes */}
+
+        {/* Admin — vitrine focused */}
         <Route path="/admin" element={<AdminLogin />} />
         <Route path="/admin/setup" element={<AdminSetup />} />
+        <Route path="/admin/reset-password" element={<AdminResetPassword />} />
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
-        <Route path="/admin/reset-password" element={<AdminResetPassword />} />
-        <Route path="/admin/reset-password" element={<AdminResetPassword />} />
+        <Route path="/admin/analytics" element={<AdminAnalytics />} />
+
+        {/* Content */}
+        <Route path="/admin/news" element={<AdminNews />} />
         <Route path="/admin/testimonials" element={<AdminTestimonials />} />
+        <Route path="/admin/media" element={<AdminMedia />} />
+        <Route path="/admin/menu" element={<AdminMenuNav />} />
+
+        {/* Communication */}
+        <Route path="/admin/inbox" element={<AdminInbox />} />
+        <Route path="/admin/contact-messages" element={<AdminContactMessages />} />
         <Route path="/admin/newsletter" element={<AdminNewsletter />} />
-        <Route path="/admin/messaging" element={<AdminMessaging />} />
-        <Route path="/admin/settings" element={<AdminSettings />} />
-        <Route path="/admin/gallery" element={<AdminGallery />} />
+        <Route path="/admin/partnership-requests" element={<AdminPartnershipRequests />} />
         <Route path="/admin/partnerships" element={<AdminPartnerships />} />
-        <Route path="/admin/content" element={<AdminContent />} />
+        <Route path="/admin/ai-conversations" element={<AdminAIConversations />} />
+        <Route path="/admin/visitor-contacts" element={<AdminVisitorContacts />} />
         <Route path="/admin/notifications" element={<AdminNotifications />} />
+        <Route path="/admin/push-notifications" element={<AdminPushNotificationsPage />} />
+
+        {/* Configuration */}
+        <Route path="/admin/translations" element={<AdminTranslations />} />
         <Route path="/admin/seo" element={<AdminSEO />} />
         <Route path="/admin/users" element={<AdminUsers />} />
-        <Route path="/admin/analytics" element={<AdminAnalytics />} />
-        <Route path="/admin/pages" element={<AdminPages />} />
-        <Route path="/admin/media" element={<AdminMedia />} />
-        <Route path="/admin/branding" element={<AdminBranding />} />
-        <Route path="/admin/forms" element={<AdminForms />} />
-        <Route path="/admin/menu" element={<AdminMenuNav />} />
-        <Route path="/admin/sections" element={<AdminSections />} />
-        <Route path="/admin/translations" element={<AdminTranslations />} />
-        <Route path="/admin/blocs" element={<AdminBlocs />} />
-        <Route path="/admin/cms" element={<AdminCMS />} />
-        <Route path="/admin/media-library" element={<AdminMediaLibrary />} />
-        <Route path="/admin/page-builder" element={<AdminPageBuilder />} />
-        
-        <Route path="/admin/contact-messages" element={<AdminContactMessages />} />
-        <Route path="/admin/ai-conversations" element={<AdminAIConversations />} />
-        <Route path="/admin/auto-responses" element={<AdminAutoResponses />} />
-        <Route path="/admin/visitor-contacts" element={<AdminVisitorContacts />} />
-        <Route path="/admin/partnership-requests" element={<AdminPartnershipRequests />} />
-        <Route path="/admin/news" element={<AdminNews />} />
-        <Route path="/admin/advanced-analytics" element={<AdminAdvancedAnalytics />} />
-        <Route path="/admin/push-notifications" element={<AdminPushNotificationsPage />} />
-        <Route path="/admin/backup" element={<AdminBackup />} />
         <Route path="/admin/permissions" element={<AdminPermissions />} />
         <Route path="/admin/audit-log" element={<AdminAuditLog />} />
-        <Route path="/admin/communications" element={<AdminCommunications />} />
+        <Route path="/admin/backup" element={<AdminBackup />} />
         <Route path="/admin/database" element={<AdminDatabase />} />
-        <Route path="/admin/media-quality" element={<AdminMediaQuality />} />
-        
-        {/* 404 */}
+        <Route path="/admin/settings" element={<AdminSettings />} />
+
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Suspense>
