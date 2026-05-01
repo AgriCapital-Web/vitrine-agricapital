@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Bold, Italic, Heading2, List, ListOrdered, Quote, Link as LinkIcon, Image as ImageIcon } from "lucide-react";
 
 interface WYSIWYGEditorProps {
-  value: string;
+  value?: string;
+  content?: string;
   onChange: (value: string) => void;
   placeholder?: string;
   rows?: number;
@@ -12,9 +13,9 @@ interface WYSIWYGEditorProps {
 
 /**
  * Lightweight Markdown editor with a small toolbar.
- * Intentionally minimal — heavy WYSIWYG was removed during the vitrine cleanup.
  */
-const WYSIWYGEditor = ({ value, onChange, placeholder, rows = 14 }: WYSIWYGEditorProps) => {
+const WYSIWYGEditor = ({ value, content, onChange, placeholder, rows = 14 }: WYSIWYGEditorProps) => {
+  const text = value ?? content ?? "";
   const ref = useRef<HTMLTextAreaElement>(null);
 
   const wrap = (before: string, after = before) => {
