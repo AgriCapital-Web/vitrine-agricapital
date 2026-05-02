@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Calendar, MapPin, Users, Leaf, Target, CheckCircle, TrendingUp, Sprout, ArrowLeft, Clock } from "lucide-react";
@@ -10,18 +9,13 @@ import DynamicNavigation from "@/components/DynamicNavigation";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
 
-// Daloa nursery images
 import nurseryImage1 from "@/assets/nursery-dec-2025-1.jpg";
 import nurseryImage2 from "@/assets/nursery-dec-2025-2.jpg";
 import nurserySite from "@/assets/nursery-site.webp";
 import nurseryInspection from "@/assets/nursery-inspection-2026.jpg";
 import founderPalm from "@/assets/founder-palm-field.jpg";
-
-// Vavoua site images
 import vavouaSite from "@/assets/vavoua-site-2026.jpg";
 import vavouaLand from "@/assets/vavoua-land-2026.jpg";
-
-// Launch photos
 import jalonImage1 from "@/assets/jalon-1.jpg";
 import jalonImage2 from "@/assets/jalon-2.jpg";
 import jalonImage3 from "@/assets/jalon-3.jpg";
@@ -31,63 +25,69 @@ import jalonImage6 from "@/assets/jalon-6.jpg";
 import jalonImage7 from "@/assets/jalon-7.jpg";
 
 const Evolution = () => {
-  const { t, language } = useLanguage();
+  const { language } = useLanguage();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
-  const et = t.evolution || {
-    title: "Évolution du Projet AgriCapital",
-    subtitle: "Suivez notre progression et nos réalisations concrètes sur le terrain",
-    backHome: "Retour à l'accueil",
-    milestones: "Jalons du Projet",
-    completed: "Réalisé",
-    inProgress: "En cours",
-    upcoming: "À venir",
-    gallery: "Galerie Photos",
-    hectares: "hectares de pépinière",
-    communities: "localités sensibilisées",
-    partners: "partenaires producteurs engagés",
-    ctaTitle: "Rejoignez l'aventure AgriCapital",
-    ctaSubtitle: "Devenez partenaire producteur et faites partie de cette success story",
-    contactUs: "Nous contacter",
+  const texts = {
+    fr: {
+      title: "Évolution du Projet",
+      subtitle: "Suivez la progression opérationnelle d'AgriCapital sur le terrain",
+      backHome: "Retour à l'accueil",
+      milestones: "Jalons Clés",
+      completed: "Réalisé",
+      inProgress: "En cours",
+      upcoming: "À venir",
+      gallery: "Galerie Terrain",
+      hectares: "ha de pépinière active",
+      lands: "ha identifiés sur le territoire",
+      waitlist: "souscripteurs en liste d'attente",
+      ctaTitle: "Créez votre patrimoine agricole",
+      ctaSubtitle: "Rejoignez la liste d'attente et soyez parmi les premiers souscripteurs d'AgriCapital.",
+      contactUs: "Nous contacter",
+      daloaTitle: "Pépinière de Daloa — 120 hectares",
+      daloaDesc: "Site pleinement opérationnel : système d'irrigation autonome, plants certifiés Tenera, équipe technique mobilisée.",
+      vavouaTitle: "Site de Vavoua — 100 hectares (Prévu 2026)",
+      vavouaDesc: "Second site de pépinière dans le secteur Vrouho. Terrains identifiés, prospections en cours.",
+      launchTitle: "Photos du Lancement — Novembre 2025",
+      m1: { date: "19 Novembre 2025", title: "Lancement des Opérations Terrain", desc: "Démarrage officiel d'AgriCapital avec l'installation de l'infrastructure opérationnelle et le début des activités sur le terrain." },
+      m2: { date: "Nov – Déc 2025", title: "Pépinière Daloa — 120 ha", desc: "Installation complète de la pépinière de 120 hectares à Daloa avec irrigation autonome et plants certifiés Tenera." },
+      m3: { date: "En cours", title: "Déploiement Commercial", desc: "Ouverture de la liste d'attente, prospection communautaire active et premiers engagements de souscripteurs intéressés par les formules PalmInvest et TerraPalm." },
+      m4: { date: "2026", title: "Site Vavoua — 100 ha", desc: "Ouverture d'un second site de pépinière à Vavoua (secteur Vrouho), portant la capacité totale à plus de 200 hectares." },
+    },
+    en: {
+      title: "Project Evolution",
+      subtitle: "Track AgriCapital's operational progress on the ground",
+      backHome: "Back to home",
+      milestones: "Key Milestones",
+      completed: "Completed",
+      inProgress: "In Progress",
+      upcoming: "Upcoming",
+      gallery: "Field Gallery",
+      hectares: "ha of active nursery",
+      lands: "ha identified across the territory",
+      waitlist: "subscribers on waitlist",
+      ctaTitle: "Create your agricultural heritage",
+      ctaSubtitle: "Join the waitlist and be among the first AgriCapital subscribers.",
+      contactUs: "Contact us",
+      daloaTitle: "Daloa Nursery — 120 hectares",
+      daloaDesc: "Fully operational site: autonomous irrigation, certified Tenera seedlings, mobilized technical team.",
+      vavouaTitle: "Vavoua Site — 100 hectares (Planned 2026)",
+      vavouaDesc: "Second nursery site in the Vrouho sector. Land identified, prospecting underway.",
+      launchTitle: "Launch Photos — November 2025",
+      m1: { date: "November 19, 2025", title: "Field Operations Launch", desc: "Official start of AgriCapital with operational infrastructure installation and field activities." },
+      m2: { date: "Nov – Dec 2025", title: "Daloa Nursery — 120 ha", desc: "Complete installation of the 120-hectare nursery in Daloa with autonomous irrigation and certified Tenera plants." },
+      m3: { date: "Ongoing", title: "Commercial Deployment", desc: "Waitlist opening, active community prospecting and first subscriber commitments for PalmInvest and TerraPalm formulas." },
+      m4: { date: "2026", title: "Vavoua Site — 100 ha", desc: "Opening of a second nursery site in Vavoua (Vrouho sector), bringing total capacity to over 200 hectares." },
+    },
   };
 
+  const t = texts[language as keyof typeof texts] || texts.fr;
+
   const milestones = [
-    {
-      date: "19 Novembre 2025",
-      title: language === "fr" ? "Lancement Officiel" : "Official Launch",
-      description: language === "fr" 
-        ? "Lancement officiel d'AgriCapital avec la présentation du modèle innovant d'accompagnement agricole."
-        : "Official launch of AgriCapital with the presentation of the innovative agricultural support model.",
-      status: "completed",
-      icon: Target,
-    },
-    {
-      date: "19 Nov - 24 Déc 2025",
-      title: language === "fr" ? "Pépinière Daloa — 100 ha" : "Daloa Nursery — 100 ha",
-      description: language === "fr"
-        ? "Installation complète du site de pépinière de plus de 100 hectares à Daloa avec système d'irrigation autonome."
-        : "Complete installation of the 100+ hectare nursery site in Daloa with autonomous irrigation system.",
-      status: "completed",
-      icon: Sprout,
-    },
-    {
-      date: language === "fr" ? "En cours" : "Ongoing",
-      title: language === "fr" ? "Prospection Communautaire" : "Community Prospecting",
-      description: language === "fr"
-        ? "Engagement continu avec les communautés locales et identification des propriétaires fonciers et partenaires intéressés par le développement de plantations clé en main avec AgriCapital."
-        : "Ongoing engagement with local communities and identification of landowners and partners interested in turnkey plantation development with AgriCapital.",
-      status: "in_progress",
-      icon: Users,
-    },
-    {
-      date: "2026",
-      title: language === "fr" ? "Site Vavoua — 100 ha (Prévu)" : "Vavoua Site — 100 ha (Planned)",
-      description: language === "fr"
-        ? "Ouverture d'un second site de pépinière de 100 hectares à Vavoua (secteur Vrouho), portant la capacité totale à 200 hectares."
-        : "Opening of a second 100-hectare nursery site in Vavoua (Vrouho sector), bringing total capacity to 200 hectares.",
-      status: "upcoming",
-      icon: MapPin,
-    },
+    { ...t.m1, status: "completed", icon: Target },
+    { ...t.m2, status: "completed", icon: Sprout },
+    { ...t.m3, status: "in_progress", icon: Users },
+    { ...t.m4, status: "upcoming", icon: MapPin },
   ];
 
   const daloaPhotos = [nurseryImage1, nurseryImage2, nurserySite, nurseryInspection, founderPalm];
@@ -95,48 +95,52 @@ const Evolution = () => {
   const launchPhotos = [jalonImage1, jalonImage2, jalonImage3, jalonImage4, jalonImage5, jalonImage6, jalonImage7];
 
   const stats = [
-    { value: "100+", label: et.hectares, icon: Leaf },
-    { value: "50+", label: et.communities, icon: MapPin },
-    { value: "200+", label: et.partners, icon: Users },
+    { value: "120+", label: t.hectares, icon: Leaf },
+    { value: "500+", label: t.lands, icon: MapPin },
+    { value: "200+", label: t.waitlist, icon: Users },
   ];
+
+  const statusStyles = {
+    completed: { border: "border-l-primary", bg: "bg-primary/5", badge: "bg-emerald-50 text-emerald-700 border-emerald-200", iconBg: "bg-primary/10 text-primary" },
+    in_progress: { border: "border-l-accent", bg: "bg-accent/5", badge: "bg-amber-50 text-amber-700 border-amber-200", iconBg: "bg-accent/10 text-accent" },
+    upcoming: { border: "border-l-border", bg: "bg-muted/30", badge: "bg-muted text-muted-foreground border-border", iconBg: "bg-muted text-muted-foreground" },
+  };
 
   return (
     <>
       <SEOHead />
       <DynamicNavigation />
-      
-      <main className="pt-20 min-h-screen bg-background">
-        {/* Hero */}
-        <section className="py-12 sm:py-16 bg-agri-green text-white">
-          <div className="container mx-auto px-4">
+
+      <main className="pt-16 min-h-screen bg-background">
+        {/* Hero — clean editorial */}
+        <section className="relative py-20 sm:py-28 bg-gradient-primary text-white overflow-hidden">
+          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCI+PHBhdGggZD0iTTAgMGg2MHY2MEgweiIgZmlsbD0ibm9uZSIvPjxwYXRoIGQ9Ik0zMCAzMGgyMHYyMEgzMHoiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wMykiLz48L3N2Zz4=')] opacity-40" />
+          <div className="container mx-auto px-4 relative">
             <Link to="/">
-              <Button variant="ghost" className="mb-4 text-white/80 hover:text-white hover:bg-white/10">
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                {et.backHome}
+              <Button variant="ghost" size="sm" className="mb-6 text-white/70 hover:text-white hover:bg-white/10 -ml-2">
+                <ArrowLeft className="w-4 h-4 mr-1.5" />
+                {t.backHome}
               </Button>
             </Link>
-            <div className="text-center">
-              <TrendingUp className="w-16 h-16 mx-auto mb-4 opacity-90" />
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">{et.title}</h1>
-              <p className="text-lg sm:text-xl text-white/90 max-w-2xl mx-auto">{et.subtitle}</p>
+            <div className="max-w-3xl">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl mb-4 text-white">{t.title}</h1>
+              <p className="text-lg sm:text-xl text-white/80 leading-relaxed">{t.subtitle}</p>
             </div>
           </div>
         </section>
 
-        {/* Stats */}
-        <section className="py-8 -mt-8 relative z-10">
+        {/* Stats strip */}
+        <section className="py-0 -mt-10 relative z-10">
           <div className="container mx-auto px-4">
-            <div className="grid grid-cols-3 gap-4 max-w-3xl mx-auto">
-              {stats.map((stat, index) => {
+            <div className="grid grid-cols-3 gap-3 sm:gap-5 max-w-3xl mx-auto">
+              {stats.map((stat, i) => {
                 const Icon = stat.icon;
                 return (
-                  <Card key={index} className="text-center border-2 border-agri-green/20 shadow-lg">
-                    <CardContent className="p-4 sm:p-6">
-                      <Icon className="w-8 h-8 mx-auto mb-2 text-agri-green" />
-                      <p className="text-2xl sm:text-3xl font-bold text-agri-green">{stat.value}</p>
-                      <p className="text-xs sm:text-sm text-muted-foreground">{stat.label}</p>
-                    </CardContent>
-                  </Card>
+                  <div key={i} className="bg-card rounded-xl border border-border shadow-medium p-4 sm:p-6 text-center">
+                    <Icon className="w-6 h-6 mx-auto mb-2 text-primary/70" />
+                    <p className="text-2xl sm:text-3xl font-bold text-foreground font-sans">{stat.value}</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground mt-1">{stat.label}</p>
+                  </div>
                 );
               })}
             </div>
@@ -144,117 +148,89 @@ const Evolution = () => {
         </section>
 
         {/* Milestones */}
-        <section className="py-12 sm:py-16">
+        <section className="py-16 sm:py-24">
           <div className="container mx-auto px-4">
-            <h2 className="text-2xl sm:text-3xl font-bold text-center mb-8 sm:mb-12">{et.milestones}</h2>
-            <div className="max-w-3xl mx-auto space-y-6">
-              {milestones.map((milestone, index) => {
-                const Icon = milestone.icon;
+            <h2 className="text-3xl sm:text-4xl text-center mb-12 sm:mb-16">{t.milestones}</h2>
+            <div className="max-w-3xl mx-auto space-y-4">
+              {milestones.map((ms, i) => {
+                const Icon = ms.icon;
+                const style = statusStyles[ms.status as keyof typeof statusStyles];
                 return (
-                  <Card key={index} className={`border-l-4 ${
-                    milestone.status === 'completed' ? 'border-l-agri-green bg-agri-green/5' :
-                    milestone.status === 'in_progress' ? 'border-l-agri-orange bg-agri-orange/5' :
-                    'border-l-muted bg-muted/10'
-                  }`}>
-                    <CardContent className="p-6">
-                      <div className="flex items-start gap-4">
-                        <div className={`p-3 rounded-full ${
-                          milestone.status === 'completed' ? 'bg-agri-green/20 text-agri-green' :
-                          milestone.status === 'in_progress' ? 'bg-agri-orange/20 text-agri-orange' :
-                          'bg-muted text-muted-foreground'
-                        }`}>
-                          <Icon className="w-6 h-6" />
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex flex-wrap items-center gap-2 mb-2">
-                            <Badge variant="outline" className={
-                              milestone.status === 'completed' ? 'border-agri-green text-agri-green' :
-                              milestone.status === 'in_progress' ? 'border-agri-orange text-agri-orange' :
-                              'border-muted-foreground text-muted-foreground'
-                            }>
-                              <Calendar className="w-3 h-3 mr-1" />
-                              {milestone.date}
-                            </Badge>
-                            {milestone.status === 'completed' && (
-                              <Badge className="bg-emerald-100 text-emerald-700">
-                                <CheckCircle className="w-3 h-3 mr-1" />{et.completed}
-                              </Badge>
-                            )}
-                            {milestone.status === 'in_progress' && (
-                              <Badge className="bg-amber-100 text-amber-700">{et.inProgress}</Badge>
-                            )}
-                            {milestone.status === 'upcoming' && (
-                              <Badge variant="outline" className="text-muted-foreground">
-                                <Clock className="w-3 h-3 mr-1" />{et.upcoming}
-                              </Badge>
-                            )}
-                          </div>
-                          <h3 className="text-lg sm:text-xl font-bold mb-2">{milestone.title}</h3>
-                          <p className="text-muted-foreground">{milestone.description}</p>
-                        </div>
+                  <div key={i} className={`rounded-xl border-l-4 ${style.border} ${style.bg} border border-border p-5 sm:p-6`}>
+                    <div className="flex items-start gap-4">
+                      <div className={`p-2.5 rounded-xl ${style.iconBg} shrink-0`}>
+                        <Icon className="w-5 h-5" />
                       </div>
-                    </CardContent>
-                  </Card>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex flex-wrap items-center gap-2 mb-2">
+                          <span className="text-xs font-medium text-muted-foreground flex items-center gap-1">
+                            <Calendar className="w-3 h-3" />
+                            {ms.date}
+                          </span>
+                          <Badge variant="outline" className={`text-xs ${style.badge}`}>
+                            {ms.status === "completed" && <><CheckCircle className="w-3 h-3 mr-1" />{t.completed}</>}
+                            {ms.status === "in_progress" && t.inProgress}
+                            {ms.status === "upcoming" && <><Clock className="w-3 h-3 mr-1" />{t.upcoming}</>}
+                          </Badge>
+                        </div>
+                        <h3 className="text-lg font-bold font-sans mb-1.5">{ms.title}</h3>
+                        <p className="text-sm text-muted-foreground leading-relaxed">{ms.desc}</p>
+                      </div>
+                    </div>
+                  </div>
                 );
               })}
             </div>
           </div>
         </section>
 
-        {/* Daloa Nursery Section */}
-        <section className="py-12 sm:py-16 bg-card/50">
+        {/* Gallery */}
+        <section className="py-16 sm:py-24 bg-muted/30">
           <div className="container mx-auto px-4">
-            <h2 className="text-2xl sm:text-3xl font-bold text-center mb-4">{et.gallery}</h2>
+            <h2 className="text-3xl sm:text-4xl text-center mb-12 sm:mb-16">{t.gallery}</h2>
 
-            <div className="mb-12">
-              <h3 className="text-xl font-semibold text-center mb-2 text-agri-green">
-                <Sprout className="w-5 h-5 inline-block mr-2" />
-                {language === "fr" ? "Pépinière de Daloa — 100 hectares (Déc. 2025)" : "Daloa Nursery — 100 hectares (Dec. 2025)"}
-              </h3>
-              <p className="text-center text-muted-foreground mb-6 max-w-2xl mx-auto text-sm">
-                {language === "fr"
-                  ? "Site pleinement opérationnel avec système d'irrigation autonome, plants certifiés Tenera et équipe technique mobilisée."
-                  : "Fully operational site with autonomous irrigation, certified Tenera seedlings and mobilized technical team."}
-              </p>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 max-w-5xl mx-auto">
-                {daloaPhotos.map((photo, index) => (
-                  <div key={index} className="cursor-pointer overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-all aspect-[4/3]" onClick={() => setSelectedImage(photo)}>
-                    <img src={photo} alt={`Pépinière Daloa ${index + 1}`} className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" loading="lazy" />
+            {/* Daloa */}
+            <div className="mb-16">
+              <div className="flex items-center gap-2 justify-center mb-2">
+                <Sprout className="w-5 h-5 text-primary" />
+                <h3 className="text-xl font-bold font-sans text-primary">{t.daloaTitle}</h3>
+              </div>
+              <p className="text-center text-sm text-muted-foreground mb-6 max-w-2xl mx-auto">{t.daloaDesc}</p>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 max-w-5xl mx-auto">
+                {daloaPhotos.map((photo, i) => (
+                  <div key={i} className="cursor-pointer overflow-hidden rounded-xl shadow-soft hover:shadow-medium transition-all aspect-[4/3] group" onClick={() => setSelectedImage(photo)}>
+                    <img src={photo} alt={`Daloa ${i + 1}`} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Vavoua Section */}
-            <div className="mb-12">
-              <h3 className="text-xl font-semibold text-center mb-2 text-agri-orange">
-                <MapPin className="w-5 h-5 inline-block mr-2" />
-                {language === "fr" ? "Site de Vavoua — 100 hectares (Prévu 2026)" : "Vavoua Site — 100 hectares (Planned 2026)"}
-              </h3>
-              <p className="text-center text-muted-foreground mb-6 max-w-2xl mx-auto text-sm">
-                {language === "fr"
-                  ? "Le second site de pépinière sera implanté à Vavoua, secteur Vrouho. Les terrains ont été identifiés et les prospections sont en cours."
-                  : "The second nursery site will be established in Vavoua, Vrouho sector. Land has been identified and prospecting is underway."}
-              </p>
-              <div className="grid grid-cols-2 gap-4 max-w-2xl mx-auto">
-                {vavouaPhotos.map((photo, index) => (
-                  <div key={index} className="cursor-pointer overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-all aspect-[4/3]" onClick={() => setSelectedImage(photo)}>
-                    <img src={photo} alt={`Site Vavoua ${index + 1}`} className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" loading="lazy" />
+            {/* Vavoua */}
+            <div className="mb-16">
+              <div className="flex items-center gap-2 justify-center mb-2">
+                <MapPin className="w-5 h-5 text-accent" />
+                <h3 className="text-xl font-bold font-sans text-accent">{t.vavouaTitle}</h3>
+              </div>
+              <p className="text-center text-sm text-muted-foreground mb-6 max-w-2xl mx-auto">{t.vavouaDesc}</p>
+              <div className="grid grid-cols-2 gap-3 max-w-2xl mx-auto">
+                {vavouaPhotos.map((photo, i) => (
+                  <div key={i} className="cursor-pointer overflow-hidden rounded-xl shadow-soft hover:shadow-medium transition-all aspect-[4/3] group" onClick={() => setSelectedImage(photo)}>
+                    <img src={photo} alt={`Vavoua ${i + 1}`} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Launch Photos */}
+            {/* Launch */}
             <div>
-              <h3 className="text-xl font-semibold text-center mb-6 text-agri-green">
-                <Target className="w-5 h-5 inline-block mr-2" />
-                {language === "fr" ? "Photos du Lancement — Novembre 2025" : "Launch Photos — November 2025"}
-              </h3>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-4 max-w-6xl mx-auto">
-                {launchPhotos.map((photo, index) => (
-                  <div key={index} className="cursor-pointer overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-all aspect-[4/3]" onClick={() => setSelectedImage(photo)}>
-                    <img src={photo} alt={`Lancement ${index + 1}`} className="w-full h-full object-cover object-top hover:scale-105 transition-transform duration-300" loading="lazy" />
+              <div className="flex items-center gap-2 justify-center mb-6">
+                <Target className="w-5 h-5 text-primary" />
+                <h3 className="text-xl font-bold font-sans text-primary">{t.launchTitle}</h3>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-3 max-w-6xl mx-auto">
+                {launchPhotos.map((photo, i) => (
+                  <div key={i} className="cursor-pointer overflow-hidden rounded-xl shadow-soft hover:shadow-medium transition-all aspect-[4/3] group" onClick={() => setSelectedImage(photo)}>
+                    <img src={photo} alt={`Launch ${i + 1}`} className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500" loading="lazy" />
                   </div>
                 ))}
               </div>
@@ -263,24 +239,20 @@ const Evolution = () => {
         </section>
 
         {/* CTA */}
-        <section className="py-12 sm:py-16">
+        <section className="py-16 sm:py-24">
           <div className="container mx-auto px-4 text-center">
-            <Card className="max-w-2xl mx-auto border-2 border-agri-green/20">
-              <CardHeader>
-                <CardTitle className="text-xl sm:text-2xl">{et.ctaTitle}</CardTitle>
-                <CardDescription>{et.ctaSubtitle}</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                  <Button asChild className="bg-agri-green hover:bg-agri-green-dark">
-                    <Link to="/#contact">{et.contactUs}</Link>
-                  </Button>
-                  <Button variant="outline" asChild>
-                    <a href="tel:+2250564551717">📞 05 64 55 17 17</a>
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+            <div className="max-w-2xl mx-auto">
+              <h2 className="text-3xl sm:text-4xl mb-3">{t.ctaTitle}</h2>
+              <p className="text-muted-foreground mb-8 text-lg">{t.ctaSubtitle}</p>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <Button asChild className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg">
+                  <Link to="/#contact">{t.contactUs}</Link>
+                </Button>
+                <Button variant="outline" asChild className="rounded-lg">
+                  <a href="tel:+2250564551717">📞 05 64 55 17 17</a>
+                </Button>
+              </div>
+            </div>
           </div>
         </section>
       </main>
@@ -288,7 +260,7 @@ const Evolution = () => {
       <Footer />
 
       <Dialog open={!!selectedImage} onOpenChange={() => setSelectedImage(null)}>
-        <DialogContent className="max-w-4xl p-2">
+        <DialogContent className="max-w-4xl p-2 bg-card">
           {selectedImage && <img src={selectedImage} alt="AgriCapital" className="w-full h-auto rounded-lg" />}
         </DialogContent>
       </Dialog>
