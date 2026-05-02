@@ -65,7 +65,7 @@ const DynamicNavigation = () => {
   const { language, setLanguage, t } = useLanguage();
   const langMenuRef = useRef<HTMLDivElement>(null);
   const mobileLangMenuRef = useRef<HTMLDivElement>(null);
-  const submenuTimeoutRef = useRef<NodeJS.Timeout>();
+  const submenuTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
   const navigate = useNavigate();
   const location = useLocation();
 
