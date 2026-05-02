@@ -13,7 +13,10 @@ export default {
       },
     },
     extend: {
-      colors: {
+      fontFamily: {
+        sans: ["'DM Sans'", "system-ui", "-apple-system", "sans-serif"],
+        serif: ["'DM Serif Display'", "Georgia", "serif"],
+      },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
@@ -54,6 +57,7 @@ export default {
           "orange-light": "hsl(var(--agri-orange-light))",
           gray: "hsl(var(--agri-gray))",
           "gray-light": "hsl(var(--agri-gray-light))",
+          cream: "hsl(var(--agri-cream))",
         },
       },
       backgroundImage: {
