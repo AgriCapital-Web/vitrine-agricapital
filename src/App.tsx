@@ -21,6 +21,7 @@ const Evolution = lazy(() => import("./pages/Evolution"));
 const PartnershipRequest = lazy(() => import("./pages/PartnershipRequest"));
 const News = lazy(() => import("./pages/News"));
 const NewsArticle = lazy(() => import("./pages/NewsArticle"));
+const TestimonialsPage = lazy(() => import("./pages/TestimonialsPage"));
 
 // Lazy-loaded admin pages — vitrine: minimal & focused
 const AdminAnalytics = lazy(() => import("./pages/admin/AdminAnalytics"));
@@ -70,7 +71,7 @@ const AppContent = () => {
         <Route path="/jalons" element={<HomePage />} />
         <Route path="/fondateur" element={<HomePage />} />
         <Route path="/partenariat" element={<HomePage />} />
-        <Route path="/temoignages" element={<HomePage />} />
+        <Route path="/temoignages" element={<TestimonialsPage />} />
         <Route path="/contact" element={<HomePage />} />
         <Route path="/faq" element={<FAQ />} />
         <Route path="/evolution" element={<Evolution />} />
