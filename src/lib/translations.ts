@@ -204,7 +204,7 @@ const fr = {
     },
   },
   footer: {
-    description: "Opérateur et promoteur agricole — Plantation de palmier à huile clé en main en Côte d'Ivoire",
+    description: "Promoteur agricole et services intégrés — Plantation de palmier à huile clé en main dans le Haut-Sassandra",
     quickLinks: "Liens Rapides",
     copyright: "AgriCapital SARL. Tous droits réservés.",
     capitalSocial: "Investir la terre. Cultiver l'avenir.",
@@ -212,15 +212,15 @@ const fr = {
   founder: {
     title: "Leadership",
     subtitle: "Une Vision Portée par l'Expérience",
-    intro: "AgriCapital est le fruit d'une vision entrepreneuriale incarnée par **Inocent KOFFI** et soutenue par sept associés fondateurs. Ensemble, ils partagent la conviction que l'agriculture constitue un levier stratégique de création de patrimoine durable.",
+    intro: "AgriCapital est le fruit d'une vision entrepreneuriale incarnée par Inocent KOFFI et soutenue par sept associés fondateurs. Ensemble, ils partagent la conviction que l'agriculture constitue un levier stratégique de création de patrimoine durable.",
     mission: "L'équipe fondatrice combine savoir-faire technique, expérience terrain et rigueur stratégique pour déployer un modèle agricole structuré, sécurisé et à fort potentiel. Leur action s'articule autour d'une ambition commune : permettre à chacun de devenir planteur.",
     founderTitle: "Le Fondateur",
-    name: "**Inocent KOFFI**",
+    name: "Inocent KOFFI",
     position: "Fondateur & Directeur Général",
     signature: "Agro-entrepreneur et Stratège du Développement Agricole",
     quote: {
       part1: "L'agriculture représente bien plus qu'une activité économique : c'est le fondement de tout patrimoine durable. Mon ambition est de permettre à chaque personne qui le souhaite de disposer de sa propre plantation agricole, dans un cadre sécurisé et professionnel.",
-      part2: "De 2012 à 2024, **Inocent KOFFI**, fondateur d'AgriCapital, a développé une expertise terrain exceptionnelle à travers plus d'une décennie d'immersion dans les communautés rurales ivoiriennes. Cette connaissance intime du territoire, des réalités agricoles et du potentiel foncier constitue un atout stratégique majeur pour identifier et sécuriser les meilleures terres pour nos clients.",
+      part2: "De 2012 à 2024, Inocent KOFFI, fondateur d'AgriCapital, a développé une expertise terrain exceptionnelle à travers plus d'une décennie d'immersion dans les communautés rurales ivoiriennes. Cette connaissance intime du territoire, des réalités agricoles et du potentiel foncier constitue un atout stratégique majeur pour identifier et sécuriser les meilleures terres pour nos clients.",
       part3: "AgriCapital incarne cette vision : bâtir un écosystème où chaque acteur — avec ou sans terre — trouve sa place et construit un patrimoine concret, tangible et créateur de valeur.",
       part4: "Ensemble, construisons votre patrimoine agricole.",
     },
@@ -593,7 +593,7 @@ const en: typeof fr = {
     },
   },
   footer: {
-    description: "Agricultural operator and developer — Turnkey oil palm plantations in Côte d'Ivoire",
+    description: "Agricultural promoter and integrated services — Turnkey oil palm plantations in Haut-Sassandra",
     quickLinks: "Quick Links",
     copyright: "AgriCapital SARL. All rights reserved.",
     capitalSocial: "Invest in the land. Cultivate the future.",
