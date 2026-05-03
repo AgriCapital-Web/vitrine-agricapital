@@ -194,6 +194,14 @@ const AdminPermissions = () => {
   return (
     <AdminLayout title="Gestion des Permissions">
       <div className="space-y-6">
+        {/* Security disclaimer */}
+        <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-4 flex items-start gap-3">
+          <Lock className="w-5 h-5 text-amber-600 mt-0.5 shrink-0" />
+          <div>
+            <p className="font-semibold text-amber-800 dark:text-amber-300">Aperçu des permissions</p>
+            <p className="text-sm text-amber-700 dark:text-amber-400">Cette interface affiche la configuration prévue des rôles. Les contrôles d'accès réels sont appliqués par les politiques de sécurité du serveur (RLS) et ne peuvent pas être modifiés depuis cette page.</p>
+          </div>
+        </div>
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
