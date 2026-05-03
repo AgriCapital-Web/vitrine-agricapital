@@ -437,10 +437,10 @@ const en: typeof fr = {
   about: {
     history: {
       title: "Who We Are",
-      subtitle: "AgriCapital: Agricultural Operator and Developer",
+      subtitle: "AgriCapital: Agricultural Promoter and Integrated Services",
       p1: "Côte d'Ivoire has considerable agricultural potential, still largely undervalued. Fertile lands remain unused due to lack of resources, while many professionals wish to invest in agriculture without having secure access to land.",
       p2: "AgriCapital addresses this dual challenge by developing a structured agricultural promotion model. The company designs and deploys turnkey plantations, enabling individuals and professionals to access productive farming, while being relieved of technical, land and organizational constraints.",
-      highlight: "🌱 AgriCapital — Plantation developer · Agricultural investment operator · Long-term manager",
+      highlight: "🌱 AgriCapital — Agricultural promoter and integrated services · Turnkey plantation · Long-term manager",
     },
     mission: {
       title: "Our Mission",
