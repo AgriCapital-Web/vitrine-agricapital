@@ -2,6 +2,21 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Card, CardContent } from "@/components/ui/card";
 import founderImage from "@/assets/founder-Inocent-koffi.jpg";
 
+const renderBoldName = (text: string) => {
+  const parts = text.split('Inocent KOFFI');
+  if (parts.length === 1) return <>{text}</>;
+  return (
+    <>
+      {parts.map((part, i) => (
+        <span key={i}>
+          {part}
+          {i < parts.length - 1 && <strong className="font-extrabold text-foreground">Inocent KOFFI</strong>}
+        </span>
+      ))}
+    </>
+  );
+};
+
 const Founder = () => {
   const { t } = useLanguage();
 
@@ -19,7 +34,7 @@ const Founder = () => {
 
         <div className="max-w-4xl mx-auto mb-12">
           <p className="text-muted-foreground text-lg leading-relaxed mb-4">
-            {t.founder.intro}
+            {renderBoldName(t.founder.intro)}
           </p>
           <p className="text-muted-foreground text-lg leading-relaxed">
             {t.founder.mission}
@@ -66,7 +81,7 @@ const Founder = () => {
                 <div className="border-l-4 border-agri-green pl-6 py-2">
                   <blockquote className="text-muted-foreground italic space-y-3 text-base leading-relaxed">
                     <p>{t.founder.quote.part1}</p>
-                    <p>{t.founder.quote.part2}</p>
+                    <p>{renderBoldName(t.founder.quote.part2)}</p>
                     <p>{t.founder.quote.part3}</p>
                     <p className="font-bold text-foreground not-italic pt-2">
                       {t.founder.quote.part4}
