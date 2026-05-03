@@ -99,7 +99,7 @@ const Evolution = () => {
   const stats = [
     { value: "120+", label: t.hectares, icon: Leaf },
     { value: "500+", label: t.lands, icon: MapPin },
-    { value: "200+", label: t.waitlist, icon: Users },
+    { value: "50", label: t.available, icon: Target },
   ];
 
   const statusStyles = {
