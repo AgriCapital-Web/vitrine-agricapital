@@ -9,7 +9,7 @@ import DynamicNavigation from "@/components/DynamicNavigation";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
 
-import nurseryImage1 from "@/assets/nursery-dec-2025-1.jpg";
+import nurseryPepiniere from "@/assets/nursery-pepiniere-daloa.jpg";
 import nurseryImage2 from "@/assets/nursery-dec-2025-2.jpg";
 import nurserySite from "@/assets/nursery-site.webp";
 import nurseryInspection from "@/assets/nursery-inspection-2026.jpg";
@@ -90,7 +90,7 @@ const Evolution = () => {
     { ...t.m4, status: "upcoming", icon: MapPin },
   ];
 
-  const daloaPhotos = [nurseryImage1, nurseryImage2, nurserySite, nurseryInspection, founderPalm];
+  const daloaPhotos = [nurseryPepiniere, nurseryImage2, nurserySite, nurseryInspection, founderPalm];
   const vavouaPhotos = [vavouaSite, vavouaLand];
   const launchPhotos = [jalonImage1, jalonImage2, jalonImage3, jalonImage4, jalonImage5, jalonImage6, jalonImage7];
 
