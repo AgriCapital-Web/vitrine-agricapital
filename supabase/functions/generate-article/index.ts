@@ -1,14 +1,60 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+async function verifyAdmin(req: Request): Promise<{ userId: string } | Response> {
+  const authHeader = req.headers.get("Authorization");
+  if (!authHeader?.startsWith("Bearer ")) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
+  const supabase = createClient(
+    Deno.env.get("SUPABASE_URL")!,
+    Deno.env.get("SUPABASE_ANON_KEY")!,
+    { global: { headers: { Authorization: authHeader } } }
+  );
+
+  const token = authHeader.replace("Bearer ", "");
+  const { data, error } = await supabase.auth.getClaims(token);
+  if (error || !data?.claims) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
+  const userId = data.claims.sub as string;
+
+  const adminClient = createClient(
+    Deno.env.get("SUPABASE_URL")!,
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+  );
+  const { data: roleData } = await adminClient
+    .from("user_roles").select("role")
+    .eq("user_id", userId).eq("role", "admin").single();
+
+  if (!roleData) {
+    return new Response(JSON.stringify({ error: "Forbidden" }), {
+      status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
+  return { userId };
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
+
+  // Admin auth check
+  const authResult = await verifyAdmin(req);
+  if (authResult instanceof Response) return authResult;
 
   try {
     const { rawInput, mediaOption } = await req.json();
@@ -19,6 +65,9 @@ serve(async (req) => {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+
+    // Limit input length
+    const sanitizedInput = rawInput.slice(0, 5000);
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
@@ -50,25 +99,13 @@ INSTRUCTIONS DE RÉDACTION:
    - Développement: 3-5 sections avec sous-titres (## Titre Section)
    - Paragraphes aérés de 3-4 phrases max, séparés par des lignes vides
    - Utilise des **listes à puces** pour les points clés
-   - **TABLEAUX MARKDOWN OBLIGATOIRES** quand le sujet implique des comparaisons, étapes, données chiffrées ou chronologies:
-     | Critère | Détail |
-     |---------|--------|
-     | Exemple | Valeur |
-   - Les tableaux doivent être bien formatés avec alignement
+   - **TABLEAUX MARKDOWN OBLIGATOIRES** quand le sujet implique des comparaisons, étapes, données chiffrées ou chronologies
    - Points forts en **gras**
    - Conclusion inspirante avec perspective ou appel à l'action
 3. EXTRAIT: Résumé accrocheur de 2-3 phrases en italique
 4. HASHTAGS: 5-7 hashtags pertinents sans le #
 5. CATÉGORIE: Choisir parmi [actualites, evenements, partenariats, agriculture, formation, general]
 6. SLUG: URL-friendly en minuscules avec tirets
-
-QUALITÉ:
-- Indétectable comme contenu IA
-- Factuel, précis, jamais flatteur ou exagéré
-- Posture de journaliste rigoureux et respectueux
-- Aucun superlatif creux, aucune formule marketing vide
-- Contenu immédiatement publiable sans retouche
-- Articles bien structurés pour lecture mobile ET desktop
 
 ${mediaInstruction}
 
@@ -94,7 +131,7 @@ RÉPONSE STRICTEMENT EN JSON:
         model: "google/gemini-3-flash-preview",
         messages: [
           { role: "system", content: systemPrompt },
-          { role: "user", content: `Transforme cette idée en article professionnel complet:\n\n"${rawInput.slice(0, 5000)}"` },
+          { role: "user", content: `Transforme cette idée en article professionnel complet:\n\n"${sanitizedInput}"` },
         ],
       }),
     });

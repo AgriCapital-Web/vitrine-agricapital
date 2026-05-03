@@ -6,15 +6,59 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+async function verifyAdmin(req: Request): Promise<{ userId: string } | Response> {
+  const authHeader = req.headers.get("Authorization");
+  if (!authHeader?.startsWith("Bearer ")) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
+  const supabase = createClient(
+    Deno.env.get("SUPABASE_URL")!,
+    Deno.env.get("SUPABASE_ANON_KEY")!,
+    { global: { headers: { Authorization: authHeader } } }
+  );
+
+  const token = authHeader.replace("Bearer ", "");
+  const { data, error } = await supabase.auth.getClaims(token);
+  if (error || !data?.claims) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
+  const userId = data.claims.sub as string;
+
+  const adminClient = createClient(
+    Deno.env.get("SUPABASE_URL")!,
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+  );
+  const { data: roleData } = await adminClient
+    .from("user_roles").select("role")
+    .eq("user_id", userId).eq("role", "admin").single();
+
+  if (!roleData) {
+    return new Response(JSON.stringify({ error: "Forbidden" }), {
+      status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
+  return { userId };
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
+  // Admin auth check
+  const authResult = await verifyAdmin(req);
+  if (authResult instanceof Response) return authResult;
+
   try {
     const { type, userData } = await req.json();
     
-    // Validate request
     if (!type || !userData) {
       return new Response(JSON.stringify({ error: "Missing required fields" }), {
         status: 400,
@@ -22,12 +66,15 @@ serve(async (req) => {
       });
     }
 
+    // Validate type
+    const allowedTypes = ["inscription", "connexion", "reset_password", "opportunites", "administratif", "securite"];
+    const sanitizedType = typeof type === "string" ? type.slice(0, 100) : "unknown";
+
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
-    // Prepare system prompt for notification generation
     const systemPrompt = `Tu es un assistant IA spécialisé dans la communication client pour AgriCapital.
 Ton rôle est de générer des messages de notification automatiques personnalisés, professionnels et sécurisés.
 
@@ -37,14 +84,6 @@ RÈGLES DE GÉNÉRATION :
 3. Inclus le nom de l'utilisateur pour la personnalisation.
 4. Génère un lien d'action fictif pertinent (ex: [LienSecurise], [LienConfirmation]).
 5. Le message doit être clair et inciter à l'action appropriée.
-
-TYPES DE NOTIFICATIONS ET CONTEXTE :
-- Inscription : Bienvenue + confirmation.
-- Connexion : Alerte de sécurité.
-- Réinitialisation mot de passe : Lien sécurisé.
-- Opportunités : Annonce pour abonnés.
-- Administratif : Information importante.
-- Sécurité : Activité suspecte.
 
 FORMAT DE RÉPONSE ATTENDU (JSON STRICT) :
 {
@@ -56,15 +95,18 @@ FORMAT DE RÉPONSE ATTENDU (JSON STRICT) :
   "message": "Le message complet généré"
 }`;
 
-    // Prepare user prompt based on event type
-    const userPrompt = `Génère une notification pour l'événement "${type}" concernant l'utilisateur suivant :
-Nom : ${userData.firstName} ${userData.lastName}
-Téléphone : ${userData.phone || "Non renseigné"}
-Statut : ${userData.status || "Standard"}
+    // Sanitize user data
+    const safeFirstName = typeof userData.firstName === "string" ? userData.firstName.slice(0, 100) : "Utilisateur";
+    const safeLastName = typeof userData.lastName === "string" ? userData.lastName.slice(0, 100) : "";
+    const safePhone = typeof userData.phone === "string" ? userData.phone.slice(0, 20) : "Non renseigné";
+
+    const userPrompt = `Génère une notification pour l'événement "${sanitizedType}" concernant l'utilisateur suivant :
+Nom : ${safeFirstName} ${safeLastName}
+Téléphone : ${safePhone}
+Statut : ${typeof userData.status === "string" ? userData.status.slice(0, 50) : "Standard"}
 
 Le message doit être adapté à cet événement spécifique.`;
 
-    // Call AI Gateway
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -89,42 +131,33 @@ Le message doit être adapté à cet événement spécifique.`;
     const data = await response.json();
     const aiContent = data.choices[0].message.content;
     
-    // Parse JSON response from AI
     let parsedContent;
     try {
-      // Try to find JSON block in content
       const jsonMatch = aiContent.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         parsedContent = JSON.parse(jsonMatch[0]);
       } else {
         parsedContent = {
-          utilisateur: {
-            nom: `${userData.firstName} ${userData.lastName}`,
-            telephone: userData.phone
-          },
-          type_notification: type,
-          message: aiContent // Fallback to raw content
+          utilisateur: { nom: `${safeFirstName} ${safeLastName}`, telephone: safePhone },
+          type_notification: sanitizedType,
+          message: aiContent
         };
       }
     } catch (e) {
       console.error("Error parsing AI response:", e);
       parsedContent = {
-        utilisateur: {
-          nom: `${userData.firstName} ${userData.lastName}`,
-          telephone: userData.phone
-        },
-        type_notification: type,
+        utilisateur: { nom: `${safeFirstName} ${safeLastName}`, telephone: safePhone },
+        type_notification: sanitizedType,
         message: aiContent
       };
     }
 
-    // Log notification to database (optional, for history)
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     await supabase.from("admin_notifications").insert({
-      title: `Notification: ${type}`,
+      title: `Notification: ${sanitizedType}`,
       message: parsedContent.message,
       type: "system_notification",
       data: parsedContent
@@ -136,7 +169,7 @@ Le message doit être adapté à cet événement spécifique.`;
 
   } catch (error) {
     console.error("Error in generate-notification function:", error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    return new Response(JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

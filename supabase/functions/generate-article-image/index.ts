@@ -6,10 +6,55 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+async function verifyAdmin(req: Request): Promise<{ userId: string } | Response> {
+  const authHeader = req.headers.get("Authorization");
+  if (!authHeader?.startsWith("Bearer ")) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
+  const supabase = createClient(
+    Deno.env.get("SUPABASE_URL")!,
+    Deno.env.get("SUPABASE_ANON_KEY")!,
+    { global: { headers: { Authorization: authHeader } } }
+  );
+
+  const token = authHeader.replace("Bearer ", "");
+  const { data, error } = await supabase.auth.getClaims(token);
+  if (error || !data?.claims) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
+  const userId = data.claims.sub as string;
+
+  const adminClient = createClient(
+    Deno.env.get("SUPABASE_URL")!,
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+  );
+  const { data: roleData } = await adminClient
+    .from("user_roles").select("role")
+    .eq("user_id", userId).eq("role", "admin").single();
+
+  if (!roleData) {
+    return new Response(JSON.stringify({ error: "Forbidden" }), {
+      status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
+  return { userId };
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
+
+  // Admin auth check
+  const authResult = await verifyAdmin(req);
+  if (authResult instanceof Response) return authResult;
 
   try {
     const { prompt, quality = "standard" } = await req.json();
@@ -21,10 +66,12 @@ serve(async (req) => {
       });
     }
 
+    // Limit prompt length
+    const sanitizedPrompt = prompt.slice(0, 2000);
+
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
-    // Use pro model for higher quality, flash for standard
     const model = quality === "high"
       ? "google/gemini-3-pro-image-preview"
       : "google/gemini-2.5-flash-image";
@@ -33,7 +80,7 @@ serve(async (req) => {
 
 STYLE: Ultra-realistic photograph, natural lighting, professional press quality, warm African tones.
 CONTEXT: Rural Ivory Coast, palm oil agriculture, community development, African people.
-SUBJECT: ${prompt}
+SUBJECT: ${sanitizedPrompt}
 
 IMPORTANT:
 - Must look like a REAL photograph, NOT AI-generated

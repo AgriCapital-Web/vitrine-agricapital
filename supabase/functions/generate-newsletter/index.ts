@@ -1,14 +1,60 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+async function verifyAdmin(req: Request): Promise<{ userId: string } | Response> {
+  const authHeader = req.headers.get("Authorization");
+  if (!authHeader?.startsWith("Bearer ")) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
+  const supabase = createClient(
+    Deno.env.get("SUPABASE_URL")!,
+    Deno.env.get("SUPABASE_ANON_KEY")!,
+    { global: { headers: { Authorization: authHeader } } }
+  );
+
+  const token = authHeader.replace("Bearer ", "");
+  const { data, error } = await supabase.auth.getClaims(token);
+  if (error || !data?.claims) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
+  const userId = data.claims.sub as string;
+
+  const adminClient = createClient(
+    Deno.env.get("SUPABASE_URL")!,
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+  );
+  const { data: roleData } = await adminClient
+    .from("user_roles").select("role")
+    .eq("user_id", userId).eq("role", "admin").single();
+
+  if (!roleData) {
+    return new Response(JSON.stringify({ error: "Forbidden" }), {
+      status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
+  return { userId };
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
+
+  // Admin auth check
+  const authResult = await verifyAdmin(req);
+  if (authResult instanceof Response) return authResult;
 
   try {
     const { prompt, targetAudience } = await req.json();
@@ -74,7 +120,7 @@ FORMAT JSON STRICT :
         model: "google/gemini-3-flash-preview",
         messages: [
           { role: "system", content: systemPrompt },
-          { role: "user", content: `Génère une newsletter complète sur ce thème : "${prompt}"` }
+          { role: "user", content: `Génère une newsletter complète sur ce thème : "${prompt.slice(0, 2000)}"` }
         ],
       }),
     });
@@ -96,15 +142,12 @@ FORMAT JSON STRICT :
     const data = await response.json();
     const content = data.choices?.[0]?.message?.content || "";
 
-    // Parse JSON from response
     const jsonMatch = content.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
       throw new Error("Failed to parse newsletter content");
     }
 
     const newsletter = JSON.parse(jsonMatch[0]);
-
-    // Build professional HTML template
     const html = buildNewsletterHtml(newsletter);
 
     return new Response(JSON.stringify({ 
@@ -142,30 +185,25 @@ function buildNewsletterHtml(data: any): string {
 <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f3f4f6; padding: 20px 0;">
 <tr><td align="center">
 <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.08);">
-  <!-- Header -->
   <tr>
     <td style="background: linear-gradient(135deg, #166534 0%, #14532d 50%, #0f4c25 100%); padding: 30px; text-align: center;">
       <h1 style="color: #ffffff; font-size: 28px; margin: 0; font-weight: 800; letter-spacing: -0.5px;">🌴 AgriCapital</h1>
       <p style="color: rgba(255,255,255,0.85); font-size: 13px; margin: 8px 0 0; font-weight: 400;">Le partenaire idéal des producteurs agricoles</p>
     </td>
   </tr>
-  <!-- Headline -->
   <tr>
     <td style="padding: 30px 30px 10px;">
       <h1 style="color: #111827; font-size: 24px; margin: 0 0 15px; font-weight: 800; line-height: 1.3;">${data.headline || ''}</h1>
       <p style="color: #6b7280; font-size: 14px; margin: 0;">${data.greeting || ''}</p>
     </td>
   </tr>
-  <!-- Introduction -->
   <tr>
     <td style="padding: 10px 30px 20px;">
       <p style="color: #374151; font-size: 15px; line-height: 1.7; margin: 0;">${data.introduction || ''}</p>
     </td>
   </tr>
   <tr><td style="padding: 0 30px;"><hr style="border: none; border-top: 2px solid #166534; margin: 0;"></td></tr>
-  <!-- Sections -->
   ${sections}
-  <!-- CTA -->
   ${data.callToAction ? `
   <tr>
     <td style="padding: 25px 30px; text-align: center;">
@@ -173,13 +211,11 @@ function buildNewsletterHtml(data: any): string {
       <a href="https://www.agricapital.ci" style="display: inline-block; background: linear-gradient(135deg, #166534, #22863a); color: #ffffff; padding: 14px 36px; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 15px;">${data.callToAction.text || 'En savoir plus'}</a>
     </td>
   </tr>` : ''}
-  <!-- Closing -->
   <tr>
     <td style="padding: 20px 30px;">
       <p style="color: #374151; font-size: 15px; line-height: 1.7; margin: 0; font-style: italic;">${data.closing || ''}</p>
     </td>
   </tr>
-  <!-- Signature -->
   <tr>
     <td style="padding: 20px 30px; border-top: 2px solid #e5e7eb;">
       <table width="100%" cellpadding="0" cellspacing="0">
@@ -196,7 +232,6 @@ function buildNewsletterHtml(data: any): string {
       </table>
     </td>
   </tr>
-  <!-- Footer -->
   <tr>
     <td style="background-color: #f9fafb; padding: 20px 30px; text-align: center; border-top: 1px solid #e5e7eb;">
       <p style="color: #9ca3af; font-size: 11px; margin: 0;">
