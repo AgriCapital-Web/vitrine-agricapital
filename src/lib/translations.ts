@@ -48,10 +48,10 @@ const fr = {
   about: {
     history: {
       title: "Qui sommes-nous",
-      subtitle: "AgriCapital : Opérateur et Promoteur Agricole",
+      subtitle: "AgriCapital : Promoteur Agricole et Services Intégrés",
       p1: "La Côte d'Ivoire dispose d'un potentiel agricole considérable, encore largement sous-valorisé. Des terres fertiles restent inexploitées faute de moyens, tandis que de nombreux professionnels souhaitent investir dans l'agriculture sans disposer d'un accès sécurisé au foncier.",
       p2: "AgriCapital répond à ce double défi en développant un modèle de promotion agricole structuré. L'entreprise conçoit et déploie des plantations clé en main, permettant aux particuliers comme aux professionnels d'accéder à une exploitation productive, tout en étant déchargés des contraintes techniques, foncières et organisationnelles.",
-      highlight: "🌱 AgriCapital — Développeur de plantations · Opérateur d'investissement agricole · Gestionnaire sur le long terme",
+      highlight: "🌱 AgriCapital — Promoteur agricole et services intégrés · Plantation clé en main · Gestionnaire sur le long terme",
     },
     mission: {
       title: "Notre Mission",
