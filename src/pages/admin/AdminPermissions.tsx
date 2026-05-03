@@ -161,17 +161,7 @@ const AdminPermissions = () => {
   };
 
   const savePermissions = async () => {
-    setIsSaving(true);
-    
-    // Simulate API call - in production, this would save to database
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // Store in localStorage for persistence demo
-    localStorage.setItem("agricapital_permissions", JSON.stringify(rolePermissions));
-    
-    setIsSaving(false);
-    setHasChanges(false);
-    toast.success("Permissions sauvegardées avec succès");
+    toast.info("⚠️ Aperçu uniquement — les permissions sont gérées par les politiques de sécurité du serveur. Contactez l'administrateur système pour les modifier.");
   };
 
   const getRoleIcon = (role: AppRole) => {
