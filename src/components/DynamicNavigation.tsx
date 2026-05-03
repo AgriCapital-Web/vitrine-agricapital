@@ -115,7 +115,7 @@ const DynamicNavigation = () => {
   };
 
   const handleSubmenuLeave = () => {
-    submenuTimeoutRef.current = setTimeout(() => setOpenSubmenu(null), 200);
+    submenuTimeoutRef.current = setTimeout(() => setOpenSubmenu(null), 250);
   };
 
   return (
@@ -127,9 +127,9 @@ const DynamicNavigation = () => {
     >
       <div className="container mx-auto px-4 lg:px-6">
         <div className="flex items-center justify-between h-16 lg:h-[72px]">
-          {/* Logo */}
+          {/* Logo — larger */}
           <div className="flex items-center gap-2 cursor-pointer shrink-0" onClick={() => scrollToSection("hero")}>
-            <img src={logo} alt="AgriCapital" className="h-10 lg:h-11 w-auto" />
+            <img src={logo} alt="AgriCapital" className="h-12 lg:h-14 w-auto" />
           </div>
 
           {/* Desktop */}
@@ -150,22 +150,26 @@ const DynamicNavigation = () => {
                         <ChevronDown size={13} className={`transition-transform duration-200 ${openSubmenu === label ? "rotate-180" : ""}`} />
                       </button>
                       {openSubmenu === label && (
-                        <div
-                          className="absolute top-full left-0 mt-1 bg-card rounded-xl shadow-strong border border-border py-2 min-w-[200px]"
-                          style={{ zIndex: 999999 }}
-                          onMouseEnter={() => handleSubmenuEnter(label)}
-                          onMouseLeave={handleSubmenuLeave}
-                        >
-                          {item.children.map((child) => (
-                            <button
-                              key={getLabel(child.label)}
-                              onClick={() => handleItemClick(child.action, child.isRoute)}
-                              className="w-full px-4 py-2.5 text-left text-sm text-foreground/70 hover:text-foreground hover:bg-muted/50 transition-colors font-medium"
-                            >
-                              {getLabel(child.label)}
-                            </button>
-                          ))}
-                        </div>
+                        <>
+                          {/* Transparent backdrop */}
+                          <div className="fixed inset-0" style={{ zIndex: 99998 }} onClick={() => setOpenSubmenu(null)} />
+                          <div
+                            className="absolute top-full left-0 mt-0 bg-card/95 backdrop-blur-lg rounded-xl shadow-strong border border-border py-2 min-w-[220px]"
+                            style={{ zIndex: 999999 }}
+                            onMouseEnter={() => handleSubmenuEnter(label)}
+                            onMouseLeave={handleSubmenuLeave}
+                          >
+                            {item.children.map((child) => (
+                              <button
+                                key={getLabel(child.label)}
+                                onClick={() => handleItemClick(child.action, child.isRoute)}
+                                className="w-full px-4 py-3 text-left text-sm text-foreground/80 hover:text-foreground hover:bg-primary/10 transition-colors font-medium"
+                              >
+                                {getLabel(child.label)}
+                              </button>
+                            ))}
+                          </div>
+                        </>
                       )}
                     </>
                   ) : (
