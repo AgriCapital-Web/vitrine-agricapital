@@ -1305,6 +1305,7 @@ export type Database = {
       }
       testimonials_public: {
         Row: {
+          approved: boolean | null
           created_at: string | null
           first_name: string | null
           id: string | null
@@ -1315,6 +1316,7 @@ export type Database = {
           testimonial: string | null
         }
         Insert: {
+          approved?: boolean | null
           created_at?: string | null
           first_name?: string | null
           id?: string | null
@@ -1325,6 +1327,7 @@ export type Database = {
           testimonial?: string | null
         }
         Update: {
+          approved?: boolean | null
           created_at?: string | null
           first_name?: string | null
           id?: string | null

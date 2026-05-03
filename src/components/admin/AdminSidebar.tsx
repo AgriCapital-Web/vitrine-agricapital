@@ -1,9 +1,8 @@
 import { Link, useLocation } from "react-router-dom";
 import {
   BarChart3, MessageSquare, Users, Handshake,
-  Mail, Settings, Search, Bell, Shield, TrendingUp,
-  Database, Globe, Bot, UserCircle, Newspaper, Home,
-  Image as ImageIcon, History, HardDrive, Menu as MenuIcon, FileText,
+  Mail, Settings, Bell, Database,
+  Bot, UserCircle, Newspaper, Home, Shield,
 } from "lucide-react";
 import logoUrl from "@/assets/logo-agricapital-v2.png";
 import { cn } from "@/lib/utils";
@@ -19,17 +18,14 @@ type MenuItem =
 
 const menuItems: MenuItem[] = [
   { icon: BarChart3, label: "Tableau de bord", path: "/admin/dashboard" },
-  { icon: TrendingUp, label: "Analytiques", path: "/admin/analytics" },
+  { icon: BarChart3, label: "Analytiques", path: "/admin/analytics" },
 
   { divider: true, label: "Contenu" },
   { icon: Newspaper, label: "Actualités", path: "/admin/news" },
   { icon: MessageSquare, label: "Témoignages", path: "/admin/testimonials" },
-  { icon: ImageIcon, label: "Médias", path: "/admin/media" },
-  { icon: MenuIcon, label: "Menu / Navigation", path: "/admin/menu" },
 
   { divider: true, label: "Communication" },
-  { icon: Mail, label: "Boîte de réception", path: "/admin/inbox" },
-  { icon: FileText, label: "Messages contact", path: "/admin/contact-messages" },
+  { icon: Mail, label: "Messages contact", path: "/admin/contact-messages" },
   { icon: Users, label: "Newsletter", path: "/admin/newsletter" },
   { icon: Handshake, label: "Demandes partenariat", path: "/admin/partnership-requests" },
   { icon: Bot, label: "Conversations IA", path: "/admin/ai-conversations" },
@@ -37,11 +33,7 @@ const menuItems: MenuItem[] = [
   { icon: Bell, label: "Notifications push", path: "/admin/push-notifications" },
 
   { divider: true, label: "Configuration" },
-  { icon: Globe, label: "Traductions", path: "/admin/translations" },
-  { icon: Search, label: "SEO", path: "/admin/seo" },
   { icon: Shield, label: "Utilisateurs & Rôles", path: "/admin/users" },
-  { icon: History, label: "Journal d'audit", path: "/admin/audit-log" },
-  { icon: HardDrive, label: "Sauvegardes", path: "/admin/backup" },
   { icon: Database, label: "Base de données", path: "/admin/database" },
   { icon: Settings, label: "Paramètres", path: "/admin/settings" },
 ];

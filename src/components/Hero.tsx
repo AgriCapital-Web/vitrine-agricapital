@@ -9,7 +9,6 @@ import heroImage2 from "@/assets/nursery-palm.jpg";
 import heroImage3 from "@/assets/founder-palm-field.jpg";
 import heroImage4 from "@/assets/nursery-dec-2025-1.jpg";
 import posterImage from "@/assets/poster-agricapital.jpg";
-import logoV2 from "@/assets/logo-agricapital-v2.png";
 
 const heroImages = [heroImage1, heroImage2, heroImage3, heroImage4];
 
@@ -45,7 +44,7 @@ const Hero = () => {
   };
 
   return (
-    <section id="hero" className="relative min-h-screen flex items-center justify-center pt-16 sm:pt-20 overflow-hidden">
+    <section id="hero" className="relative min-h-screen flex items-center pt-16 sm:pt-20 overflow-hidden">
       {/* Animated Background Images with Ken Burns effect */}
       <div className="absolute inset-0 z-0">
         {heroImages.map((img, index) => (
@@ -69,63 +68,74 @@ const Hero = () => {
         <div className="absolute inset-0 bg-gradient-hero"></div>
       </div>
 
-      {/* Content */}
+      {/* Content — two-column on desktop */}
       <div className="container mx-auto px-3 sm:px-4 relative z-10">
-        <div className="max-w-4xl mx-auto text-center">
-          {/* Poster Image */}
-          <div className="mb-4 sm:mb-6">
+        <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-12">
+          {/* Left column: Text */}
+          <div className="flex-1 text-center lg:text-left max-w-2xl">
+            <div className="inline-block px-3 sm:px-6 py-2 sm:py-3 bg-accent/20 backdrop-blur-sm rounded-full mb-3 sm:mb-5">
+              <p className="text-white font-bold text-sm sm:text-lg md:text-xl">{t.hero.badge}</p>
+            </div>
+            
+            <h1 className="text-xl sm:text-3xl md:text-4xl lg:text-4xl xl:text-5xl font-bold text-white mb-3 sm:mb-5 leading-tight">
+              {t.hero.title}
+            </h1>
+            
+            <p className="text-xs sm:text-base md:text-lg text-white/90 font-medium mb-5 sm:mb-7 leading-relaxed">
+              {t.hero.description}
+            </p>
+
+            {/* CTA Buttons — vertical stack */}
+            <div className="flex flex-col gap-3 sm:max-w-xs lg:max-w-sm mx-auto lg:mx-0">
+              <Button
+                size="lg"
+                onClick={() => scrollToSection("approche")}
+                className="bg-white hover:bg-white/90 text-agri-green border-0 shadow-medium transition-smooth group w-full min-h-[48px] touch-manipulation active:scale-95"
+              >
+                {t.hero.btnApproach}
+                <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" />
+              </Button>
+              <Button
+                size="lg"
+                onClick={() => scrollToSection("partenariat")}
+                className="bg-accent hover:bg-accent/90 text-white border-0 shadow-medium transition-smooth w-full min-h-[48px] touch-manipulation active:scale-95"
+              >
+                {t.hero.btnPartner}
+              </Button>
+              <button
+                onClick={openSubscriberPortal}
+                className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full text-sm font-semibold transition-all hover:scale-105 active:scale-95 hover:shadow-xl bg-gradient-to-r from-green-600 to-green-700 text-white shadow-lg touch-manipulation min-h-[48px] w-full"
+              >
+                {subscriberText[language] || subscriberText.fr}
+                <ExternalLink className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Social Share Buttons */}
+            <div className="mt-4">
+              <SocialShareButtons variant="hero" />
+            </div>
+          </div>
+
+          {/* Right column: Poster image — desktop only */}
+          <div className="flex-1 max-w-md lg:max-w-lg xl:max-w-xl hidden lg:block">
             <img 
               src={posterImage} 
               alt="AgriCapital - Devenez planteur de palmier à huile" 
-              className="w-full max-w-lg mx-auto rounded-xl shadow-2xl"
+              className="w-full rounded-xl shadow-2xl"
               loading="eager"
             />
           </div>
 
-          <div className="inline-block px-3 sm:px-6 py-2 sm:py-3 bg-accent/20 backdrop-blur-sm rounded-full mb-3 sm:mb-6">
-            <p className="text-white font-bold text-sm sm:text-lg md:text-xl lg:text-2xl">{t.hero.badge}</p>
+          {/* Poster on mobile — below text */}
+          <div className="lg:hidden w-full max-w-sm mx-auto">
+            <img 
+              src={posterImage} 
+              alt="AgriCapital - Devenez planteur de palmier à huile" 
+              className="w-full rounded-xl shadow-2xl"
+              loading="eager"
+            />
           </div>
-          
-          <h1 className="text-xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-white mb-3 sm:mb-6 leading-tight px-1 sm:px-2">
-            {t.hero.title}
-          </h1>
-          
-          <p className="text-xs sm:text-base md:text-lg lg:text-xl text-white/90 font-medium mb-4 sm:mb-8 max-w-2xl mx-auto leading-relaxed px-1 sm:px-2">
-            {t.hero.description}
-          </p>
-
-          {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center px-2">
-            <Button
-              size="lg"
-              onClick={() => scrollToSection("approche")}
-              className="bg-white hover:bg-white/90 text-agri-green border-0 shadow-medium transition-smooth group w-full sm:w-auto min-h-[48px] touch-manipulation active:scale-95"
-            >
-              {t.hero.btnApproach}
-              <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" />
-            </Button>
-            <Button
-              size="lg"
-              onClick={() => scrollToSection("partenariat")}
-              className="bg-accent hover:bg-accent/90 text-white border-0 shadow-medium transition-smooth w-full sm:w-auto min-h-[48px] touch-manipulation active:scale-95"
-            >
-              {t.hero.btnPartner}
-            </Button>
-          </div>
-
-          {/* Subscriber Portal Button */}
-          <div className="mt-4 sm:mt-6">
-            <button
-              onClick={openSubscriberPortal}
-              className="inline-flex items-center gap-2 px-5 sm:px-6 py-3 rounded-full text-sm font-semibold transition-all hover:scale-105 active:scale-95 hover:shadow-xl bg-gradient-to-r from-green-600 to-green-700 text-white shadow-lg touch-manipulation min-h-[48px]"
-            >
-              {subscriberText[language] || subscriberText.fr}
-              <ExternalLink className="w-4 h-4" />
-            </button>
-          </div>
-
-          {/* Social Share Buttons */}
-          <SocialShareButtons variant="hero" />
         </div>
       </div>
     </section>

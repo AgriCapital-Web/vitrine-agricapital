@@ -9,7 +9,7 @@ import DynamicNavigation from "@/components/DynamicNavigation";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
 
-import nurseryImage1 from "@/assets/nursery-dec-2025-1.jpg";
+import nurseryPepiniere from "@/assets/nursery-pepiniere-daloa.jpg";
 import nurseryImage2 from "@/assets/nursery-dec-2025-2.jpg";
 import nurserySite from "@/assets/nursery-site.webp";
 import nurseryInspection from "@/assets/nursery-inspection-2026.jpg";
@@ -39,7 +39,8 @@ const Evolution = () => {
       upcoming: "À venir",
       gallery: "Galerie Terrain",
       hectares: "ha de pépinière active",
-      lands: "ha identifiés sur le territoire",
+      lands: "ha de terre identifiés à Daloa",
+      available: "ha disponible pour déploiement immédiat",
       waitlist: "souscripteurs en liste d'attente",
       ctaTitle: "Créez votre patrimoine agricole",
       ctaSubtitle: "Rejoignez la liste d'attente et soyez parmi les premiers souscripteurs d'AgriCapital.",
@@ -64,7 +65,8 @@ const Evolution = () => {
       upcoming: "Upcoming",
       gallery: "Field Gallery",
       hectares: "ha of active nursery",
-      lands: "ha identified across the territory",
+      lands: "ha of land identified in Daloa",
+      available: "ha available for immediate deployment",
       waitlist: "subscribers on waitlist",
       ctaTitle: "Create your agricultural heritage",
       ctaSubtitle: "Join the waitlist and be among the first AgriCapital subscribers.",
@@ -90,14 +92,14 @@ const Evolution = () => {
     { ...t.m4, status: "upcoming", icon: MapPin },
   ];
 
-  const daloaPhotos = [nurseryImage1, nurseryImage2, nurserySite, nurseryInspection, founderPalm];
+  const daloaPhotos = [nurseryPepiniere, nurseryImage2, nurserySite, nurseryInspection, founderPalm];
   const vavouaPhotos = [vavouaSite, vavouaLand];
   const launchPhotos = [jalonImage1, jalonImage2, jalonImage3, jalonImage4, jalonImage5, jalonImage6, jalonImage7];
 
   const stats = [
     { value: "120+", label: t.hectares, icon: Leaf },
     { value: "500+", label: t.lands, icon: MapPin },
-    { value: "200+", label: t.waitlist, icon: Users },
+    { value: "50", label: t.available, icon: Target },
   ];
 
   const statusStyles = {

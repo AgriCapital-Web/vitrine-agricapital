@@ -87,24 +87,21 @@ const Partnership = () => {
         </div>
 
         {/* Current Partners - Always Carousel */}
-        <div className="mb-16 max-w-4xl mx-auto">
+        <div className="mb-16 max-w-xl mx-auto">
           <h3 className="text-2xl font-bold text-foreground mb-6 text-center">
             {t.partnership.currentPartner.title}
           </h3>
           
           <Carousel 
             className="w-full"
-            opts={{
-              align: "center",
-              loop: true,
-            }}
+            opts={{ align: "center", loop: true }}
           >
             <CarouselContent className="-ml-2 md:-ml-4">
               {partners.map((partner) => (
-                <CarouselItem key={partner.id} className="pl-2 md:pl-4 basis-full md:basis-1/2 lg:basis-1/2">
-                  <Card className="bg-primary/10 border-primary h-full">
-                    <CardContent className="p-6 md:p-8 flex flex-col items-center">
-                      <div className="bg-white rounded-2xl p-6 shadow-medium w-full max-w-md mb-4">
+                <CarouselItem key={partner.id} className="pl-2 md:pl-4 basis-full">
+                  <Card className="bg-primary/5 border-primary/20">
+                    <CardContent className="p-5 flex flex-col items-center">
+                      <div className="bg-white rounded-xl p-4 shadow-soft w-full max-w-[280px] mb-3">
                         <img
                           src={partner.logo}
                           alt="Les Palmistes - Fournisseur de semences certifiées"
@@ -112,10 +109,10 @@ const Partnership = () => {
                           loading="lazy"
                         />
                       </div>
-                      <h4 className="text-xl font-bold text-foreground mb-2 text-center">
+                      <h4 className="text-lg font-bold text-foreground mb-1 text-center">
                         {t.partnership.currentPartner.name}
                       </h4>
-                      <p className="text-muted-foreground text-center">
+                      <p className="text-sm text-muted-foreground text-center">
                         {t.partnership.currentPartner.desc}
                       </p>
                     </CardContent>
@@ -131,7 +128,7 @@ const Partnership = () => {
             )}
           </Carousel>
           
-          <p className="text-center text-muted-foreground mt-4">
+          <p className="text-center text-sm text-muted-foreground mt-4">
             {t.partnership.otherPartnerships}
           </p>
         </div>
