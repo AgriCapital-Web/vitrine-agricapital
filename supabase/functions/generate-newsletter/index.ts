@@ -77,17 +77,20 @@ serve(async (req) => {
           ? "clients, planteurs et producteurs agricoles"
           : "tous les abonnés (investisseurs, partenaires, planteurs)";
 
-    const systemPrompt = `Tu es le directeur de communication d'AgriCapital, entreprise sociale ivoirienne pilotant le programme "Palmier Solidaire".
+    const systemPrompt = `Tu es le directeur de communication d'AgriCapital, promoteur agricole ivoirien spécialisé dans la création et gestion clé en main de plantations de palmier à huile.
 
 MISSION : Générer une newsletter professionnelle, moderne et engageante.
 
 CONTEXTE :
-- AgriCapital = entreprise SOCIALE en Côte d'Ivoire
-- Programme phare : "Palmier Solidaire" (plantations de palmier à huile)
-- Ton : professionnel, chaleureux, inspirant, orienté impact social
+- AgriCapital = Promoteur agricole et services intégrés en Côte d'Ivoire
+- Activité : Création, entretien et gestion de plantations de palmier à huile clé en main
+- Slogan : "Investir la terre. Cultiver l'avenir."
+- Ton : professionnel, chaleureux, inspirant, orienté patrimoine et investissement durable
 - Public cible : ${audienceContext}
-- JAMAIS mentionner de montants financiers spécifiques
+- JAMAIS mentionner de montants financiers spécifiques ni de prix
+- JAMAIS mentionner "Palmier Solidaire" — utiliser "nos programmes" ou "notre accompagnement"
 - Orthographe irréprochable
+- Inclure un appel à l'action clair et universel
 
 FORMAT JSON STRICT :
 {
@@ -187,8 +190,8 @@ function buildNewsletterHtml(data: any): string {
 <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.08);">
   <tr>
     <td style="background: linear-gradient(135deg, #166534 0%, #14532d 50%, #0f4c25 100%); padding: 30px; text-align: center;">
-      <h1 style="color: #ffffff; font-size: 28px; margin: 0; font-weight: 800; letter-spacing: -0.5px;">🌴 AgriCapital</h1>
-      <p style="color: rgba(255,255,255,0.85); font-size: 13px; margin: 8px 0 0; font-weight: 400;">Le partenaire idéal des producteurs agricoles</p>
+      <img src="https://www.agricapital.ci/Logo_AgriCapital_-V2-4.png" alt="AgriCapital" width="180" style="margin-bottom: 12px; display: block; margin-left: auto; margin-right: auto;">
+      <p style="color: rgba(255,255,255,0.85); font-size: 13px; margin: 8px 0 0; font-weight: 400;">Investir la terre. Cultiver l'avenir.</p>
     </td>
   </tr>
   <tr>
@@ -225,7 +228,7 @@ function buildNewsletterHtml(data: any): string {
           </td>
           <td style="vertical-align: top; padding-left: 12px;">
             <p style="margin: 0; font-weight: 700; color: #111827; font-size: 14px;">L'équipe AgriCapital</p>
-            <p style="margin: 4px 0 0; color: #6b7280; font-size: 12px;">Programme Palmier Solidaire</p>
+            <p style="margin: 4px 0 0; color: #6b7280; font-size: 12px;">Promoteur agricole et services intégrés</p>
             <p style="margin: 4px 0 0; color: #6b7280; font-size: 12px;">📞 05 64 55 17 17 | 📧 contact@agricapital.ci</p>
           </td>
         </tr>
