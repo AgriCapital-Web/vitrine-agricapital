@@ -150,15 +150,13 @@ const DynamicNavigation = () => {
                         <ChevronDown size={13} className={`transition-transform duration-200 ${openSubmenu === label ? "rotate-180" : ""}`} />
                       </button>
                       {openSubmenu === label && (
-                        <>
-                          {/* Transparent backdrop */}
-                          <div className="fixed inset-0" style={{ zIndex: 99998 }} onClick={() => setOpenSubmenu(null)} />
-                          <div
-                            className="absolute top-full left-0 mt-0 bg-card/95 backdrop-blur-lg rounded-xl shadow-strong border border-border py-2 min-w-[220px]"
-                            style={{ zIndex: 999999 }}
-                            onMouseEnter={() => handleSubmenuEnter(label)}
-                            onMouseLeave={handleSubmenuLeave}
-                          >
+                        <div
+                          className="absolute top-full left-0 pt-1"
+                          style={{ zIndex: 999999 }}
+                          onMouseEnter={() => handleSubmenuEnter(label)}
+                          onMouseLeave={handleSubmenuLeave}
+                        >
+                          <div className="bg-card backdrop-blur-lg rounded-xl shadow-strong border border-border py-2 min-w-[220px]">
                             {item.children.map((child) => (
                               <button
                                 key={getLabel(child.label)}
@@ -169,7 +167,7 @@ const DynamicNavigation = () => {
                               </button>
                             ))}
                           </div>
-                        </>
+                        </div>
                       )}
                     </>
                   ) : (

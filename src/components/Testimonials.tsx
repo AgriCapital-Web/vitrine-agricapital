@@ -3,9 +3,10 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { MessageSquare, User, Mail, Upload, X, Briefcase } from "lucide-react";
+import { MessageSquare, User, Mail, Upload, X, Briefcase, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { Link } from "react-router-dom";
 import {
   Dialog,
   DialogContent,
@@ -155,8 +156,17 @@ const Testimonials = () => {
     return option ? option.label[language as keyof typeof option.label] || option.label.fr : value;
   };
 
+  const seeMoreText: Record<string, string> = {
+    fr: "Voir plus de témoignages",
+    en: "See more testimonials",
+    ar: "عرض المزيد من الشهادات",
+    es: "Ver más testimonios",
+    de: "Mehr Zeugnisse anzeigen",
+    zh: "查看更多推荐",
+  };
+
   return (
-    <section id="temoignages" className="py-20 bg-secondary/30">
+    <section id="testimonials-form" className="py-20 bg-secondary/30">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
@@ -166,7 +176,8 @@ const Testimonials = () => {
             {t.testimonials.subtitle}
           </p>
 
-          <Dialog open={isOpen} onOpenChange={setIsOpen}>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
+            <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>
               <Button 
                 size="lg" 
@@ -362,7 +373,15 @@ const Testimonials = () => {
                 </p>
               </form>
             </DialogContent>
-          </Dialog>
+            </Dialog>
+
+            <Button asChild variant="ghost" className="text-primary hover:text-primary/80">
+              <Link to="/temoignages">
+                {seeMoreText[language] || seeMoreText.fr}
+                <ArrowRight className="w-4 h-4 ml-1" />
+              </Link>
+            </Button>
+          </div>
         </div>
       </div>
     </section>

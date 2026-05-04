@@ -213,7 +213,12 @@ const CommunityProspecting = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
             <div>
               <p className="text-muted-foreground text-base md:text-lg leading-relaxed mb-6">
-                {t.description}
+                {t.description.split('**Inocent KOFFI**').map((part, i, arr) => (
+                  <span key={i}>
+                    {part}
+                    {i < arr.length - 1 && <strong className="text-foreground font-extrabold">Inocent KOFFI</strong>}
+                  </span>
+                ))}
               </p>
             </div>
             <div className="space-y-3">

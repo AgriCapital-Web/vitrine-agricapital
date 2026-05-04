@@ -139,7 +139,14 @@ const FAQ = () => {
                     <span className="text-sm sm:text-base font-medium pr-4">{item.question}</span>
                   </AccordionTrigger>
                   <AccordionContent className="text-muted-foreground text-sm sm:text-base pb-4 sm:pb-5 leading-relaxed">
-                    {item.answer}
+                    {item.answer.includes('Inocent KOFFI') ? (
+                      item.answer.split('Inocent KOFFI').map((part, i, arr) => (
+                        <span key={i}>
+                          {part}
+                          {i < arr.length - 1 && <strong className="text-foreground font-bold">Inocent KOFFI</strong>}
+                        </span>
+                      ))
+                    ) : item.answer}
                   </AccordionContent>
                 </AccordionItem>
               ))}
