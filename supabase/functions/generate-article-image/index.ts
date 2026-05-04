@@ -47,6 +47,23 @@ async function verifyAdmin(req: Request): Promise<{ userId: string } | Response>
   return { userId };
 }
 
+// Rate limiting: max 10 image generations per admin per hour
+const rateLimits = new Map<string, { count: number; resetTime: number }>();
+const RATE_LIMIT = 10;
+const RATE_WINDOW = 60 * 60 * 1000;
+
+function checkRateLimit(userId: string): boolean {
+  const now = Date.now();
+  const entry = rateLimits.get(userId);
+  if (!entry || now > entry.resetTime) {
+    rateLimits.set(userId, { count: 1, resetTime: now + RATE_WINDOW });
+    return true;
+  }
+  if (entry.count >= RATE_LIMIT) return false;
+  entry.count++;
+  return true;
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -55,6 +72,13 @@ serve(async (req) => {
   // Admin auth check
   const authResult = await verifyAdmin(req);
   if (authResult instanceof Response) return authResult;
+
+  // Rate limit check
+  if (!checkRateLimit(authResult.userId)) {
+    return new Response(JSON.stringify({ error: "Limite atteinte : 10 images/heure. Réessayez plus tard." }), {
+      status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
 
   try {
     const { prompt, quality = "standard" } = await req.json();
