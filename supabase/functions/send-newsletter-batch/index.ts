@@ -163,19 +163,19 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Format HTML with branding using sanitized content
     const formattedHtml = `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <div style="background: linear-gradient(135deg, #166534, #14532d); padding: 20px; text-align: center;">
-          <h1 style="color: white; margin: 0;">🌴 AgriCapital</h1>
-          <p style="color: rgba(255,255,255,0.8); margin: 5px 0 0;">Le partenaire idéal des producteurs agricoles</p>
+      <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.08);">
+        <div style="background: linear-gradient(135deg, #166534 0%, #14532d 50%, #0f4c25 100%); padding: 30px; text-align: center;">
+          <img src="https://www.agricapital.ci/Logo_AgriCapital_-V2-4.png" alt="AgriCapital" width="180" style="margin-bottom: 12px; display: block; margin-left: auto; margin-right: auto;">
+          <p style="color: rgba(255,255,255,0.85); font-size: 13px; margin: 8px 0 0; font-weight: 400;">Investir la terre. Cultiver l'avenir.</p>
         </div>
-        <div style="padding: 30px; background: #ffffff;">
+        <div style="padding: 30px;">
           ${sanitizedHtml}
         </div>
-        <div style="background: #f8fafc; padding: 20px; text-align: center; border-top: 1px solid #e5e5e5;">
-          <p style="color: #666; font-size: 12px; margin: 0;">
-            AgriCapital - Côte d'Ivoire<br/>
-            <a href="https://agricapital.ci" style="color: #166534;">www.agricapital.ci</a> | 
-            <a href="tel:+2250564551717" style="color: #166534;">05 64 55 17 17</a>
+        <div style="background: #f9fafb; padding: 20px 30px; text-align: center; border-top: 1px solid #e5e7eb;">
+          <p style="color: #9ca3af; font-size: 11px; margin: 0;">
+            AgriCapital SARL - Côte d'Ivoire<br/>
+            <a href="https://www.agricapital.ci" style="color: #166534; text-decoration: none;">www.agricapital.ci</a> | 
+            <a href="tel:+2250564551717" style="color: #166534; text-decoration: none;">05 64 55 17 17</a>
           </p>
         </div>
       </div>
