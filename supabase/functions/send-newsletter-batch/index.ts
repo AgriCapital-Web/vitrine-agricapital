@@ -49,7 +49,7 @@ const sendEmail = async (apiKey: string, to: string, subject: string, html: stri
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      from: "AgriCapital <onboarding@resend.dev>",
+      from: "AgriCapital <newsletter@agricapital.ci>",
       to: [to],
       subject,
       html,
