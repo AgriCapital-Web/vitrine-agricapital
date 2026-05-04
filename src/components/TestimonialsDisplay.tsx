@@ -200,24 +200,7 @@ const TestimonialsDisplay = () => {
           <CarouselNext className="hidden md:flex" />
         </Carousel>
 
-        {/* Action buttons */}
-        <div className="flex flex-col sm:flex-row gap-3 justify-center mt-8">
-          <Button
-            variant="outline"
-            className="border-primary text-primary hover:bg-primary hover:text-white"
-            onClick={() => {
-              document.getElementById("testimonials-form")?.scrollIntoView({ behavior: "smooth" });
-            }}
-          >
-            {leaveTestimonialText[language] || leaveTestimonialText.fr}
-          </Button>
-          <Button asChild variant="ghost" className="text-primary hover:text-primary/80">
-            <Link to="/temoignages">
-              {seeMoreText[language] || seeMoreText.fr}
-              <ArrowRight className="w-4 h-4 ml-1" />
-            </Link>
-          </Button>
-        </div>
+        {/* See more button moved below the testimonials form section */}
       </div>
 
       {/* Full testimonial dialog */}
