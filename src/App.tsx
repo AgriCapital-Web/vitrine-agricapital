@@ -28,6 +28,7 @@ const AdminAnalytics = lazy(() => import("./pages/admin/AdminAnalytics"));
 const AdminNews = lazy(() => import("./pages/admin/AdminNews"));
 const AdminTestimonials = lazy(() => import("./pages/admin/AdminTestimonials"));
 const AdminNewsletter = lazy(() => import("./pages/admin/AdminNewsletter"));
+const AdminNewsletterHistory = lazy(() => import("./pages/admin/AdminNewsletterHistory"));
 const AdminPartnerships = lazy(() => import("./pages/admin/AdminPartnerships"));
 const AdminPartnershipRequests = lazy(() => import("./pages/admin/AdminPartnershipRequests"));
 const AdminInbox = lazy(() => import("./pages/admin/AdminInbox"));
@@ -118,6 +119,7 @@ const AppContent = () => {
         <Route path="/admin/inbox" element={<AdminInbox />} />
         <Route path="/admin/contact-messages" element={<AdminContactMessages />} />
         <Route path="/admin/newsletter" element={<AdminNewsletter />} />
+        <Route path="/admin/newsletter-history" element={<AdminNewsletterHistory />} />
         <Route path="/admin/partnership-requests" element={<AdminPartnershipRequests />} />
         <Route path="/admin/partnerships" element={<AdminPartnerships />} />
         <Route path="/admin/ai-conversations" element={<AdminAIConversations />} />
