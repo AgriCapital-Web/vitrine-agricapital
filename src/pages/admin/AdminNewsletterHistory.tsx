@@ -135,7 +135,7 @@ const AdminNewsletterHistory = () => {
                   </TableHeader>
                   <TableBody>
                     {sends.map((send) => {
-                      const failed = (send.failed_recipients as FailedRecipient[] | null) || [];
+                      const failed = (send.failed_recipients as unknown as FailedRecipient[] | null) || [];
                       const hasFailed = failed.length > 0;
                       return (
                         <TableRow key={send.id}>
@@ -221,7 +221,7 @@ const AdminNewsletterHistory = () => {
               </DialogTitle>
             </DialogHeader>
             <div className="space-y-2 max-h-[400px] overflow-y-auto">
-              {((selectedSend?.failed_recipients as FailedRecipient[] | null) || []).map((f, i) => (
+              {((selectedSend?.failed_recipients as unknown as FailedRecipient[] | null) || []).map((f, i) => (
                 <div key={i} className="flex items-start gap-3 p-3 rounded-lg bg-destructive/5 border border-destructive/20">
                   <XCircle className="w-4 h-4 text-destructive mt-0.5 flex-shrink-0" />
                   <div>
@@ -230,7 +230,7 @@ const AdminNewsletterHistory = () => {
                   </div>
                 </div>
               ))}
-              {((selectedSend?.failed_recipients as FailedRecipient[] | null) || []).length === 0 && (
+              {((selectedSend?.failed_recipients as unknown as FailedRecipient[] | null) || []).length === 0 && (
                 <p className="text-center text-muted-foreground py-4">Aucun échec</p>
               )}
             </div>
