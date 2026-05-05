@@ -10,6 +10,7 @@ interface NewsletterRequest {
   subject: string;
   html: string;
   includeTestimonials?: boolean;
+  retryEmails?: string[];
 }
 
 // Basic HTML sanitization
@@ -156,7 +157,7 @@ const handler = async (req: Request): Promise<Response> => {
       });
     }
 
-    const { subject, html, includeTestimonials }: NewsletterRequest = await req.json();
+    const { subject, html, includeTestimonials, retryEmails }: NewsletterRequest = await req.json();
 
     if (!subject || typeof subject !== 'string' || subject.length > 500) {
       return new Response(JSON.stringify({ error: "Sujet invalide" }), {
@@ -174,30 +175,36 @@ const handler = async (req: Request): Promise<Response> => {
 
     const sanitizedHtml = sanitizeHtml(html);
 
-    // Get all active subscribers
-    const { data: subscribers, error: subError } = await supabase
-      .from('newsletter_subscribers')
-      .select('email')
-      .eq('is_active', true);
+    let allEmails: string[];
 
-    if (subError) throw subError;
-
-    // Get testimonial emails if requested
-    let testimonialEmails: string[] = [];
-    if (includeTestimonials) {
-      const { data: testimonials } = await supabase
-        .from('testimonials')
+    if (retryEmails && Array.isArray(retryEmails) && retryEmails.length > 0) {
+      // Retry mode: only send to specified emails
+      allEmails = retryEmails.filter(e => typeof e === 'string' && e.includes('@'));
+    } else {
+      // Normal mode: gather all recipients
+      const { data: subscribers, error: subError } = await supabase
+        .from('newsletter_subscribers')
         .select('email')
-        .not('email', 'is', null);
-      
-      if (testimonials) {
-        testimonialEmails = testimonials.map(t => t.email).filter(Boolean) as string[];
-      }
-    }
+        .eq('is_active', true);
 
-    const allEmails = [...new Set([
-      ...(subscribers?.map(s => s.email) || []),
-      ...testimonialEmails,
+      if (subError) throw subError;
+
+      let testimonialEmails: string[] = [];
+      if (includeTestimonials) {
+        const { data: testimonials } = await supabase
+          .from('testimonials')
+          .select('email')
+          .not('email', 'is', null);
+        if (testimonials) {
+          testimonialEmails = testimonials.map(t => t.email).filter(Boolean) as string[];
+        }
+      }
+
+      allEmails = [...new Set([
+        ...(subscribers?.map(s => s.email) || []),
+        ...testimonialEmails,
+      ])];
+    }
     ])];
 
     if (allEmails.length === 0) {
