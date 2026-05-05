@@ -132,13 +132,25 @@ const AdminNewsletter = () => {
       });
       if (error) throw error;
       
+      // Save send record
+      const { data: { user } } = await supabase.auth.getUser();
+      await supabase.from('newsletter_sends').insert({
+        subject,
+        html_preview: htmlContent.substring(0, 500),
+        total_recipients: data?.totalRecipients || recipients.length,
+        total_sent: data?.totalSent || 0,
+        total_failed: data?.totalFailed || 0,
+        failed_recipients: data?.failedRecipients || [],
+        audience_type: targetAudience,
+        sent_by: user?.id,
+      });
+
       const failedList = data?.failedRecipients as { email: string; error: string }[] | undefined;
       if (failedList && failedList.length > 0) {
         toast.warning(`Newsletter envoyée : ${data?.totalSent || 0} succès, ${data?.totalFailed || 0} échecs`, {
           description: `Échecs : ${failedList.map(f => f.email).join(', ')}`,
           duration: 10000,
         });
-        console.warn("Failed recipients:", failedList);
       } else {
         toast.success(`Newsletter envoyée avec succès à ${data?.totalSent || 0} destinataires !`);
       }
