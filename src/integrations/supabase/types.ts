@@ -532,6 +532,45 @@ export type Database = {
         }
         Relationships: []
       }
+      newsletter_sends: {
+        Row: {
+          audience_type: string | null
+          created_at: string
+          failed_recipients: Json | null
+          html_preview: string | null
+          id: string
+          sent_by: string | null
+          subject: string
+          total_failed: number
+          total_recipients: number
+          total_sent: number
+        }
+        Insert: {
+          audience_type?: string | null
+          created_at?: string
+          failed_recipients?: Json | null
+          html_preview?: string | null
+          id?: string
+          sent_by?: string | null
+          subject: string
+          total_failed?: number
+          total_recipients?: number
+          total_sent?: number
+        }
+        Update: {
+          audience_type?: string | null
+          created_at?: string
+          failed_recipients?: Json | null
+          html_preview?: string | null
+          id?: string
+          sent_by?: string | null
+          subject?: string
+          total_failed?: number
+          total_recipients?: number
+          total_sent?: number
+        }
+        Relationships: []
+      }
       newsletter_subscribers: {
         Row: {
           email: string
