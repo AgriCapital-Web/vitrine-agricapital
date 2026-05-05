@@ -131,7 +131,17 @@ const AdminNewsletter = () => {
         body: { subject, html: htmlContent, includeTestimonials: targetAudience === 'all' || targetAudience === 'clients' }
       });
       if (error) throw error;
-      toast.success(`Newsletter envoyée : ${data?.totalSent || 0} succès, ${data?.totalFailed || 0} échecs`);
+      
+      const failedList = data?.failedRecipients as { email: string; error: string }[] | undefined;
+      if (failedList && failedList.length > 0) {
+        toast.warning(`Newsletter envoyée : ${data?.totalSent || 0} succès, ${data?.totalFailed || 0} échecs`, {
+          description: `Échecs : ${failedList.map(f => f.email).join(', ')}`,
+          duration: 10000,
+        });
+        console.warn("Failed recipients:", failedList);
+      } else {
+        toast.success(`Newsletter envoyée avec succès à ${data?.totalSent || 0} destinataires !`);
+      }
     } catch (error: any) {
       toast.error(error?.message || "Erreur lors de l'envoi");
     } finally {
