@@ -205,7 +205,6 @@ const handler = async (req: Request): Promise<Response> => {
         ...testimonialEmails,
       ])];
     }
-    ])];
 
     if (allEmails.length === 0) {
       return new Response(JSON.stringify({ error: "Aucun destinataire trouvé" }), {
