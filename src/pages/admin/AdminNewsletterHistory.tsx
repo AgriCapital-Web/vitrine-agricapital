@@ -42,12 +42,12 @@ const AdminNewsletterHistory = () => {
 
     setRetryingId(send.id);
     try {
-      // We need to retrieve the original HTML from the edge function
-      // Since we store html_preview only, we'll send a targeted batch
+      // Use stored original HTML content for exact resend
+      const originalHtml = (send as any).html_content || send.html_preview || `<p>Renvoi de la newsletter : ${send.subject}</p>`;
       const { data, error } = await supabase.functions.invoke("send-newsletter-batch", {
         body: {
           subject: send.subject,
-          html: `<p>Renvoi de la newsletter : ${send.subject}</p>`,
+          html: originalHtml,
           retryEmails: failed.map((f: FailedRecipient) => f.email),
         },
       });
