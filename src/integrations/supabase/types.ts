@@ -537,6 +537,7 @@ export type Database = {
           audience_type: string | null
           created_at: string
           failed_recipients: Json | null
+          html_content: string | null
           html_preview: string | null
           id: string
           sent_by: string | null
@@ -549,6 +550,7 @@ export type Database = {
           audience_type?: string | null
           created_at?: string
           failed_recipients?: Json | null
+          html_content?: string | null
           html_preview?: string | null
           id?: string
           sent_by?: string | null
@@ -561,6 +563,7 @@ export type Database = {
           audience_type?: string | null
           created_at?: string
           failed_recipients?: Json | null
+          html_content?: string | null
           html_preview?: string | null
           id?: string
           sent_by?: string | null

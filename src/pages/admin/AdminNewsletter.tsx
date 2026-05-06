@@ -137,13 +137,14 @@ const AdminNewsletter = () => {
       await supabase.from('newsletter_sends').insert({
         subject,
         html_preview: htmlContent.substring(0, 500),
+        html_content: htmlContent,
         total_recipients: data?.totalRecipients || recipients.length,
         total_sent: data?.totalSent || 0,
         total_failed: data?.totalFailed || 0,
         failed_recipients: data?.failedRecipients || [],
         audience_type: targetAudience,
         sent_by: user?.id,
-      });
+      } as any);
 
       const failedList = data?.failedRecipients as { email: string; error: string }[] | undefined;
       if (failedList && failedList.length > 0) {
