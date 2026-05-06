@@ -133,7 +133,7 @@ const Navigation = () => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-20">
           <div className="flex items-center gap-3 cursor-pointer" onClick={() => scrollToSection("hero")}>
-            <img src={logo} alt="AgriCapital" className="h-12 w-auto object-contain" />
+            <img src={logo} alt="AgriCapital" className="h-16 w-auto object-contain" />
           </div>
 
           {/* Desktop Navigation */}
