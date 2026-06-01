@@ -6,49 +6,49 @@
 
 @layer base {
   :root {
-    --background: 40 20% 98%;
-    --foreground: 160 10% 15%;
+    --background: 36 30% 97%;
+    --foreground: 160 15% 12%;
 
     --card: 0 0% 100%;
-    --card-foreground: 160 10% 15%;
+    --card-foreground: 160 15% 12%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 160 10% 15%;
+    --popover-foreground: 160 15% 12%;
 
-    --primary: 152 55% 28%;
+    --primary: 152 50% 24%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 150 20% 94%;
-    --secondary-foreground: 152 55% 28%;
+    --secondary: 36 25% 93%;
+    --secondary-foreground: 152 50% 24%;
 
-    --muted: 40 10% 95%;
-    --muted-foreground: 160 5% 45%;
+    --muted: 36 20% 95%;
+    --muted-foreground: 160 8% 40%;
 
-    --accent: 28 85% 52%;
+    --accent: 22 78% 48%;
     --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 84.2% 60.2%;
+    --destructive: 0 75% 50%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 40 10% 88%;
-    --input: 40 10% 88%;
-    --ring: 152 55% 28%;
+    --border: 36 15% 88%;
+    --input: 36 15% 88%;
+    --ring: 152 50% 24%;
 
-    --radius: 0.625rem;
+    --radius: 0.5rem;
 
-    /* AgriCapital palette */
-    --agri-green: 152 55% 28%;
-    --agri-green-light: 152 45% 42%;
-    --agri-orange: 28 85% 52%;
-    --agri-orange-light: 28 90% 62%;
-    --agri-gray: 160 5% 35%;
-    --agri-gray-light: 160 5% 60%;
-    --agri-cream: 40 30% 96%;
+    /* AgriCapital palette — Belife-inspired sober corporate */
+    --agri-green: 152 50% 24%;
+    --agri-green-light: 152 40% 38%;
+    --agri-orange: 22 78% 48%;
+    --agri-orange-light: 22 82% 58%;
+    --agri-gray: 160 8% 30%;
+    --agri-gray-light: 160 5% 55%;
+    --agri-cream: 36 30% 96%;
     
-    /* Gradients */
-    --gradient-primary: linear-gradient(160deg, hsl(152 55% 28%) 0%, hsl(152 45% 36%) 100%);
-    --gradient-hero: linear-gradient(160deg, hsl(152 55% 28% / 0.92) 0%, hsl(152 45% 24% / 0.88) 100%);
-    --gradient-accent: linear-gradient(135deg, hsl(28 85% 52%) 0%, hsl(28 90% 58%) 100%);
+    /* Gradients — refined */
+    --gradient-primary: linear-gradient(160deg, hsl(152 50% 24%) 0%, hsl(152 42% 32%) 100%);
+    --gradient-hero: linear-gradient(160deg, hsl(160 25% 12% / 0.78) 0%, hsl(152 50% 20% / 0.72) 100%);
+    --gradient-accent: linear-gradient(135deg, hsl(22 78% 48%) 0%, hsl(22 82% 56%) 100%);
     
     /* Shadows — more refined */
     --shadow-soft: 0 1px 3px 0 hsl(0 0% 0% / 0.04), 0 1px 2px -1px hsl(0 0% 0% / 0.04);
