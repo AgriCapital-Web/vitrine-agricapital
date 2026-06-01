@@ -7,13 +7,9 @@ import Ambitions from "@/components/Ambitions";
 import About from "@/components/About";
 import Approach from "@/components/Approach";
 import Impact from "@/components/Impact";
-import CommunityProspecting from "@/components/CommunityProspecting";
-import IvoryCoastMap from "@/components/IvoryCoastMap";
-import Milestones from "@/components/Milestones";
 import Founder from "@/components/Founder";
 import Team from "@/components/Team";
 import Partnership from "@/components/Partnership";
-import TestimonialsDisplay from "@/components/TestimonialsDisplay";
 import Testimonials from "@/components/Testimonials";
 import NewsSection from "@/components/NewsSection";
 import Contact from "@/components/Contact";
@@ -113,19 +109,15 @@ const HomePage = () => {
       <AIChatbot />
       <DynamicNavigation />
       <Hero />
-      <NewsSection />
-      <Ambitions />
       <About />
+      <Ambitions />
       <Approach />
       <Impact />
-      <CommunityProspecting />
-      <IvoryCoastMap />
-      <Milestones />
       <Founder />
       <Team />
       <Partnership />
-      <TestimonialsDisplay />
       <Testimonials />
+      <NewsSection />
       <Contact />
       <Footer />
     </div>
