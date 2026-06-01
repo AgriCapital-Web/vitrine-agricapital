@@ -29,18 +29,11 @@ const AdminNews = lazy(() => import("./pages/admin/AdminNews"));
 const AdminTestimonials = lazy(() => import("./pages/admin/AdminTestimonials"));
 const AdminNewsletter = lazy(() => import("./pages/admin/AdminNewsletter"));
 const AdminNewsletterHistory = lazy(() => import("./pages/admin/AdminNewsletterHistory"));
-const AdminPartnerships = lazy(() => import("./pages/admin/AdminPartnerships"));
 const AdminPartnershipRequests = lazy(() => import("./pages/admin/AdminPartnershipRequests"));
-const AdminInbox = lazy(() => import("./pages/admin/AdminInbox"));
 const AdminContactMessages = lazy(() => import("./pages/admin/AdminContactMessages"));
 const AdminAIConversations = lazy(() => import("./pages/admin/AdminAIConversations"));
 const AdminVisitorContacts = lazy(() => import("./pages/admin/AdminVisitorContacts"));
-const AdminMedia = lazy(() => import("./pages/admin/AdminMedia"));
-const AdminMenuNav = lazy(() => import("./pages/admin/AdminMenuNav"));
-const AdminTranslations = lazy(() => import("./pages/admin/AdminTranslations"));
-const AdminSEO = lazy(() => import("./pages/admin/AdminSEO"));
 const AdminUsers = lazy(() => import("./pages/admin/AdminUsers"));
-const AdminPermissions = lazy(() => import("./pages/admin/AdminPermissions"));
 const AdminAuditLog = lazy(() => import("./pages/admin/AdminAuditLog"));
 const AdminBackup = lazy(() => import("./pages/admin/AdminBackup"));
 const AdminDatabase = lazy(() => import("./pages/admin/AdminDatabase"));
@@ -112,26 +105,19 @@ const AppContent = () => {
         {/* Content */}
         <Route path="/admin/news" element={<AdminNews />} />
         <Route path="/admin/testimonials" element={<AdminTestimonials />} />
-        <Route path="/admin/media" element={<AdminMedia />} />
-        <Route path="/admin/menu" element={<AdminMenuNav />} />
 
         {/* Communication */}
-        <Route path="/admin/inbox" element={<AdminInbox />} />
         <Route path="/admin/contact-messages" element={<AdminContactMessages />} />
         <Route path="/admin/newsletter" element={<AdminNewsletter />} />
         <Route path="/admin/newsletter-history" element={<AdminNewsletterHistory />} />
         <Route path="/admin/partnership-requests" element={<AdminPartnershipRequests />} />
-        <Route path="/admin/partnerships" element={<AdminPartnerships />} />
         <Route path="/admin/ai-conversations" element={<AdminAIConversations />} />
         <Route path="/admin/visitor-contacts" element={<AdminVisitorContacts />} />
         <Route path="/admin/notifications" element={<AdminNotifications />} />
         <Route path="/admin/push-notifications" element={<AdminPushNotificationsPage />} />
 
         {/* Configuration */}
-        <Route path="/admin/translations" element={<AdminTranslations />} />
-        <Route path="/admin/seo" element={<AdminSEO />} />
         <Route path="/admin/users" element={<AdminUsers />} />
-        <Route path="/admin/permissions" element={<AdminPermissions />} />
         <Route path="/admin/audit-log" element={<AdminAuditLog />} />
         <Route path="/admin/backup" element={<AdminBackup />} />
         <Route path="/admin/database" element={<AdminDatabase />} />
