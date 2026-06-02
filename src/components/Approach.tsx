@@ -32,30 +32,30 @@ const Approach = () => {
   ];
 
   return (
-    <section id="approche" className="py-20 bg-secondary/30">
+    <section id="approche" className="py-20 lg:py-28 bg-secondary/40">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">{t.approach.title}</h2>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">{t.approach.subtitle}</p>
+        <div className="text-center mb-14 lg:mb-16">
+          <span className="belife-eyebrow">{t.approach.subtitle}</span>
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4">{t.approach.title}</h2>
+          <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">{t.approach.subtitle}</p>
         </div>
 
         <div className="mb-16 rounded-2xl overflow-hidden shadow-medium">
           <img
             src={nurseryImage}
             alt="Site de pépinière AgriCapital - Plants de palmiers Tenera"
-            className="w-full h-[300px] md:h-[400px] object-cover"
+            className="w-full h-[260px] md:h-[400px] object-cover"
             loading="lazy"
           />
         </div>
 
         <div className="mb-20">
-          <h3 className="text-2xl md:text-3xl font-bold text-foreground mb-12 text-center">{t.approach.subtitle}</h3>
-          <div className="space-y-6">
+          <div className="space-y-5">
             {steps.map((step, index) => (
-              <Card key={index} className="bg-card border-border hover:shadow-medium transition-smooth">
-                <CardContent className="p-6 md:p-8">
-                  <div className="flex flex-col md:flex-row items-start gap-6">
-                    <div className="text-6xl font-bold text-accent/20">{step.number}</div>
+              <div key={index} className="belife-card">
+                <div className="p-6 md:p-8">
+                  <div className="flex flex-col md:flex-row items-start gap-5 md:gap-7">
+                    <div className="text-5xl md:text-6xl font-bold text-accent/25 leading-none shrink-0">{step.number}</div>
                     <div className="flex-1">
                       <h4 className="text-xl md:text-2xl font-bold text-foreground mb-3">{step.title}</h4>
                       <p className="text-muted-foreground text-lg">{step.description}</p>
