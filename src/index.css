@@ -150,3 +150,76 @@
 .animate-fade-in-up {
   animation: fadeInUp 0.6s ease-out forwards;
 }
+
+/* ============================================================
+   Belife-inspired utilities — corporate, sober, accent orange
+   ============================================================ */
+
+/* Card with subtle orange top accent line revealed on hover */
+@layer components {
+  .belife-card {
+    @apply relative bg-card rounded-xl border border-border/60 shadow-soft transition-all duration-300;
+  }
+  .belife-card::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 1.25rem; right: 1.25rem;
+    height: 3px;
+    background: linear-gradient(90deg, hsl(var(--accent)) 0%, hsl(var(--accent) / 0.4) 100%);
+    border-radius: 0 0 3px 3px;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .belife-card:hover {
+    @apply shadow-medium -translate-y-1 border-border;
+  }
+  .belife-card:hover::before {
+    transform: scaleX(1);
+  }
+
+  /* Section title eyebrow + heading rhythm — Belife signature */
+  .belife-eyebrow {
+    @apply inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-accent mb-3;
+  }
+  .belife-eyebrow::before {
+    content: "";
+    width: 28px;
+    height: 2px;
+    background: hsl(var(--accent));
+    border-radius: 2px;
+  }
+
+  /* Nav link hover — sober underline reveal */
+  .belife-nav-link {
+    @apply relative text-foreground/80 hover:text-foreground transition-colors text-sm font-semibold px-3 py-2;
+  }
+  .belife-nav-link::after {
+    content: "";
+    position: absolute;
+    left: 0.75rem; right: 0.75rem; bottom: 0.35rem;
+    height: 2px;
+    background: hsl(var(--accent));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.25s ease;
+  }
+  .belife-nav-link:hover::after,
+  .belife-nav-link.is-active::after {
+    transform: scaleX(1);
+  }
+
+  /* Footer column heading — orange micro-rule */
+  .belife-footer-heading {
+    @apply text-base font-bold text-white mb-4 pb-2 relative;
+  }
+  .belife-footer-heading::after {
+    content: "";
+    position: absolute;
+    left: 0; bottom: 0;
+    width: 32px; height: 2px;
+    background: hsl(var(--accent));
+    border-radius: 2px;
+  }
+}
+
