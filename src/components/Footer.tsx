@@ -10,134 +10,96 @@ const Footer = () => {
   const location = useLocation();
 
   const scrollToSection = (id: string) => {
-    const isHomePage = location.pathname === "/" || 
-                        location.pathname === "/fr" || 
-                        location.pathname === "/en" ||
-                        location.pathname.startsWith("/accueil") ||
-                        location.pathname.startsWith("/home");
-    
+    const isHomePage = location.pathname === "/" ||
+      location.pathname === "/fr" ||
+      location.pathname === "/en" ||
+      location.pathname.startsWith("/accueil") ||
+      location.pathname.startsWith("/home");
+
     if (isHomePage) {
-      const element = document.getElementById(id);
-      if (element) {
-        element.scrollIntoView({ behavior: "smooth" });
-      }
+      document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
     } else {
       navigate(`/#${id}`);
     }
   };
 
+  const quickLinks = [
+    { id: "accueil", label: t.nav.home },
+    { id: "apropos", label: t.nav.about },
+    { id: "approche", label: t.nav.approach },
+    { id: "impact", label: t.nav.impact },
+    { id: "partenariat", label: t.nav.partnership },
+  ];
+
   return (
-    <footer className="bg-agri-green text-white py-12">
+    <footer className="bg-agri-green text-white pt-16 pb-8">
       <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {/* Logo and Description */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-12">
           <div>
-            <img 
-              src={logoWhite} 
-              alt="AgriCapital Logo" 
-              className="h-16 w-auto mb-4"
-            />
-            <p className="text-white/80 text-sm mb-4">
-              {t.footer.description}
-            </p>
-            <p className="text-white/70 text-sm font-medium">
-              {t.footer.capitalSocial}
-            </p>
+            <img src={logoWhite} alt="AgriCapital" className="h-14 w-auto mb-5" />
+            <p className="text-white/75 text-sm leading-relaxed mb-4">{t.footer.description}</p>
+            <p className="text-white/60 text-xs font-medium uppercase tracking-wider">{t.footer.capitalSocial}</p>
           </div>
 
-          {/* Quick Links */}
           <div>
-            <h3 className="text-lg font-bold mb-4">{t.footer.quickLinks}</h3>
-            <ul className="space-y-2">
-              <li>
-                <button
-                  onClick={() => scrollToSection("accueil")}
-                  className="text-white/80 hover:text-white transition-colors text-sm"
-                >
-                  {t.nav.home}
-                </button>
-              </li>
-              <li>
-                <button
-                  onClick={() => scrollToSection("apropos")}
-                  className="text-white/80 hover:text-white transition-colors text-sm"
-                >
-                  {t.nav.about}
-                </button>
-              </li>
-              <li>
-                <button
-                  onClick={() => scrollToSection("approche")}
-                  className="text-white/80 hover:text-white transition-colors text-sm"
-                >
-                  {t.nav.approach}
-                </button>
-              </li>
-              <li>
-                <button
-                  onClick={() => scrollToSection("impact")}
-                  className="text-white/80 hover:text-white transition-colors text-sm"
-                >
-                  {t.nav.impact}
-                </button>
-              </li>
-              <li>
-                <button
-                  onClick={() => scrollToSection("partenariat")}
-                  className="text-white/80 hover:text-white transition-colors text-sm"
-                >
-                  {t.nav.partnership}
-                </button>
-              </li>
+            <h3 className="belife-footer-heading">{t.footer.quickLinks}</h3>
+            <ul className="space-y-2.5">
+              {quickLinks.map((item) => (
+                <li key={item.id}>
+                  <button
+                    onClick={() => scrollToSection(item.id)}
+                    className="text-white/75 hover:text-white hover:translate-x-1 transition-all text-sm inline-block"
+                  >
+                    {item.label}
+                  </button>
+                </li>
+              ))}
               <li>
                 <Link
                   to="/faq"
-                  className="text-white/80 hover:text-white transition-colors text-sm flex items-center gap-1"
+                  className="text-white/75 hover:text-white hover:translate-x-1 transition-all text-sm inline-flex items-center gap-1.5"
                 >
-                  <HelpCircle size={14} />
+                  <HelpCircle size={13} />
                   FAQ
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Contact Information */}
           <div>
-            <h3 className="text-lg font-bold mb-4">{t.contact.title}</h3>
-            <div className="space-y-3 text-sm">
-              <p className="text-white/80">
-                <strong className="text-white">{t.contact.address.title}:</strong><br />
-                {t.contact.address.value}
-              </p>
-              <p className="text-white/80">
-                <strong className="text-white">{t.contact.email.title}:</strong><br />
-                <a href="mailto:contact@agricapital.ci" className="hover:text-white transition-colors">
+            <h3 className="belife-footer-heading">{t.contact.title}</h3>
+            <div className="space-y-4 text-sm">
+              <div>
+                <p className="text-white/50 text-xs uppercase tracking-wider mb-1">{t.contact.address.title}</p>
+                <p className="text-white/85">{t.contact.address.value}</p>
+              </div>
+              <div>
+                <p className="text-white/50 text-xs uppercase tracking-wider mb-1">{t.contact.email.title}</p>
+                <a href="mailto:contact@agricapital.ci" className="text-white/85 hover:text-white transition-colors break-all">
                   {t.contact.email.value}
                 </a>
-              </p>
-              <p className="text-white/80">
-                <strong className="text-white">{t.contact.phone.title}:</strong><br />
-                <a href="https://wa.me/2250564551717" className="hover:text-white transition-colors">
+              </div>
+              <div>
+                <p className="text-white/50 text-xs uppercase tracking-wider mb-1">{t.contact.phone.title}</p>
+                <a href="https://wa.me/2250564551717" className="text-white/85 hover:text-white transition-colors">
                   +225 05 64 55 17 17
                 </a>
-              </p>
+              </div>
             </div>
           </div>
 
-          {/* Newsletter */}
           <div>
-            <h3 className="text-lg font-bold mb-4">{t.newsletter?.title || "Newsletter"}</h3>
-            <p className="text-white/80 text-sm mb-4">
+            <h3 className="belife-footer-heading">{t.newsletter?.title || "Newsletter"}</h3>
+            <p className="text-white/75 text-sm mb-4 leading-relaxed">
               {t.newsletter?.subtitle || "Restez informé de nos actualités"}
             </p>
             <Newsletter />
           </div>
         </div>
 
-        <div className="border-t border-white/20 mt-8 pt-6 text-center">
-          <p className="text-white/70 text-sm">
-            © 2025 {t.footer.copyright}
-          </p>
+        <div className="border-t border-white/15 mt-12 pt-6 flex flex-col md:flex-row items-center justify-between gap-3">
+          <p className="text-white/60 text-xs">© 2025 {t.footer.copyright}</p>
+          <p className="text-white/50 text-xs italic">Investir la terre. Cultiver l'avenir.</p>
         </div>
       </div>
     </footer>

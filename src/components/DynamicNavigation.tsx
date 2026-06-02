@@ -145,25 +145,27 @@ const DynamicNavigation = () => {
                 >
                   {item.children ? (
                     <>
-                      <button className="flex items-center gap-1 text-foreground/80 hover:text-foreground transition-colors text-sm font-medium px-3 py-2 rounded-lg hover:bg-muted/60">
+                      <button className="belife-nav-link flex items-center gap-1">
                         {label}
                         <ChevronDown size={13} className={`transition-transform duration-200 ${openSubmenu === label ? "rotate-180" : ""}`} />
                       </button>
                       {openSubmenu === label && (
                         <div
-                          className="absolute top-full left-0 pt-1"
+                          className="absolute top-full left-0 pt-2"
                           style={{ zIndex: 999999 }}
                           onMouseEnter={() => handleSubmenuEnter(label)}
                           onMouseLeave={handleSubmenuLeave}
                         >
-                          <div className="bg-card backdrop-blur-lg rounded-xl shadow-strong border border-border py-2 min-w-[220px]">
+                          <div className="bg-card rounded-xl shadow-strong border border-border/70 py-2 min-w-[240px] relative overflow-hidden">
+                            <span className="absolute top-0 left-0 right-0 h-[3px] bg-accent" />
                             {item.children.map((child) => (
                               <button
                                 key={getLabel(child.label)}
                                 onClick={() => handleItemClick(child.action, child.isRoute)}
-                                className="w-full px-4 py-3 text-left text-sm text-foreground/80 hover:text-foreground hover:bg-primary/10 transition-colors font-medium"
+                                className="group w-full px-4 py-2.5 text-left text-sm text-foreground/80 hover:text-foreground hover:bg-secondary/60 transition-colors font-medium flex items-center justify-between"
                               >
-                                {getLabel(child.label)}
+                                <span>{getLabel(child.label)}</span>
+                                <span className="text-accent opacity-0 group-hover:opacity-100 transition-opacity">→</span>
                               </button>
                             ))}
                           </div>
@@ -173,7 +175,7 @@ const DynamicNavigation = () => {
                   ) : (
                     <button
                       onClick={() => handleItemClick(item.action!, item.isRoute)}
-                      className="text-foreground/80 hover:text-foreground transition-colors text-sm font-medium px-3 py-2 rounded-lg hover:bg-muted/60"
+                      className="belife-nav-link"
                     >
                       {label}
                     </button>
