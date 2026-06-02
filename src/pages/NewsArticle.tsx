@@ -196,9 +196,37 @@ const NewsArticle = () => {
   const nextImage = () => setLightboxIndex((prev) => (prev + 1) % displayImages.length);
   const prevImage = () => setLightboxIndex((prev) => (prev - 1 + displayImages.length) % displayImages.length);
 
+  const articleJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": seoTitle,
+    "description": seoDescription,
+    "image": seoImage ? [seoImage] : undefined,
+    "datePublished": article.published_at || article.created_at,
+    "dateModified": article.updated_at || article.published_at || article.created_at,
+    "author": {
+      "@type": "Person",
+      "name": article.author || "AgriCapital"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "AgriCapital",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://agricapital.ci/og-image.png"
+      }
+    },
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": articleUrl
+    },
+    "inLanguage": language
+  };
+
   return (
     <>
       <SEOHead type="article" title={seoTitle} description={seoDescription} image={seoImage} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }} />
       <DynamicNavigation />
       
       <main className="pt-24 min-h-screen bg-background">
