@@ -58,26 +58,29 @@ const Approach = () => {
                     <div className="text-5xl md:text-6xl font-bold text-accent/25 leading-none shrink-0">{step.number}</div>
                     <div className="flex-1">
                       <h4 className="text-xl md:text-2xl font-bold text-foreground mb-3">{step.title}</h4>
-                      <p className="text-muted-foreground text-lg">{step.description}</p>
+                      <p className="text-muted-foreground text-base md:text-lg leading-relaxed">{step.description}</p>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             ))}
           </div>
         </div>
 
         <div>
-          <h3 className="text-2xl md:text-3xl font-bold text-foreground mb-12 text-center">{t.approach.services.title}</h3>
+          <div className="text-center mb-12">
+            <span className="belife-eyebrow">Services</span>
+            <h3 className="text-2xl md:text-3xl font-bold text-foreground">{t.approach.services.title}</h3>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {services.map((service, index) => (
-              <Card key={index} className="bg-card border-border hover:shadow-medium transition-smooth">
-                <CardContent className="p-6">
+              <div key={index} className="belife-card">
+                <div className="p-7">
                   <div className="text-4xl mb-4">{service.icon}</div>
                   <h4 className="text-lg font-bold text-foreground mb-2">{service.title}</h4>
-                  <p className="text-muted-foreground">{service.description}</p>
-                </CardContent>
-              </Card>
+                  <p className="text-muted-foreground leading-relaxed">{service.description}</p>
+                </div>
+              </div>
             ))}
           </div>
         </div>
