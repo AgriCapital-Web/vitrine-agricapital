@@ -110,6 +110,7 @@ const HomePage = () => {
       <AIChatbot />
       <DynamicNavigation />
       <Hero />
+      <DomainesIntervention />
       <About />
       <Ambitions />
       <Approach />
