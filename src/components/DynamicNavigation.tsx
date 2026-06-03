@@ -1,10 +1,14 @@
 import { useState, useEffect, useRef } from "react";
-import { Menu, X, Globe, ChevronDown } from "lucide-react";
+import { Menu, X, Globe, ChevronDown, Phone, MessageCircle, UserCircle2, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Language, languageNames } from "@/lib/translations";
 import { useNavigate, useLocation } from "react-router-dom";
 import logo from "@/assets/logo-agricapital-v2.png";
+
+const CLIENT_PORTAL_URL = "https://pay.agricapital.ci";
+const WHATSAPP_URL = "https://wa.me/2250564551717";
+const PHONE_URL = "tel:+2250564551717";
 
 const languages: Language[] = ["fr", "en", "ar", "es", "de", "zh"];
 
@@ -58,13 +62,12 @@ const menuConfig: MenuItem[] = [
 const DynamicNavigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [showLangMenu, setShowLangMenu] = useState(false);
-  const [showMobileLangMenu, setShowMobileLangMenu] = useState(false);
+  
   const [openSubmenu, setOpenSubmenu] = useState<string | null>(null);
   const [openMobileSubmenu, setOpenMobileSubmenu] = useState<string | null>(null);
   const [scrolled, setScrolled] = useState(false);
   const { language, setLanguage, t } = useLanguage();
   const langMenuRef = useRef<HTMLDivElement>(null);
-  const mobileLangMenuRef = useRef<HTMLDivElement>(null);
   const submenuTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
   const navigate = useNavigate();
   const location = useLocation();
@@ -78,7 +81,6 @@ const DynamicNavigation = () => {
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (langMenuRef.current && !langMenuRef.current.contains(event.target as Node)) setShowLangMenu(false);
-      if (mobileLangMenuRef.current && !mobileLangMenuRef.current.contains(event.target as Node)) setShowMobileLangMenu(false);
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
@@ -126,14 +128,14 @@ const DynamicNavigation = () => {
       style={{ zIndex: 99999 }}
     >
       <div className="container mx-auto px-4 lg:px-6">
-        <div className="flex items-center justify-between h-16 lg:h-20">
-          {/* Logo */}
-          <div className="flex items-center gap-2 cursor-pointer shrink-0" onClick={() => scrollToSection("hero")}>
-            <img src={logo} alt="AgriCapital" className="h-10 sm:h-12 lg:h-14 w-auto" />
+        <div className="flex items-center justify-between h-18 lg:h-22 gap-2">
+          {/* Logo — enlarged */}
+          <div className="flex items-center cursor-pointer shrink-0" onClick={() => scrollToSection("hero")}>
+            <img src={logo} alt="AgriCapital" className="h-14 sm:h-16 lg:h-20 w-auto" />
           </div>
 
-          {/* Desktop */}
-          <div className="hidden lg:flex items-center gap-0.5">
+          {/* Desktop main nav */}
+          <div className="hidden lg:flex items-center gap-0.5 flex-1 justify-center">
             {menuConfig.map((item) => {
               const label = getLabel(item.label);
               return (
@@ -183,26 +185,64 @@ const DynamicNavigation = () => {
                 </div>
               );
             })}
+          </div>
+
+          {/* Belife-style circle action buttons */}
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+            <a
+              href={PHONE_URL}
+              aria-label="Téléphone"
+              className="hidden sm:flex w-10 h-10 lg:w-11 lg:h-11 rounded-full bg-accent/10 text-accent hover:bg-accent hover:text-white items-center justify-center transition-all active:scale-95"
+            >
+              <Phone size={18} />
+            </a>
+            <a
+              href={WHATSAPP_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="WhatsApp"
+              className="hidden sm:flex w-10 h-10 lg:w-11 lg:h-11 rounded-full bg-[#25D366]/15 text-[#1faa52] hover:bg-[#25D366] hover:text-white items-center justify-center transition-all active:scale-95"
+            >
+              <MessageCircle size={18} />
+            </a>
+            <a
+              href={CLIENT_PORTAL_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={language === "en" ? "Client Portal" : "Espace Clients"}
+              title={language === "en" ? "Client Portal" : language === "ar" ? "بوابة العملاء" : language === "es" ? "Portal de Clientes" : language === "de" ? "Kundenportal" : language === "zh" ? "客户门户" : "Espace Clients"}
+              className="flex w-10 h-10 lg:w-11 lg:h-11 rounded-full bg-accent text-white hover:bg-accent/90 items-center justify-center transition-all active:scale-95 shadow-soft"
+            >
+              <UserCircle2 size={20} />
+            </a>
+            <button
+              onClick={() => scrollToSection("contact")}
+              aria-label="Contact"
+              className="hidden sm:flex w-10 h-10 lg:w-11 lg:h-11 rounded-full bg-accent/10 text-accent hover:bg-accent hover:text-white items-center justify-center transition-all active:scale-95"
+            >
+              <MapPin size={18} />
+            </button>
 
             {/* Language */}
-            <div className="relative ml-1" ref={langMenuRef}>
+            <div className="relative" ref={langMenuRef}>
               <button
                 onClick={() => setShowLangMenu(!showLangMenu)}
-                className="flex items-center gap-1.5 text-foreground/70 hover:text-foreground transition-colors text-sm font-medium px-2.5 py-2 rounded-lg hover:bg-muted/60"
+                aria-label="Language"
+                className="flex w-10 h-10 lg:w-11 lg:h-11 rounded-full bg-secondary text-foreground/70 hover:text-foreground hover:bg-secondary/80 items-center justify-center transition-all"
               >
-                <Globe size={16} />
-                <span className="uppercase text-xs tracking-wide">{language}</span>
+                <Globe size={18} />
               </button>
               {showLangMenu && (
                 <>
                   <div className="fixed inset-0" style={{ zIndex: 999998 }} onClick={() => setShowLangMenu(false)} />
-                  <div className="absolute right-0 mt-1 rounded-xl shadow-strong py-2 min-w-[160px] bg-card border border-border" style={{ zIndex: 999999 }}>
+                  <div className="absolute right-0 mt-2 rounded-xl shadow-strong py-2 min-w-[170px] bg-card border border-border" style={{ zIndex: 999999 }}>
                     {languages.map((lang) => (
                       <button
                         key={lang}
                         onClick={() => { setLanguage(lang); setShowLangMenu(false); }}
                         className={`w-full px-4 py-2.5 text-left text-sm transition-colors hover:bg-muted/50 ${language === lang ? "text-primary font-semibold bg-primary/5" : "text-foreground/70"}`}
                       >
+                        <span className="uppercase text-xs mr-2 text-muted-foreground">{lang}</span>
                         {languageNames[lang]}
                       </button>
                     ))}
@@ -211,44 +251,13 @@ const DynamicNavigation = () => {
               )}
             </div>
 
-            <Button
-              onClick={() => scrollToSection("contact")}
-              className="bg-gradient-accent border-0 text-white hover:opacity-90 transition-all ml-2 rounded-lg shadow-soft text-sm font-semibold"
-              size="sm"
+            {/* Mobile hamburger — same full menu drawer */}
+            <button
+              className="lg:hidden flex w-10 h-10 rounded-full bg-accent/10 text-accent hover:bg-accent hover:text-white items-center justify-center transition-all active:scale-95"
+              onClick={() => setIsOpen(!isOpen)}
+              aria-label="Menu"
             >
-              {t.nav.contact}
-            </Button>
-          </div>
-
-          {/* Mobile */}
-          <div className="lg:hidden flex items-center gap-1">
-            <div className="relative" ref={mobileLangMenuRef}>
-              <button
-                onClick={() => setShowMobileLangMenu(!showMobileLangMenu)}
-                className="flex items-center gap-1 text-foreground/70 hover:text-foreground p-2 rounded-lg"
-              >
-                <Globe size={18} />
-                <span className="uppercase text-xs font-medium">{language}</span>
-              </button>
-              {showMobileLangMenu && (
-                <>
-                  <div className="fixed inset-0" style={{ zIndex: 999998 }} onClick={() => setShowMobileLangMenu(false)} />
-                  <div className="fixed right-4 mt-2 rounded-xl shadow-strong py-2 min-w-[170px] bg-card border border-border" style={{ zIndex: 999999, top: "60px" }}>
-                    {languages.map((lang) => (
-                      <button
-                        key={lang}
-                        onClick={() => { setLanguage(lang); setShowMobileLangMenu(false); }}
-                        className={`w-full px-4 py-3 text-left text-sm transition-colors hover:bg-muted/50 ${language === lang ? "text-primary font-semibold bg-primary/5" : "text-foreground/70"}`}
-                      >
-                        {languageNames[lang]}
-                      </button>
-                    ))}
-                  </div>
-                </>
-              )}
-            </div>
-            <button className="text-foreground p-2" onClick={() => setIsOpen(!isOpen)}>
-              {isOpen ? <X size={22} /> : <Menu size={22} />}
+              {isOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
           </div>
         </div>

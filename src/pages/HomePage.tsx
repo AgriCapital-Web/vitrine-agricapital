@@ -3,6 +3,7 @@ import { useParams, useLocation } from "react-router-dom";
 import DynamicNavigation from "@/components/DynamicNavigation";
 import Hero from "@/components/Hero";
 import AIChatbot from "@/components/AIChatbot";
+import DomainesIntervention from "@/components/DomainesIntervention";
 import Ambitions from "@/components/Ambitions";
 import About from "@/components/About";
 import Approach from "@/components/Approach";
@@ -109,6 +110,7 @@ const HomePage = () => {
       <AIChatbot />
       <DynamicNavigation />
       <Hero />
+      <DomainesIntervention />
       <About />
       <Ambitions />
       <Approach />
