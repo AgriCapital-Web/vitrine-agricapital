@@ -1,10 +1,14 @@
 import { useState, useEffect, useRef } from "react";
-import { Menu, X, Globe, ChevronDown } from "lucide-react";
+import { Menu, X, Globe, ChevronDown, Phone, MessageCircle, UserCircle2, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Language, languageNames } from "@/lib/translations";
 import { useNavigate, useLocation } from "react-router-dom";
 import logo from "@/assets/logo-agricapital-v2.png";
+
+const CLIENT_PORTAL_URL = "https://pay.agricapital.ci";
+const WHATSAPP_URL = "https://wa.me/2250564551717";
+const PHONE_URL = "tel:+2250564551717";
 
 const languages: Language[] = ["fr", "en", "ar", "es", "de", "zh"];
 
