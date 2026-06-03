@@ -62,7 +62,7 @@ const menuConfig: MenuItem[] = [
 const DynamicNavigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [showLangMenu, setShowLangMenu] = useState(false);
-  const [showMobileLangMenu, setShowMobileLangMenu] = useState(false);
+  
   const [openSubmenu, setOpenSubmenu] = useState<string | null>(null);
   const [openMobileSubmenu, setOpenMobileSubmenu] = useState<string | null>(null);
   const [scrolled, setScrolled] = useState(false);
