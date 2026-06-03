@@ -68,7 +68,6 @@ const DynamicNavigation = () => {
   const [scrolled, setScrolled] = useState(false);
   const { language, setLanguage, t } = useLanguage();
   const langMenuRef = useRef<HTMLDivElement>(null);
-  const mobileLangMenuRef = useRef<HTMLDivElement>(null);
   const submenuTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
   const navigate = useNavigate();
   const location = useLocation();
