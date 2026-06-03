@@ -81,7 +81,6 @@ const DynamicNavigation = () => {
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (langMenuRef.current && !langMenuRef.current.contains(event.target as Node)) setShowLangMenu(false);
-      if (mobileLangMenuRef.current && !mobileLangMenuRef.current.contains(event.target as Node)) setShowMobileLangMenu(false);
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
