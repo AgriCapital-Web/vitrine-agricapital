@@ -27,7 +27,7 @@ const slides: Slide[] = [
       zh: "共建您可持续的农业资产",
     },
     description: {
-      fr: "AgriCapital accompagne particuliers et entreprises dans la création de plantations professionnelles de palmier à huile en Côte d'Ivoire.",
+      fr: "AgriCapital accompagne particuliers et entreprises dans la création de plantations professionnelles de palmier à huile dans le Haut-Sassandra et partout en Côte d'Ivoire.",
       en: "AgriCapital supports individuals and businesses in creating professional oil palm plantations in Côte d'Ivoire.",
       ar: "تساعد AgriCapital الأفراد والشركات على إنشاء مزارع نخيل زيت احترافية في كوت ديفوار.",
       es: "AgriCapital acompaña a particulares y empresas en la creación de plantaciones profesionales de palma aceitera en Costa de Marfil.",
@@ -47,7 +47,7 @@ const slides: Slide[] = [
       zh: "您拥有土地？我们将其转化为高产种植园",
     },
     description: {
-      fr: "Études agropédologiques, défrichage, piquetage, plantation et fertilisation — nous prenons en charge l'intégralité du développement.",
+      fr: "Défrichage, piquetage, plantation et fertilisation — nous prenons en charge l'intégralité de la création de la plantation jusqu'à l'entrée en production (36 mois).",
       en: "Agro-pedological studies, clearing, staking, planting and fertilisation — we handle the full development.",
       ar: "دراسات زراعية، إزالة، تخطيط، زراعة وتسميد — نتولى كامل التطوير.",
       es: "Estudios agropedológicos, desmonte, replanteo, plantación y fertilización — gestionamos todo el desarrollo.",
@@ -67,7 +67,7 @@ const slides: Slide[] = [
       zh: "没有土地？从筹备到运营，我们全权负责",
     },
     description: {
-      fr: "Identification du foncier, sécurisation juridique, mise en culture et accompagnement technique sur toute la durée du contrat.",
+      fr: "Identification et sécurisation du foncier, mise en culture et accompagnement technique sur toute la durée du contrat (28 ans — cycle du palmier à huile).",
       en: "Land identification, legal securing, cultivation and technical support throughout the contract.",
       ar: "تحديد الأراضي، التأمين القانوني، الزراعة والدعم الفني طوال مدة العقد.",
       es: "Identificación, seguridad jurídica, cultivo y soporte técnico durante todo el contrato.",
@@ -128,7 +128,7 @@ const Hero = () => {
                     <div className="max-w-xl lg:max-w-2xl">
                       <div className="inline-flex items-center gap-2 mb-3 sm:mb-4">
                         <span className="w-8 h-[2px] bg-accent rounded" />
-                        <span className="text-accent text-xs sm:text-sm font-bold uppercase tracking-[0.18em]">
+                        <span className="text-white text-xs sm:text-sm font-bold uppercase tracking-[0.18em] drop-shadow-md">
                           {t(s.eyebrow)}
                         </span>
                       </div>
