@@ -3,7 +3,7 @@ import { useLanguage, Language } from "@/contexts/LanguageContext";
 
 import img1 from "@/assets/nursery-pepiniere-daloa.jpg";
 import img2 from "@/assets/vavoua-land-2026.jpg";
-import img3 from "@/assets/nursery-inspection-2026.jpg";
+import img3 from "@/assets/palm-mature-fruits.jpg";
 import img4 from "@/assets/palm-oil-production.jpg";
 
 interface Domain {
@@ -26,7 +26,7 @@ const domains: Domain[] = [
       zh: "交钥匙种植园",
     },
     description: {
-      fr: "Plants certifiés, défrichage, piquetage, planting, intrants et fertilisation. Une plantation opérationnelle livrée à l'issue du développement.",
+      fr: "Plants certifiés, défrichage, piquetage, planting, intrants et fertilisation. Une plantation opérationnelle livrée prête à produire (36 mois).",
       en: "Certified seedlings, clearing, staking, planting, inputs and fertilisation. A fully operational plantation delivered at the end of development.",
       ar: "شتلات معتمدة، إزالة، تخطيط، زراعة وتسميد. مزرعة جاهزة للاستغلال.",
       es: "Plantas certificadas, desbroce, replanteo, siembra, insumos y fertilización. Plantación operativa al final del desarrollo.",
@@ -46,7 +46,7 @@ const domains: Domain[] = [
       zh: "土地保障",
     },
     description: {
-      fr: "Identification, vérification et sécurisation juridique du foncier agricole, en lien avec les autorités locales et coutumières.",
+      fr: "Identification, vérification et sécurisation juridique du foncier agricole (opposable aux tiers), en lien avec les autorités locales et coutumières.",
       en: "Identification, due diligence and legal securing of agricultural land, working with local and customary authorities.",
       ar: "تحديد الأراضي الزراعية والتحقق منها وتأمينها قانونياً، بالتنسيق مع السلطات المحلية والعرفية.",
       es: "Identificación, verificación y aseguramiento jurídico de tierras agrícolas, con autoridades locales y consuetudinarias.",
@@ -66,7 +66,7 @@ const domains: Domain[] = [
       zh: "技术与农艺监测",
     },
     description: {
-      fr: "Visites régulières, conseils, reporting digital et accompagnement agronomique continu sur toute la durée du développement.",
+      fr: "Visites régulières, conseils, reporting digital et accompagnement agronomique continu sur toute la durée du cycle de production.",
       en: "Regular site visits, expert advice, digital reporting and continuous agronomic support throughout the development.",
       ar: "زيارات منتظمة، استشارات، تقارير رقمية ودعم زراعي مستمر طوال فترة التطوير.",
       es: "Visitas regulares, consejos, reporte digital y acompañamiento agronómico continuo.",
@@ -107,7 +107,7 @@ const labels = {
     zh: "从头到尾,我们陪伴您的种植项目。",
   } as Record<Language, string>,
   subtitle: {
-    fr: "Une approche industrielle, agronomique et humaine au service du palmier à huile en Côte d'Ivoire.",
+    fr: "Une approche industrielle, agronomique et humaine au service de votre projet agricole.",
     en: "An industrial, agronomic and human approach for oil palm in Côte d'Ivoire.",
     ar: "نهج صناعي وزراعي وإنساني لخدمة نخيل الزيت في كوت ديفوار.",
     es: "Un enfoque industrial, agronómico y humano al servicio de la palma aceitera en Costa de Marfil.",
@@ -170,11 +170,9 @@ const DomainesIntervention = () => {
 
         <div className="mt-12 lg:mt-16 flex justify-center">
           <a
-            href="#contact"
-            onClick={(e) => {
-              e.preventDefault();
-              document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" });
-            }}
+            href="https://wa.me/2250564551717"
+            target="_blank"
+            rel="noopener noreferrer"
             className="inline-flex items-center gap-2 px-7 py-4 rounded-full bg-accent text-white font-semibold shadow-medium hover:shadow-strong hover:bg-accent/90 transition-all active:scale-95"
           >
             {t(labels.cta)}
