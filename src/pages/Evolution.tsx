@@ -146,7 +146,7 @@ const Evolution = () => {
         <section className="py-16 sm:py-24">
           <div className="container mx-auto px-4">
             <h2 className="text-3xl sm:text-4xl text-center mb-12 sm:mb-16">{t.milestones}</h2>
-            <div className="max-w-3xl mx-auto space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-6xl mx-auto">
               {milestones.map((ms, i) => {
                 const Icon = ms.icon;
                 const style = statusStyles[ms.status as keyof typeof statusStyles];
@@ -200,21 +200,7 @@ const Evolution = () => {
               </div>
             </div>
 
-            {/* Vavoua */}
-            <div className="mb-16">
-              <div className="flex items-center gap-2 justify-center mb-2">
-                <MapPin className="w-5 h-5 text-accent" />
-                <h3 className="text-xl font-bold font-sans text-accent">{t.vavouaTitle}</h3>
-              </div>
-              <p className="text-center text-sm text-muted-foreground mb-6 max-w-2xl mx-auto">{t.vavouaDesc}</p>
-              <div className="grid grid-cols-2 gap-3 max-w-2xl mx-auto">
-                {vavouaPhotos.map((photo, i) => (
-                  <div key={i} className="cursor-pointer overflow-hidden rounded-xl shadow-soft hover:shadow-medium transition-all aspect-[4/3] group" onClick={() => setSelectedImage(photo)}>
-                    <img src={photo} alt={`Vavoua ${i + 1}`} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
-                  </div>
-                ))}
-              </div>
-            </div>
+            {/* Vavoua section removed — photos merged into the global gallery below */}
 
             {/* Launch */}
             <div>
