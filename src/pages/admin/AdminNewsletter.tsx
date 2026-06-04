@@ -251,7 +251,7 @@ const AdminNewsletter = () => {
                   <Input
                     value={aiPrompt}
                     onChange={(e) => setAiPrompt(e.target.value)}
-                    placeholder="Ex: Lancement du 2ème site de pépinière à Vavoua"
+                    placeholder="Ex: Lancement d'une nouvelle pépinière"
                     className="flex-1"
                     onKeyDown={(e) => e.key === 'Enter' && generateWithAI()}
                   />
