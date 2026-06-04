@@ -47,13 +47,10 @@ const Evolution = () => {
       contactUs: "Nous contacter",
       daloaTitle: "Pépinière de Daloa — 120 hectares",
       daloaDesc: "Site pleinement opérationnel : système d'irrigation autonome, plants certifiés Tenera, équipe technique mobilisée.",
-      vavouaTitle: "Site de Vavoua — 100 hectares (Prévu 2026)",
-      vavouaDesc: "Second site de pépinière dans le secteur Vrouho. Terrains identifiés, prospections en cours.",
-      launchTitle: "Photos du Lancement — Novembre 2025",
+      launchTitle: "Galerie Terrain — Lancement & Évolution",
       m1: { date: "19 Novembre 2025", title: "Lancement des Opérations Terrain", desc: "Démarrage officiel d'AgriCapital avec l'installation de l'infrastructure opérationnelle et le début des activités sur le terrain." },
       m2: { date: "Nov – Déc 2025", title: "Pépinière Daloa — 120 ha", desc: "Installation complète de la pépinière de 120 hectares à Daloa avec irrigation autonome et plants certifiés Tenera." },
-      m3: { date: "En cours", title: "Déploiement Commercial", desc: "Ouverture de la liste d'attente, prospection communautaire active et premiers engagements de souscripteurs intéressés par les formules PalmInvest et TerraPalm." },
-      m4: { date: "2026", title: "Site Vavoua — 100 ha", desc: "Ouverture d'un second site de pépinière à Vavoua (secteur Vrouho), portant la capacité totale à plus de 200 hectares." },
+      m3: { date: "En cours", title: "Déploiement Commercial", desc: "Ouverture de la liste d'attente, prospection communautaire active et premiers engagements de clients intéressés par nos formules." },
     },
     en: {
       title: "Project Evolution",
@@ -73,13 +70,10 @@ const Evolution = () => {
       contactUs: "Contact us",
       daloaTitle: "Daloa Nursery — 120 hectares",
       daloaDesc: "Fully operational site: autonomous irrigation, certified Tenera seedlings, mobilized technical team.",
-      vavouaTitle: "Vavoua Site — 100 hectares (Planned 2026)",
-      vavouaDesc: "Second nursery site in the Vrouho sector. Land identified, prospecting underway.",
-      launchTitle: "Launch Photos — November 2025",
+      launchTitle: "Field Gallery — Launch & Evolution",
       m1: { date: "November 19, 2025", title: "Field Operations Launch", desc: "Official start of AgriCapital with operational infrastructure installation and field activities." },
       m2: { date: "Nov – Dec 2025", title: "Daloa Nursery — 120 ha", desc: "Complete installation of the 120-hectare nursery in Daloa with autonomous irrigation and certified Tenera plants." },
-      m3: { date: "Ongoing", title: "Commercial Deployment", desc: "Waitlist opening, active community prospecting and first subscriber commitments for PalmInvest and TerraPalm formulas." },
-      m4: { date: "2026", title: "Vavoua Site — 100 ha", desc: "Opening of a second nursery site in Vavoua (Vrouho sector), bringing total capacity to over 200 hectares." },
+      m3: { date: "Ongoing", title: "Commercial Deployment", desc: "Waitlist opening, active community prospecting and first client commitments." },
     },
   };
 
@@ -89,12 +83,11 @@ const Evolution = () => {
     { ...t.m1, status: "completed", icon: Target },
     { ...t.m2, status: "completed", icon: Sprout },
     { ...t.m3, status: "in_progress", icon: Users },
-    { ...t.m4, status: "upcoming", icon: MapPin },
   ];
 
   const daloaPhotos = [nurseryPepiniere, nurseryImage2, nurserySite, nurseryInspection, founderPalm];
-  const vavouaPhotos = [vavouaSite, vavouaLand];
-  const launchPhotos = [jalonImage1, jalonImage2, jalonImage3, jalonImage4, jalonImage5, jalonImage6, jalonImage7];
+  // Vavoua photos merged into the global launch gallery (no separate Vavoua section)
+  const launchPhotos = [jalonImage1, jalonImage2, jalonImage3, jalonImage4, jalonImage5, jalonImage6, jalonImage7, vavouaSite, vavouaLand];
 
   const stats = [
     { value: "120+", label: t.hectares, icon: Leaf },
