@@ -1,32 +1,28 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Calendar, MapPin, Users, Leaf, Target, CheckCircle, TrendingUp, Sprout, ArrowLeft, Clock } from "lucide-react";
+import { Calendar, MapPin, Users, Leaf, Target, CheckCircle, Sprout, ArrowLeft, Clock, ChevronLeft, ChevronRight, Images } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import DynamicNavigation from "@/components/DynamicNavigation";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
+import { supabase } from "@/integrations/supabase/client";
 
 import nurseryPepiniere from "@/assets/nursery-pepiniere-daloa.jpg";
-import nurseryImage2 from "@/assets/nursery-dec-2025-2.jpg";
 import nurserySite from "@/assets/nursery-site.webp";
 import nurseryInspection from "@/assets/nursery-inspection-2026.jpg";
-import founderPalm from "@/assets/founder-palm-field.jpg";
-import vavouaSite from "@/assets/vavoua-site-2026.jpg";
-import vavouaLand from "@/assets/vavoua-land-2026.jpg";
-import jalonImage1 from "@/assets/jalon-1.jpg";
-import jalonImage2 from "@/assets/jalon-2.jpg";
-import jalonImage3 from "@/assets/jalon-3.jpg";
-import jalonImage4 from "@/assets/jalon-4.jpg";
-import jalonImage5 from "@/assets/jalon-5.jpg";
-import jalonImage6 from "@/assets/jalon-6.jpg";
-import jalonImage7 from "@/assets/jalon-7.jpg";
+import palmFruits from "@/assets/palm-mature-fruits.jpg";
+import palmPlantation from "@/assets/palm-mature-plantation.jpg";
+import palmNursery from "@/assets/palm-nursery-april2026.jpg";
 
 const Evolution = () => {
   const { language } = useLanguage();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [showAllPhotos, setShowAllPhotos] = useState(false);
+  const [currentPhoto, setCurrentPhoto] = useState(0);
+  const [adminPhotos, setAdminPhotos] = useState<{ src: string; title: string; comment: string; featured: boolean }[]>([]);
 
   const texts = {
     fr: {
@@ -37,7 +33,7 @@ const Evolution = () => {
       completed: "Réalisé",
       inProgress: "En cours",
       upcoming: "À venir",
-      gallery: "Galerie Terrain",
+      gallery: "Galerie photo",
       hectares: "ha de pépinière active",
       lands: "ha de terre identifiés à Daloa",
       available: "ha disponible pour déploiement immédiat",
@@ -47,7 +43,8 @@ const Evolution = () => {
       contactUs: "Nous contacter",
       daloaTitle: "Pépinière de Daloa — 120 hectares",
       daloaDesc: "Site pleinement opérationnel : système d'irrigation autonome, plants certifiés Tenera, équipe technique mobilisée.",
-      launchTitle: "Galerie Terrain — Lancement & Évolution",
+      launchTitle: "Photos terrain sélectionnées",
+      viewAll: "Voir toutes les photos",
       m1: { date: "19 Novembre 2025", title: "Lancement des Opérations Terrain", desc: "Démarrage officiel d'AgriCapital avec l'installation de l'infrastructure opérationnelle et le début des activités sur le terrain." },
       m2: { date: "Nov – Déc 2025", title: "Pépinière Daloa — 120 ha", desc: "Installation complète de la pépinière de 120 hectares à Daloa avec irrigation autonome et plants certifiés Tenera." },
       m3: { date: "En cours", title: "Déploiement Commercial", desc: "Ouverture de la liste d'attente, prospection communautaire active et premiers engagements de clients intéressés par nos formules." },
@@ -60,7 +57,7 @@ const Evolution = () => {
       completed: "Completed",
       inProgress: "In Progress",
       upcoming: "Upcoming",
-      gallery: "Field Gallery",
+      gallery: "Photo Gallery",
       hectares: "ha of active nursery",
       lands: "ha of land identified in Daloa",
       available: "ha available for immediate deployment",
@@ -70,7 +67,8 @@ const Evolution = () => {
       contactUs: "Contact us",
       daloaTitle: "Daloa Nursery — 120 hectares",
       daloaDesc: "Fully operational site: autonomous irrigation, certified Tenera seedlings, mobilized technical team.",
-      launchTitle: "Field Gallery — Launch & Evolution",
+      launchTitle: "Selected field photos",
+      viewAll: "View all photos",
       m1: { date: "November 19, 2025", title: "Field Operations Launch", desc: "Official start of AgriCapital with operational infrastructure installation and field activities." },
       m2: { date: "Nov – Dec 2025", title: "Daloa Nursery — 120 ha", desc: "Complete installation of the 120-hectare nursery in Daloa with autonomous irrigation and certified Tenera plants." },
       m3: { date: "Ongoing", title: "Commercial Deployment", desc: "Waitlist opening, active community prospecting and first client commitments." },
@@ -85,9 +83,27 @@ const Evolution = () => {
     { ...t.m3, status: "in_progress", icon: Users },
   ];
 
-  const daloaPhotos = [nurseryPepiniere, nurseryImage2, nurserySite, nurseryInspection, founderPalm];
-  // Vavoua photos merged into the global launch gallery (no separate Vavoua section)
-  const launchPhotos = [jalonImage1, jalonImage2, jalonImage3, jalonImage4, jalonImage5, jalonImage6, jalonImage7, vavouaSite, vavouaLand];
+  const curatedPhotos = [
+    { src: nurseryPepiniere, title: "Pépinière structurée", comment: "Plants sélectionnés et organisation professionnelle du site.", featured: true },
+    { src: palmNursery, title: "Plants en croissance", comment: "Développement progressif des plants pour les futures plantations.", featured: true },
+    { src: nurserySite, title: "Suivi en pépinière", comment: "Contrôle régulier de la croissance et de l’état sanitaire des plants.", featured: false },
+    { src: nurseryInspection, title: "Inspection terrain", comment: "Passage technique sur site pour vérifier la qualité du développement.", featured: false },
+    { src: palmFruits, title: "Palmier mature", comment: "Illustration du potentiel productif recherché à long terme.", featured: false },
+    { src: palmPlantation, title: "Plantation professionnelle", comment: "Référence visuelle d’une plantation structurée et productive.", featured: false },
+  ];
+  const galleryPhotos = [...adminPhotos, ...curatedPhotos].sort((a, b) => Number(b.featured) - Number(a.featured));
+  const activePhoto = galleryPhotos[currentPhoto % galleryPhotos.length];
+
+  useEffect(() => {
+    supabase.from("site_media").select("name,url,alt_text_fr,category").in("category", ["gallery", "gallery-featured"]).eq("type", "image").eq("is_active", true).then(({ data }) => {
+      setAdminPhotos((data || []).map((item) => ({ src: item.url, title: item.name, comment: item.alt_text_fr || "", featured: item.category === "gallery-featured" })));
+    });
+  }, []);
+
+  useEffect(() => {
+    const timer = window.setInterval(() => setCurrentPhoto((prev) => (prev + 1) % galleryPhotos.length), 5500);
+    return () => window.clearInterval(timer);
+  }, [galleryPhotos.length]);
 
   const stats = [
     { value: "120+", label: t.hectares, icon: Leaf },

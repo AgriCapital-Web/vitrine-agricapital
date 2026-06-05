@@ -2,7 +2,7 @@ import { Link, useLocation } from "react-router-dom";
 import {
   BarChart3, MessageSquare, Users, Handshake,
   Mail, Settings, Bell, Database,
-  Bot, UserCircle, Newspaper, Home, Shield, History,
+  Bot, UserCircle, Newspaper, Home, Shield, History, Image,
 } from "lucide-react";
 import logoUrl from "@/assets/logo-agricapital-v2.png";
 import { cn } from "@/lib/utils";
@@ -22,6 +22,7 @@ const menuItems: MenuItem[] = [
 
   { divider: true, label: "Contenu" },
   { icon: Newspaper, label: "Actualités", path: "/admin/news" },
+  { icon: Image, label: "Galerie photo", path: "/admin/gallery" },
   { icon: MessageSquare, label: "Témoignages", path: "/admin/testimonials" },
 
   { divider: true, label: "Communication" },

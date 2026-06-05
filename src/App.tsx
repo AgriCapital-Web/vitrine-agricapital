@@ -26,6 +26,7 @@ const TestimonialsPage = lazy(() => import("./pages/TestimonialsPage"));
 // Lazy-loaded admin pages — vitrine: minimal & focused
 const AdminAnalytics = lazy(() => import("./pages/admin/AdminAnalytics"));
 const AdminNews = lazy(() => import("./pages/admin/AdminNews"));
+const AdminGallery = lazy(() => import("./pages/admin/AdminGallery"));
 const AdminTestimonials = lazy(() => import("./pages/admin/AdminTestimonials"));
 const AdminNewsletter = lazy(() => import("./pages/admin/AdminNewsletter"));
 const AdminNewsletterHistory = lazy(() => import("./pages/admin/AdminNewsletterHistory"));
@@ -104,6 +105,7 @@ const AppContent = () => {
 
         {/* Content */}
         <Route path="/admin/news" element={<AdminNews />} />
+        <Route path="/admin/gallery" element={<AdminGallery />} />
         <Route path="/admin/testimonials" element={<AdminTestimonials />} />
 
         {/* Communication */}
