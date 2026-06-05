@@ -135,7 +135,7 @@ const DynamicNavigation = () => {
           </div>
 
           {/* Desktop main nav */}
-          <div className="hidden lg:flex items-center gap-0.5 flex-1 justify-center">
+          <div className="hidden lg:flex items-center gap-0.5 flex-1 justify-center overflow-visible">
             {menuConfig.map((item) => {
               const label = getLabel(item.label);
               return (
@@ -146,18 +146,17 @@ const DynamicNavigation = () => {
                   onMouseLeave={() => item.children && handleSubmenuLeave()}
                 >
                   {item.children ? (
-                    <>
+                    <div className="group">
                       <button className="belife-nav-link flex items-center gap-1">
                         {label}
-                        <ChevronDown size={13} className={`transition-transform duration-200 ${openSubmenu === label ? "rotate-180" : ""}`} />
+                        <ChevronDown size={13} className="transition-transform duration-200 group-hover:rotate-180" />
                       </button>
-                      {openSubmenu === label && (
-                        <div
-                          className="absolute top-full left-0 pt-2"
-                          style={{ zIndex: 999999 }}
-                          onMouseEnter={() => handleSubmenuEnter(label)}
-                          onMouseLeave={handleSubmenuLeave}
-                        >
+                      <div
+                        className="invisible opacity-0 group-hover:visible group-hover:opacity-100 absolute top-full left-0 pt-2 transition-all duration-150"
+                        style={{ zIndex: 999999 }}
+                        onMouseEnter={() => handleSubmenuEnter(label)}
+                        onMouseLeave={handleSubmenuLeave}
+                      >
                           <div className="bg-card rounded-xl shadow-strong border border-border/70 py-2 min-w-[240px] relative overflow-hidden">
                             <span className="absolute top-0 left-0 right-0 h-[3px] bg-accent" />
                             {item.children.map((child) => (
@@ -172,8 +171,7 @@ const DynamicNavigation = () => {
                             ))}
                           </div>
                         </div>
-                      )}
-                    </>
+                    </div>
                   ) : (
                     <button
                       onClick={() => handleItemClick(item.action!, item.isRoute)}

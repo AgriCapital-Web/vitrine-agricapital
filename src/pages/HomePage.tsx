@@ -8,7 +8,7 @@ import Ambitions from "@/components/Ambitions";
 import About from "@/components/About";
 import Approach from "@/components/Approach";
 import Impact from "@/components/Impact";
-// Founder section removed — anonymous governance
+import Founder from "@/components/Founder";
 import Team from "@/components/Team";
 import Partnership from "@/components/Partnership";
 import Testimonials from "@/components/Testimonials";
@@ -115,7 +115,7 @@ const HomePage = () => {
       <Ambitions />
       <Approach />
       <Impact />
-      {/* Founder section removed for governance anonymity */}
+      <Founder />
       <Team />
       <Partnership />
       <Testimonials />
