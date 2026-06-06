@@ -1,6 +1,6 @@
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Card, CardContent } from "@/components/ui/card";
-import founderAsset from "@/assets/inocent-koffi-founder.jpeg.asset.json";
+import founderImage from "@/assets/founder-inocent-koffi.jpg";
 
 const renderBoldName = (text: string) => {
   const parts = text.split('Inocent KOFFI');
