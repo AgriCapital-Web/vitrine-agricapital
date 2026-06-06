@@ -200,34 +200,36 @@ const Evolution = () => {
           <div className="container mx-auto px-4">
             <h2 className="text-3xl sm:text-4xl text-center mb-12 sm:mb-16">{t.gallery}</h2>
 
-            {/* Daloa */}
-            <div className="mb-16">
-              <div className="flex items-center gap-2 justify-center mb-2">
-                <Sprout className="w-5 h-5 text-primary" />
+            {/* Featured rotating photo */}
+            {activePhoto && (
+              <div className="mb-10 max-w-4xl mx-auto">
+                <div className="cursor-pointer overflow-hidden rounded-2xl shadow-medium aspect-[16/9] relative group" onClick={() => setSelectedImage(activePhoto.src)}>
+                  <img src={activePhoto.src} alt={activePhoto.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-5 text-white">
+                    <p className="font-bold">{activePhoto.title}</p>
+                    {activePhoto.comment && <p className="text-sm text-white/80">{activePhoto.comment}</p>}
+                  </div>
+                </div>
+                <div className="flex justify-center gap-1.5 mt-3">
+                  {galleryPhotos.map((_, i) => (
+                    <button key={i} onClick={() => setCurrentPhoto(i)} className={`h-1.5 rounded-full transition-all ${i === currentPhoto % galleryPhotos.length ? "w-6 bg-primary" : "w-1.5 bg-border"}`} />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Full grid */}
+            <div>
+              <div className="flex items-center gap-2 justify-center mb-6">
+                <Images className="w-5 h-5 text-primary" />
                 <h3 className="text-xl font-bold font-sans text-primary">{t.daloaTitle}</h3>
               </div>
               <p className="text-center text-sm text-muted-foreground mb-6 max-w-2xl mx-auto">{t.daloaDesc}</p>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 max-w-5xl mx-auto">
-                {daloaPhotos.map((photo, i) => (
-                  <div key={i} className="cursor-pointer overflow-hidden rounded-xl shadow-soft hover:shadow-medium transition-all aspect-[4/3] group" onClick={() => setSelectedImage(photo)}>
-                    <img src={photo} alt={`Daloa ${i + 1}`} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Vavoua section removed — photos merged into the global gallery below */}
-
-            {/* Launch */}
-            <div>
-              <div className="flex items-center gap-2 justify-center mb-6">
-                <Target className="w-5 h-5 text-primary" />
-                <h3 className="text-xl font-bold font-sans text-primary">{t.launchTitle}</h3>
-              </div>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-3 max-w-6xl mx-auto">
-                {launchPhotos.map((photo, i) => (
-                  <div key={i} className="cursor-pointer overflow-hidden rounded-xl shadow-soft hover:shadow-medium transition-all aspect-[4/3] group" onClick={() => setSelectedImage(photo)}>
-                    <img src={photo} alt={`Launch ${i + 1}`} className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500" loading="lazy" />
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 max-w-6xl mx-auto">
+                {galleryPhotos.map((photo, i) => (
+                  <div key={i} className="cursor-pointer overflow-hidden rounded-xl shadow-soft hover:shadow-medium transition-all aspect-[4/3] group relative" onClick={() => setSelectedImage(photo.src)}>
+                    <img src={photo.src} alt={photo.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" onError={(e) => { (e.target as HTMLImageElement).src = "/placeholder.svg"; }} />
+                    {photo.featured && <Badge className="absolute top-2 left-2 bg-accent text-white text-[10px]">★</Badge>}
                   </div>
                 ))}
               </div>
