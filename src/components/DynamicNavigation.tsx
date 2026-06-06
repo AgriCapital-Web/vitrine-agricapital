@@ -125,9 +125,9 @@ const DynamicNavigation = () => {
       className={`fixed top-0 left-0 right-0 transition-all duration-300 ${
         scrolled ? "bg-background/98 backdrop-blur-md shadow-medium" : "bg-background/95 backdrop-blur-sm"
       } border-b border-border`}
-      style={{ zIndex: 99999 }}
+      style={{ zIndex: 2147483000 }}
     >
-      <div className="container mx-auto px-4 lg:px-6">
+      <div className="container mx-auto px-4 lg:px-6 overflow-visible">
         <div className="flex items-center justify-between h-18 lg:h-22 gap-2">
           {/* Logo — enlarged */}
           <div className="flex items-center cursor-pointer shrink-0" onClick={() => scrollToSection("hero")}>
@@ -135,14 +135,14 @@ const DynamicNavigation = () => {
           </div>
 
           {/* Desktop main nav */}
-          <div className="hidden lg:flex items-center gap-0.5 flex-1 justify-center">
+          <div className="hidden lg:flex items-center gap-0.5 flex-1 justify-center relative z-[2147483000]">
             {menuConfig.map((item) => {
               const label = getLabel(item.label);
               const isOpenSub = openSubmenu === label;
               return (
                 <div
                   key={label}
-                  className="relative"
+                  className="relative isolate"
                   onMouseEnter={() => item.children && handleSubmenuEnter(label)}
                   onMouseLeave={() => item.children && handleSubmenuLeave()}
                 >
@@ -159,7 +159,7 @@ const DynamicNavigation = () => {
                       {isOpenSub && (
                         <div
                           className="absolute top-full left-0 pt-2 animate-in fade-in-0 zoom-in-95 duration-150"
-                          style={{ zIndex: 1000000 }}
+                          style={{ zIndex: 2147483000 }}
                           onMouseEnter={() => handleSubmenuEnter(label)}
                           onMouseLeave={handleSubmenuLeave}
                         >
@@ -269,7 +269,7 @@ const DynamicNavigation = () => {
 
         {/* Mobile Menu */}
         {isOpen && (
-          <div className="lg:hidden py-3 border-t border-border bg-background max-h-[75vh] overflow-y-auto">
+          <div className="lg:hidden fixed left-0 right-0 top-[72px] z-[2147482999] border-t border-border bg-background/98 backdrop-blur-md shadow-strong px-4 py-3">
             <div className="flex flex-col gap-0.5">
               {menuConfig.map((item) => {
                 const label = getLabel(item.label);
