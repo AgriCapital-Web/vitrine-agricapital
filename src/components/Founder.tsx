@@ -1,6 +1,6 @@
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Card, CardContent } from "@/components/ui/card";
-import founderAsset from "@/assets/inocent-koffi-founder.jpeg.asset.json";
+import founderImage from "@/assets/founder-inocent-koffi.jpg";
 
 const renderBoldName = (text: string) => {
   const parts = text.split('Inocent KOFFI');
@@ -48,7 +48,7 @@ const Founder = () => {
                 <div className="relative w-full max-w-xs mx-auto">
                   <div className="aspect-[3/4] rounded-xl overflow-hidden shadow-lg border-4 border-primary/20">
                     <img
-                      src={founderAsset.url}
+                      src={founderImage}
                       alt={t.founder.name}
                       className="w-full h-full object-cover object-top"
                       loading="lazy"
