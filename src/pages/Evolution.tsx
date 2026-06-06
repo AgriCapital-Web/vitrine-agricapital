@@ -101,9 +101,20 @@ const Evolution = () => {
   }, []);
 
   useEffect(() => {
+    if (!galleryPhotos.length) return;
     const timer = window.setInterval(() => setCurrentPhoto((prev) => (prev + 1) % galleryPhotos.length), 5500);
     return () => window.clearInterval(timer);
   }, [galleryPhotos.length]);
+
+  const goToPreviousPhoto = () => {
+    if (!galleryPhotos.length) return;
+    setCurrentPhoto((prev) => (prev - 1 + galleryPhotos.length) % galleryPhotos.length);
+  };
+
+  const goToNextPhoto = () => {
+    if (!galleryPhotos.length) return;
+    setCurrentPhoto((prev) => (prev + 1) % galleryPhotos.length);
+  };
 
   const stats = [
     { value: "120+", label: t.hectares, icon: Leaf },
@@ -195,45 +206,55 @@ const Evolution = () => {
           </div>
         </section>
 
-        {/* Gallery */}
+        {/* Unified Gallery */}
         <section className="py-16 sm:py-24 bg-muted/30">
           <div className="container mx-auto px-4">
-            <h2 className="text-3xl sm:text-4xl text-center mb-12 sm:mb-16">{t.gallery}</h2>
+            <div className="text-center mb-8 sm:mb-10">
+              <h2 className="text-3xl sm:text-4xl mb-3">{t.gallery}</h2>
+              <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto">{t.daloaDesc}</p>
+            </div>
 
-            {/* Featured rotating photo */}
             {activePhoto && (
-              <div className="mb-10 max-w-4xl mx-auto">
-                <div className="cursor-pointer overflow-hidden rounded-2xl shadow-medium aspect-[16/9] relative group" onClick={() => setSelectedImage(activePhoto.src)}>
+              <div className="max-w-5xl mx-auto">
+                <div className="relative overflow-hidden rounded-2xl shadow-medium aspect-[16/9] bg-muted group">
                   <img src={activePhoto.src} alt={activePhoto.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-5 text-white">
-                    <p className="font-bold">{activePhoto.title}</p>
+                  <button
+                    onClick={goToPreviousPhoto}
+                    aria-label="Photo précédente"
+                    className="absolute left-3 sm:left-5 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-card/90 text-foreground shadow-medium flex items-center justify-center hover:bg-card transition-colors"
+                  >
+                    <ChevronLeft className="w-5 h-5" />
+                  </button>
+                  <button
+                    onClick={goToNextPhoto}
+                    aria-label="Photo suivante"
+                    className="absolute right-3 sm:right-5 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-card/90 text-foreground shadow-medium flex items-center justify-center hover:bg-card transition-colors"
+                  >
+                    <ChevronRight className="w-5 h-5" />
+                  </button>
+                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-foreground/80 to-transparent p-4 sm:p-6 text-primary-foreground">
+                    <p className="font-bold text-base sm:text-lg">{activePhoto.title}</p>
                     {activePhoto.comment && <p className="text-sm text-white/80">{activePhoto.comment}</p>}
                   </div>
                 </div>
-                <div className="flex justify-center gap-1.5 mt-3">
-                  {galleryPhotos.map((_, i) => (
-                    <button key={i} onClick={() => setCurrentPhoto(i)} className={`h-1.5 rounded-full transition-all ${i === currentPhoto % galleryPhotos.length ? "w-6 bg-primary" : "w-1.5 bg-border"}`} />
-                  ))}
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-5">
+                  <div className="flex justify-center gap-1.5">
+                    {galleryPhotos.map((_, i) => (
+                      <button key={i} onClick={() => setCurrentPhoto(i)} className={`h-2 rounded-full transition-all ${i === currentPhoto % galleryPhotos.length ? "w-7 bg-primary" : "w-2 bg-border"}`} aria-label={`Voir la photo ${i + 1}`} />
+                    ))}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button variant="outline" className="rounded-lg" onClick={() => setSelectedImage(activePhoto.src)}>
+                      <Images className="w-4 h-4 mr-2" />
+                      Agrandir
+                    </Button>
+                    <Button className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg" onClick={() => setShowAllPhotos(true)}>
+                      {t.viewAll}
+                    </Button>
+                  </div>
                 </div>
               </div>
             )}
-
-            {/* Full grid */}
-            <div>
-              <div className="flex items-center gap-2 justify-center mb-6">
-                <Images className="w-5 h-5 text-primary" />
-                <h3 className="text-xl font-bold font-sans text-primary">{t.daloaTitle}</h3>
-              </div>
-              <p className="text-center text-sm text-muted-foreground mb-6 max-w-2xl mx-auto">{t.daloaDesc}</p>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 max-w-6xl mx-auto">
-                {galleryPhotos.map((photo, i) => (
-                  <div key={i} className="cursor-pointer overflow-hidden rounded-xl shadow-soft hover:shadow-medium transition-all aspect-[4/3] group relative" onClick={() => setSelectedImage(photo.src)}>
-                    <img src={photo.src} alt={photo.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" onError={(e) => { (e.target as HTMLImageElement).src = "/placeholder.svg"; }} />
-                    {photo.featured && <Badge className="absolute top-2 left-2 bg-accent text-white text-[10px]">★</Badge>}
-                  </div>
-                ))}
-              </div>
-            </div>
           </div>
         </section>
 
@@ -261,6 +282,23 @@ const Evolution = () => {
       <Dialog open={!!selectedImage} onOpenChange={() => setSelectedImage(null)}>
         <DialogContent className="max-w-4xl p-2 bg-card">
           {selectedImage && <img src={selectedImage} alt="AgriCapital" className="w-full h-auto rounded-lg" />}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showAllPhotos} onOpenChange={setShowAllPhotos}>
+        <DialogContent className="max-w-6xl max-h-[88vh] overflow-y-auto bg-card p-4 sm:p-6">
+          <div className="flex items-center gap-2 mb-4">
+            <Images className="w-5 h-5 text-primary" />
+            <h3 className="text-xl sm:text-2xl font-bold font-sans">{t.gallery}</h3>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+            {galleryPhotos.map((photo, i) => (
+              <button key={i} className="overflow-hidden rounded-xl shadow-soft hover:shadow-medium transition-all aspect-[4/3] group relative" onClick={() => { setCurrentPhoto(i); setShowAllPhotos(false); }}>
+                <img src={photo.src} alt={photo.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" onError={(e) => { (e.target as HTMLImageElement).src = "/placeholder.svg"; }} />
+                {photo.featured && <Badge className="absolute top-2 left-2 bg-accent text-accent-foreground text-[10px]">★</Badge>}
+              </button>
+            ))}
+          </div>
         </DialogContent>
       </Dialog>
     </>

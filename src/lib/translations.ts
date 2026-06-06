@@ -102,9 +102,9 @@ const fr = {
     subtitle: "Une infrastructure prête pour le déploiement",
     results: {
       title: "Nos Atouts Opérationnels",
-      description1: "AgriCapital dispose d'une infrastructure opérationnelle en place : une pépinière de 120 hectares en croissance active avec des semences sélectionnées, 50 hectares de terres disponibles pour implantation immédiate, et plus de 500 hectares de terres identifiées sur le territoire.",
-      description2: "Ces atouts permettent un démarrage rapide et structuré des activités, offrant à nos clients une assurance concrète sur notre capacité de livraison.",
-      communities: { title: "120 ha", desc: "de pépinière en croissance active" },
+      description1: "AgriCapital s'appuie sur une base végétale déjà structurée : une pépinière propre de 120 hectares en croissance active, issue de semences sélectionnées, complétée par un réseau de partenaires pépiniéristes qualifiés pour renforcer la capacité de ravitaillement. L'entreprise dispose également de 50 hectares mobilisables pour une implantation immédiate et de plus de 500 hectares de terres identifiées sur le territoire.",
+      description2: "Cette combinaison de plants disponibles, de partenaires techniques et de foncier sécurisé permet un déploiement rapide, structuré et crédible, avec une assurance concrète sur notre capacité de livraison.",
+      communities: { title: "120 ha", desc: "de pépinière propre en croissance active" },
       land: { title: "50 ha", desc: "disponibles pour implantation immédiate" },
       localities: { title: "500+ ha", desc: "de terres identifiées" },
       years: { title: "25 ans", desc: "de garantie de débouché et accompagnement agronomique" },
@@ -175,7 +175,7 @@ const fr = {
     },
     advantages: {
       title: "Pourquoi nous faire confiance",
-      demand: "120 hectares de pépinière issus de semences sélectionnées, déjà en pleine croissance",
+      demand: "120 hectares de pépinière propre, complétés par un réseau de partenaires pépiniéristes qualifiés",
       team: "Équipe fondatrice avec 12 ans d'immersion terrain et une expertise approfondie des communautés rurales et des terres ivoiriennes",
       approach: "Modèle juridiquement structuré et sécurisé",
       expansion: "Fort potentiel d'expansion sur le territoire national",
@@ -219,9 +219,9 @@ const fr = {
     position: "Agro-entrepreneur et Stratège du Développement Agricole",
     signature: "Gérant — AgriCapital",
     quote: {
-      part1: "L'agriculture représente bien plus qu'une activité économique : c'est le fondement de tout patrimoine durable. Mon ambition est de permettre à chaque personne qui le souhaite de disposer de sa propre plantation agricole, dans un cadre sécurisé et professionnel.",
+      part1: "L'agriculture représente bien plus qu'une activité économique : elle constitue l'un des fondements les plus solides d'un patrimoine durable, lorsqu'elle est structurée avec méthode, sécurité et professionnalisme.",
       part2: "De 2012 à 2024, Inocent KOFFI a développé une approche communautaire rurale approfondie et une expérience terrain exceptionnelle à travers plus d'une décennie d'immersion dans les communautés rurales ivoiriennes. Cette connaissance intime du territoire, des réalités agricoles et du potentiel foncier constitue un atout stratégique majeur pour identifier et sécuriser les meilleures terres pour nos clients.",
-      part3: "AgriCapital incarne cette vision : bâtir un écosystème où chaque acteur — avec ou sans terre — trouve sa place et construit un patrimoine concret, tangible et créateur de valeur pour les générations à venir.",
+      part3: "AgriCapital traduit cette vision en un modèle professionnel : permettre à chaque acteur — avec ou sans terre — de trouver sa place et de construire un patrimoine agricole concret, tangible et créateur de valeur pour les générations à venir.",
       part4: "Ensemble, construisons votre patrimoine agricole.",
     },
     attribution: "— Inocent KOFFI, Gérant AgriCapital",
