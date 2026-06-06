@@ -87,8 +87,8 @@ const Partnership = () => {
         </div>
 
         {/* Current Partners - Always Carousel */}
-        <div className="mb-16 max-w-xl mx-auto">
-          <h3 className="text-2xl font-bold text-foreground mb-6 text-center">
+        <div className="mb-12 max-w-sm sm:max-w-md mx-auto">
+          <h3 className="text-xl md:text-2xl font-bold text-foreground mb-5 text-center">
             {t.partnership.currentPartner.title}
           </h3>
           
@@ -99,13 +99,13 @@ const Partnership = () => {
             <CarouselContent className="-ml-2 md:-ml-4">
               {partners.map((partner) => (
                 <CarouselItem key={partner.id} className="pl-2 md:pl-4 basis-full">
-                  <Card className="bg-primary/5 border-primary/20">
-                    <CardContent className="p-5 flex flex-col items-center">
-                      <div className="bg-white rounded-xl p-4 shadow-soft w-full max-w-[280px] mb-3">
+                  <Card className="bg-primary/5 border-primary/20 rounded-xl">
+                    <CardContent className="p-4 sm:p-5 flex flex-col items-center">
+                      <div className="bg-card rounded-lg p-3 shadow-soft w-full max-w-[180px] sm:max-w-[210px] mb-3">
                         <img
                           src={partner.logo}
                           alt="Les Palmistes - Fournisseur de semences certifiées"
-                          className="w-full h-auto object-contain"
+                          className="w-full max-h-36 object-contain"
                           loading="lazy"
                         />
                       </div>
