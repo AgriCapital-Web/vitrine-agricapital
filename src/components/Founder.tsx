@@ -46,12 +46,17 @@ const Founder = () => {
             <div className="grid md:grid-cols-3 gap-8 items-start">
               <div className="md:col-span-1 flex justify-center">
                 <div className="relative w-full max-w-xs mx-auto">
-                  <div className="aspect-[3/4] rounded-xl overflow-hidden shadow-lg border-4 border-primary/20">
+                  <div className="aspect-[3/4] rounded-xl overflow-hidden shadow-lg border-4 border-primary/20 bg-secondary/30">
                     <img
                       src={founderAsset.url}
                       alt={t.founder.name}
+                      width={480}
+                      height={640}
                       className="w-full h-full object-cover object-top"
                       loading="lazy"
+                      decoding="async"
+                      sizes="(max-width: 768px) 80vw, 320px"
+                      onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/placeholder.svg"; }}
                     />
                   </div>
                 </div>

@@ -267,58 +267,68 @@ const DynamicNavigation = () => {
           </div>
         </div>
 
-        {/* Mobile Menu */}
+        {/* Mobile Menu - solid background, scrollable drawer */}
         {isOpen && (
-          <div className="lg:hidden fixed left-0 right-0 top-[72px] z-[2147482999] border-t border-border bg-background/98 backdrop-blur-md shadow-strong px-4 py-3">
-            <div className="flex flex-col gap-0.5">
-              {menuConfig.map((item) => {
-                const label = getLabel(item.label);
-                return (
-                  <div key={label}>
-                    {item.children ? (
-                      <>
+          <>
+            <div
+              className="lg:hidden fixed inset-0 bg-foreground/40 backdrop-blur-sm"
+              style={{ zIndex: 2147482998, top: "72px" }}
+              onClick={() => setIsOpen(false)}
+              aria-hidden="true"
+            />
+            <div
+              className="lg:hidden fixed left-0 right-0 top-[72px] z-[2147482999] border-t border-border bg-background shadow-strong px-4 py-3 max-h-[calc(100dvh-72px)] overflow-y-auto"
+            >
+              <div className="flex flex-col gap-0.5">
+                {menuConfig.map((item) => {
+                  const label = getLabel(item.label);
+                  return (
+                    <div key={label}>
+                      {item.children ? (
+                        <>
+                          <button
+                            onClick={() => setOpenMobileSubmenu(openMobileSubmenu === label ? null : label)}
+                            className="flex items-center justify-between w-full text-foreground hover:text-primary font-semibold text-left px-3 py-3 rounded-lg hover:bg-muted text-sm"
+                          >
+                            {label}
+                            <ChevronDown size={15} className={`transition-transform ${openMobileSubmenu === label ? "rotate-180" : ""}`} />
+                          </button>
+                          {openMobileSubmenu === label && (
+                            <div className="ml-3 border-l-2 border-primary/30 pl-3 flex flex-col gap-0.5 mb-1">
+                              {item.children.map((child) => (
+                                <button
+                                  key={getLabel(child.label)}
+                                  onClick={() => handleItemClick(child.action, child.isRoute)}
+                                  className="text-sm text-foreground/80 hover:text-primary font-medium text-left px-3 py-2.5 rounded-lg hover:bg-muted"
+                                >
+                                  {getLabel(child.label)}
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                        </>
+                      ) : (
                         <button
-                          onClick={() => setOpenMobileSubmenu(openMobileSubmenu === label ? null : label)}
-                          className="flex items-center justify-between w-full text-foreground/80 hover:text-foreground font-medium text-left px-3 py-3 rounded-lg hover:bg-muted/40 text-sm"
+                          onClick={() => handleItemClick(item.action!, item.isRoute)}
+                          className="text-foreground hover:text-primary font-semibold text-left px-3 py-3 rounded-lg hover:bg-muted text-sm w-full"
                         >
                           {label}
-                          <ChevronDown size={15} className={`transition-transform ${openMobileSubmenu === label ? "rotate-180" : ""}`} />
                         </button>
-                        {openMobileSubmenu === label && (
-                          <div className="ml-3 border-l-2 border-primary/15 pl-3 flex flex-col gap-0.5 mb-1">
-                            {item.children.map((child) => (
-                              <button
-                                key={getLabel(child.label)}
-                                onClick={() => handleItemClick(child.action, child.isRoute)}
-                                className="text-sm text-muted-foreground hover:text-foreground font-medium text-left px-3 py-2.5 rounded-lg hover:bg-muted/40"
-                              >
-                                {getLabel(child.label)}
-                              </button>
-                            ))}
-                          </div>
-                        )}
-                      </>
-                    ) : (
-                      <button
-                        onClick={() => handleItemClick(item.action!, item.isRoute)}
-                        className="text-foreground/80 hover:text-foreground font-medium text-left px-3 py-3 rounded-lg hover:bg-muted/40 text-sm"
-                      >
-                        {label}
-                      </button>
-                    )}
-                  </div>
-                );
-              })}
-              <div className="pt-2 px-3">
-                <Button
-                  onClick={() => scrollToSection("contact")}
-                  className="bg-gradient-accent border-0 text-white hover:opacity-90 w-full rounded-lg text-sm font-semibold"
-                >
-                  {t.nav.contact}
-                </Button>
+                      )}
+                    </div>
+                  );
+                })}
+                <div className="pt-3 px-3 border-t border-border mt-2">
+                  <Button
+                    onClick={() => scrollToSection("contact")}
+                    className="bg-gradient-accent border-0 text-white hover:opacity-90 w-full rounded-lg text-sm font-semibold"
+                  >
+                    {t.nav.contact}
+                  </Button>
+                </div>
               </div>
             </div>
-          </div>
+          </>
         )}
       </div>
     </nav>

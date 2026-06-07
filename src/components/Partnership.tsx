@@ -86,33 +86,31 @@ const Partnership = () => {
           </p>
         </div>
 
-        {/* Current Partners - Always Carousel */}
-        <div className="mb-12 max-w-sm sm:max-w-md mx-auto">
-          <h3 className="text-xl md:text-2xl font-bold text-foreground mb-5 text-center">
+        {/* Current Partner - compact responsive card */}
+        <div className="mb-12 max-w-[260px] sm:max-w-xs mx-auto">
+          <h3 className="text-base sm:text-lg font-bold text-foreground mb-3 text-center">
             {t.partnership.currentPartner.title}
           </h3>
-          
-          <Carousel 
-            className="w-full"
-            opts={{ align: "center", loop: true }}
-          >
-            <CarouselContent className="-ml-2 md:-ml-4">
+
+          <Carousel className="w-full" opts={{ align: "center", loop: true }}>
+            <CarouselContent>
               {partners.map((partner) => (
-                <CarouselItem key={partner.id} className="pl-2 md:pl-4 basis-full">
-                  <Card className="bg-primary/5 border-primary/20 rounded-xl">
-                    <CardContent className="p-4 sm:p-5 flex flex-col items-center">
-                      <div className="bg-card rounded-lg p-3 shadow-soft w-full max-w-[180px] sm:max-w-[210px] mb-3">
+                <CarouselItem key={partner.id} className="basis-full">
+                  <Card className="bg-primary/5 border-primary/20 rounded-lg">
+                    <CardContent className="p-3 flex flex-col items-center">
+                      <div className="bg-card rounded-md p-2 shadow-soft w-full max-w-[120px] mb-2">
                         <img
                           src={partner.logo}
                           alt="Les Palmistes - Fournisseur de semences certifiées"
-                          className="w-full max-h-36 object-contain"
+                          className="w-full h-auto max-h-20 object-contain"
                           loading="lazy"
+                          decoding="async"
                         />
                       </div>
-                      <h4 className="text-lg font-bold text-foreground mb-1 text-center">
+                      <h4 className="text-sm font-bold text-foreground mb-0.5 text-center leading-tight">
                         {t.partnership.currentPartner.name}
                       </h4>
-                      <p className="text-sm text-muted-foreground text-center">
+                      <p className="text-xs text-muted-foreground text-center leading-snug">
                         {t.partnership.currentPartner.desc}
                       </p>
                     </CardContent>
@@ -122,13 +120,13 @@ const Partnership = () => {
             </CarouselContent>
             {partners.length > 1 && (
               <>
-                <CarouselPrevious className="hidden md:flex -left-12" />
-                <CarouselNext className="hidden md:flex -right-12" />
+                <CarouselPrevious className="hidden md:flex -left-10 h-8 w-8" />
+                <CarouselNext className="hidden md:flex -right-10 h-8 w-8" />
               </>
             )}
           </Carousel>
-          
-          <p className="text-center text-sm text-muted-foreground mt-4">
+
+          <p className="text-center text-xs text-muted-foreground mt-3 px-2">
             {t.partnership.otherPartnerships}
           </p>
         </div>

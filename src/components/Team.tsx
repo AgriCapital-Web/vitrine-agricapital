@@ -131,21 +131,24 @@ type MemberType = { name: string; role: string; bio: string; image: string | nul
 const MemberCard = ({ member }: { member: MemberType }) => (
   <Card className="bg-card border-border hover:shadow-medium transition-smooth overflow-hidden">
     <CardContent className="p-6 flex flex-col items-center text-center">
-      <div className={`w-28 h-28 rounded-full overflow-hidden mb-4 border-4 border-primary/20 flex items-center justify-center ${member.isLogo ? '' : 'bg-secondary/50'}`}>
+      <div className="w-28 h-28 rounded-full overflow-hidden mb-4 border-4 border-primary/20 flex items-center justify-center bg-secondary/50">
         {member.image ? (
           <img
             src={member.image}
             alt={member.name}
-            className={`${member.isLogo ? 'w-full h-full object-cover' : 'w-full h-full object-cover object-top'}`}
+            width={224}
+            height={224}
+            className={member.isLogo ? 'w-full h-full object-contain p-1' : 'w-full h-full object-cover object-top'}
             loading="lazy"
+            decoding="async"
+            sizes="112px"
+            onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/placeholder.svg"; }}
           />
         ) : (
           <User className="w-12 h-12 text-muted-foreground" />
         )}
       </div>
-      <h4 className="text-lg font-bold text-foreground mb-1">
-        {member.name}
-      </h4>
+      <h4 className="text-lg font-bold text-foreground mb-1">{member.name}</h4>
       <p className="text-sm text-primary font-semibold mb-2">{member.role}</p>
       <p className="text-sm text-muted-foreground leading-relaxed">{member.bio}</p>
       {member.email && (
