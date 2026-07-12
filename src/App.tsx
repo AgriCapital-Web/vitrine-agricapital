@@ -7,6 +7,7 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import { usePageTracking } from "@/hooks/usePageTracking";
 import { lazy, Suspense } from "react";
 import { Loader2 } from "lucide-react";
+import ScrollToTop from "@/components/ScrollToTop";
 
 import HomePage from "./pages/HomePage";
 import NotFound from "./pages/NotFound";
@@ -22,6 +23,11 @@ const PartnershipRequest = lazy(() => import("./pages/PartnershipRequest"));
 const News = lazy(() => import("./pages/News"));
 const NewsArticle = lazy(() => import("./pages/NewsArticle"));
 const TestimonialsPage = lazy(() => import("./pages/TestimonialsPage"));
+const Solutions = lazy(() => import("./pages/Solutions"));
+const OfferingDetail = lazy(() => import("./pages/OfferingDetail"));
+const Partenariats = lazy(() => import("./pages/Partenariats"));
+const TreasurePage = lazy(() => import("./pages/TreasurePage"));
+const WaitlistPage = lazy(() => import("./pages/WaitlistPage"));
 
 // Lazy-loaded admin pages — vitrine: minimal & focused
 const AdminAnalytics = lazy(() => import("./pages/admin/AdminAnalytics"));
@@ -30,6 +36,10 @@ const AdminGallery = lazy(() => import("./pages/admin/AdminGallery"));
 const AdminTestimonials = lazy(() => import("./pages/admin/AdminTestimonials"));
 const AdminNewsletter = lazy(() => import("./pages/admin/AdminNewsletter"));
 const AdminNewsletterHistory = lazy(() => import("./pages/admin/AdminNewsletterHistory"));
+const AdminEmailCampaigns = lazy(() => import("./pages/admin/AdminEmailCampaigns"));
+const AdminWaitlist = lazy(() => import("./pages/admin/AdminWaitlist"));
+const AdminImportEmails = lazy(() => import("./pages/admin/AdminImportEmails"));
+const AdminCampagnes = lazy(() => import("./pages/admin/AdminCampagnes"));
 const AdminPartnershipRequests = lazy(() => import("./pages/admin/AdminPartnershipRequests"));
 const AdminContactMessages = lazy(() => import("./pages/admin/AdminContactMessages"));
 const AdminAIConversations = lazy(() => import("./pages/admin/AdminAIConversations"));
@@ -77,6 +87,17 @@ const AppContent = () => {
         <Route path="/actualites/:slug" element={<NewsArticle />} />
         <Route path="/news" element={<News />} />
         <Route path="/news/:slug" element={<NewsArticle />} />
+        <Route path="/souscrire" element={<WaitlistPage />} />
+        <Route path="/tresor-foncier" element={<TreasurePage type="foncier" />} />
+        <Route path="/tresor-palmier" element={<TreasurePage type="palmier" />} />
+
+        {/* Solutions / Services / Partenariats */}
+        <Route path="/solutions" element={<Solutions />} />
+        <Route path="/services" element={<Solutions />} />
+        <Route path="/solutions/:slug" element={<OfferingDetail type="solution" />} />
+        <Route path="/services/:slug" element={<OfferingDetail type="service" />} />
+        <Route path="/partenariats" element={<Partenariats />} />
+        <Route path="/partnerships" element={<Partenariats />} />
 
         {/* English aliases */}
         <Route path="/home" element={<HomePage />} />
@@ -110,8 +131,12 @@ const AppContent = () => {
 
         {/* Communication */}
         <Route path="/admin/contact-messages" element={<AdminContactMessages />} />
-        <Route path="/admin/newsletter" element={<AdminNewsletter />} />
-        <Route path="/admin/newsletter-history" element={<AdminNewsletterHistory />} />
+        <Route path="/admin/campagnes" element={<AdminCampagnes />} />
+        <Route path="/admin/newsletter" element={<AdminCampagnes />} />
+        <Route path="/admin/newsletter-history" element={<AdminCampagnes />} />
+        <Route path="/admin/email-campaigns" element={<AdminCampagnes />} />
+        <Route path="/admin/import-emails" element={<AdminCampagnes />} />
+        <Route path="/admin/waitlist" element={<AdminWaitlist />} />
         <Route path="/admin/partnership-requests" element={<AdminPartnershipRequests />} />
         <Route path="/admin/ai-conversations" element={<AdminAIConversations />} />
         <Route path="/admin/visitor-contacts" element={<AdminVisitorContacts />} />
@@ -138,6 +163,7 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
+          <ScrollToTop />
           <AppContent />
         </BrowserRouter>
       </TooltipProvider>
