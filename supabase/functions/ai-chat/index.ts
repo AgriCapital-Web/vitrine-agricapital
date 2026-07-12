@@ -9,6 +9,9 @@ const corsHeaders = {
 const RATE_LIMIT_WINDOW_MS = 60 * 1000;
 const MAX_REQUESTS_PER_WINDOW = 20;
 const MAX_MESSAGE_LENGTH = 8000;
+const MAX_ATTACHMENT_BYTES = 5 * 1024 * 1024; // 5 MB (base64 chars)
+const MAX_TOTAL_PAYLOAD_BYTES = 8 * 1024 * 1024; // 8 MB overall
+const MAX_ARRAY_CONTENT_CHARS = 20000;
 
 const rateLimitStore = new Map<string, { count: number; resetAt: number }>();
 
