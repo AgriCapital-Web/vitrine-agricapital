@@ -9,9 +9,6 @@ const corsHeaders = {
 const RATE_LIMIT_WINDOW_MS = 60 * 1000;
 const MAX_REQUESTS_PER_WINDOW = 20;
 const MAX_MESSAGE_LENGTH = 8000;
-const MAX_ATTACHMENT_BYTES = 5 * 1024 * 1024; // 5 MB (base64 chars)
-const MAX_TOTAL_PAYLOAD_BYTES = 8 * 1024 * 1024; // 8 MB overall
-const MAX_ARRAY_CONTENT_CHARS = 20000;
 
 const rateLimitStore = new Map<string, { count: number; resetAt: number }>();
 
@@ -153,15 +150,8 @@ serve(async (req) => {
   }
 
   try {
-    const rawBody = await req.text();
-    if (rawBody.length > MAX_TOTAL_PAYLOAD_BYTES) {
-      return new Response(JSON.stringify({ error: "Requête trop volumineuse." }), {
-        status: 413,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-    const { messages, visitorId, language = 'fr', attachment } = JSON.parse(rawBody);
-
+    const { messages, visitorId, language = 'fr', attachment } = await req.json();
+    
     if (!messages || !Array.isArray(messages) || messages.length === 0) {
       return new Response(JSON.stringify({ error: "Messages requis" }), {
         status: 400,
@@ -176,38 +166,14 @@ serve(async (req) => {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-      if (typeof msg.content === 'string') {
-        if (msg.content.length > MAX_MESSAGE_LENGTH) {
-          return new Response(JSON.stringify({ error: `Message trop long. Maximum ${MAX_MESSAGE_LENGTH} caractères.` }), {
-            status: 400,
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-          });
-        }
-      } else {
-        // Array-based multimodal content: enforce a total character budget
-        let total = 0;
-        for (const part of msg.content) {
-          if (part && typeof part === 'object') {
-            if (typeof part.text === 'string') total += part.text.length;
-            if (part.image_url && typeof part.image_url.url === 'string') total += part.image_url.url.length;
-          }
-          if (total > MAX_ARRAY_CONTENT_CHARS) {
-            return new Response(JSON.stringify({ error: "Contenu du message trop volumineux." }), {
-              status: 400,
-              headers: { ...corsHeaders, "Content-Type": "application/json" },
-            });
-          }
-        }
+      const textContent = typeof msg.content === 'string' ? msg.content : '';
+      if (textContent.length > MAX_MESSAGE_LENGTH) {
+        return new Response(JSON.stringify({ error: `Message trop long. Maximum ${MAX_MESSAGE_LENGTH} caractères.` }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
       }
     }
-
-    if (attachment && typeof attachment.content === 'string' && attachment.content.length > MAX_ATTACHMENT_BYTES) {
-      return new Response(JSON.stringify({ error: "Pièce jointe trop volumineuse. Maximum 5 Mo." }), {
-        status: 413,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
 
     const limitedMessages = messages.slice(-12);
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
@@ -364,7 +330,7 @@ serve(async (req) => {
     });
   } catch (error) {
     console.error("Chat error:", error);
-    return new Response(JSON.stringify({ error: "Une erreur est survenue, veuillez réessayer." }), {
+    return new Response(JSON.stringify({ error: error instanceof Error ? error.message : "Erreur inconnue" }), {
       status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
