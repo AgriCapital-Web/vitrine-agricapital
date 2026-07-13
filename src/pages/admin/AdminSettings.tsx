@@ -176,6 +176,22 @@ const AdminSettings = () => {
           </CardContent>
         </Card>
 
+        {/* Test envoi Brevo */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Send className="w-5 h-5" />
+              Test d'envoi email (Brevo)
+            </CardTitle>
+            <CardDescription>
+              Envoie un email de test via l'API Brevo et affiche le statut complet (retries, erreurs).
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <BrevoTestButton />
+          </CardContent>
+        </Card>
+
         {/* Site Info */}
         <Card>
           <CardHeader>
