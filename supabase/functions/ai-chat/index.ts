@@ -276,39 +276,58 @@ serve(async (req) => {
       apiMessages.push({ role: lastMessage.role, content: lastMessage.content });
     }
 
-    // Use vision model for images, fast model for text
-    const model = attachment && attachment.type === 'image' 
-      ? "google/gemini-2.5-pro" 
+    // Bascule automatique multi-modèles (Gemini → GPT → Claude équivalents via Lovable AI Gateway)
+    const primaryModel = attachment && attachment.type === 'image'
+      ? "google/gemini-2.5-pro"
       : "google/gemini-3-flash-preview";
+    const fallbackModels = [
+      "openai/gpt-5-mini",
+      "openai/gpt-5-nano",
+      "google/gemini-2.5-flash",
+    ];
+    const modelChain = [primaryModel, ...fallbackModels.filter((m) => m !== primaryModel)];
 
-    console.log(`KAPITA - Model: ${model}, lang: ${language}, attachment: ${attachment?.type || 'none'}`);
+    let response: Response | null = null;
+    let usedModel = primaryModel;
+    let lastError = "";
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ model, messages: apiMessages, stream: true }),
-    });
-
-    if (!response.ok) {
-      if (response.status === 429) {
-        return new Response(JSON.stringify({ error: "Limite de requêtes atteinte. Patientez un peu dêh." }), {
-          status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
+    for (const model of modelChain) {
+      console.log(`KAPITA - Tentative modèle: ${model}, lang: ${language}, attachment: ${attachment?.type || 'none'}`);
+      try {
+        const r = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${LOVABLE_API_KEY}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ model, messages: apiMessages, stream: true }),
         });
+        if (r.ok) {
+          response = r;
+          usedModel = model;
+          console.log(`KAPITA - Succès avec modèle: ${model}`);
+          break;
+        }
+        if (r.status === 402) {
+          return new Response(JSON.stringify({ error: "Crédits épuisés." }), {
+            status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+        lastError = `${model} → HTTP ${r.status}`;
+        console.error(`KAPITA - Échec modèle ${model}:`, r.status, (await r.text()).slice(0, 200));
+      } catch (e) {
+        lastError = `${model} → ${e instanceof Error ? e.message : "erreur réseau"}`;
+        console.error(`KAPITA - Exception modèle ${model}:`, e);
       }
-      if (response.status === 402) {
-        return new Response(JSON.stringify({ error: "Crédits épuisés." }), {
-          status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-      const errorText = await response.text();
-      console.error("AI gateway error:", response.status, errorText);
-      return new Response(JSON.stringify({ error: "Erreur du service IA" }), {
-        status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
+    }
+
+    if (!response) {
+      console.error("KAPITA - Tous les modèles ont échoué:", lastError);
+      return new Response(JSON.stringify({ error: "Le service IA est temporairement indisponible. Veuillez réessayer." }), {
+        status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+
 
     try {
       const lastUserMessage = limitedMessages.filter((m: any) => m.role === 'user').pop();
