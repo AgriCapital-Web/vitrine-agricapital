@@ -7,6 +7,46 @@ import { Loader2, UserPlus, Shield, Key, Globe, Send } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
+const BrevoTestButton = () => {
+  const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState<any>(null);
+
+  const run = async () => {
+    setLoading(true);
+    setResult(null);
+    try {
+      const { data, error } = await supabase.functions.invoke("send-test-email", {
+        body: { to: email || undefined },
+      });
+      if (error) throw error;
+      setResult(data);
+      if (data?.success) toast.success(`Email envoyé à ${data.recipient}`);
+      else toast.error(data?.error || "Échec de l'envoi Brevo");
+    } catch (e: any) {
+      setResult({ success: false, error: e?.message || "Erreur" });
+      toast.error(e?.message || "Erreur d'envoi");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <>
+      <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Destinataire (par défaut : votre compte)" />
+      <Button onClick={run} disabled={loading} className="w-full">
+        {loading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+        Envoyer un email de test
+      </Button>
+      {result && (
+        <pre className="text-xs bg-muted p-3 rounded-lg overflow-auto max-h-64 whitespace-pre-wrap">
+          {JSON.stringify(result, null, 2)}
+        </pre>
+      )}
+    </>
+  );
+};
+
 const AdminSettings = () => {
   const [newAdminEmail, setNewAdminEmail] = useState("");
   const [isCreatingAdmin, setIsCreatingAdmin] = useState(false);
