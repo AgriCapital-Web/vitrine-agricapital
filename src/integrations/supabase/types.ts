@@ -269,6 +269,318 @@ export type Database = {
         }
         Relationships: []
       }
+      dataroom_access_logs: {
+        Row: {
+          action: string
+          created_at: string
+          device_type: string | null
+          id: string
+          ip_address: string | null
+          progress_pct: number | null
+          publication_id: string | null
+          signatory_id: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          device_type?: string | null
+          id?: string
+          ip_address?: string | null
+          progress_pct?: number | null
+          publication_id?: string | null
+          signatory_id?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          device_type?: string | null
+          id?: string
+          ip_address?: string | null
+          progress_pct?: number | null
+          publication_id?: string | null
+          signatory_id?: string | null
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dataroom_access_logs_publication_id_fkey"
+            columns: ["publication_id"]
+            isOneToOne: false
+            referencedRelation: "dataroom_publications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dataroom_access_logs_signatory_id_fkey"
+            columns: ["signatory_id"]
+            isOneToOne: false
+            referencedRelation: "dataroom_signatories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dataroom_comments: {
+        Row: {
+          admin_reply: string | null
+          approved: boolean
+          body: string
+          created_at: string
+          id: string
+          publication_id: string
+          signatory_id: string
+        }
+        Insert: {
+          admin_reply?: string | null
+          approved?: boolean
+          body: string
+          created_at?: string
+          id?: string
+          publication_id: string
+          signatory_id: string
+        }
+        Update: {
+          admin_reply?: string | null
+          approved?: boolean
+          body?: string
+          created_at?: string
+          id?: string
+          publication_id?: string
+          signatory_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dataroom_comments_publication_id_fkey"
+            columns: ["publication_id"]
+            isOneToOne: false
+            referencedRelation: "dataroom_publications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dataroom_comments_signatory_id_fkey"
+            columns: ["signatory_id"]
+            isOneToOne: false
+            referencedRelation: "dataroom_signatories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dataroom_intents: {
+        Row: {
+          created_at: string
+          id: string
+          intent_type: string
+          message: string
+          publication_id: string | null
+          signatory_id: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          intent_type: string
+          message: string
+          publication_id?: string | null
+          signatory_id: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          intent_type?: string
+          message?: string
+          publication_id?: string | null
+          signatory_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dataroom_intents_publication_id_fkey"
+            columns: ["publication_id"]
+            isOneToOne: false
+            referencedRelation: "dataroom_publications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dataroom_intents_signatory_id_fkey"
+            columns: ["signatory_id"]
+            isOneToOne: false
+            referencedRelation: "dataroom_signatories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dataroom_publications: {
+        Row: {
+          category: string | null
+          cover_url: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          file_url: string | null
+          id: string
+          is_published: boolean
+          platform_login: string | null
+          platform_password: string | null
+          platform_url: string | null
+          title: string
+          type: string
+          updated_at: string
+          video_url: string | null
+          views_count: number
+          visibility: string
+          watermark_enabled: boolean
+        }
+        Insert: {
+          category?: string | null
+          cover_url?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          file_url?: string | null
+          id?: string
+          is_published?: boolean
+          platform_login?: string | null
+          platform_password?: string | null
+          platform_url?: string | null
+          title: string
+          type: string
+          updated_at?: string
+          video_url?: string | null
+          views_count?: number
+          visibility?: string
+          watermark_enabled?: boolean
+        }
+        Update: {
+          category?: string | null
+          cover_url?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          file_url?: string | null
+          id?: string
+          is_published?: boolean
+          platform_login?: string | null
+          platform_password?: string | null
+          platform_url?: string | null
+          title?: string
+          type?: string
+          updated_at?: string
+          video_url?: string | null
+          views_count?: number
+          visibility?: string
+          watermark_enabled?: boolean
+        }
+        Relationships: []
+      }
+      dataroom_reactions: {
+        Row: {
+          created_at: string
+          id: string
+          publication_id: string
+          rating: number | null
+          reaction: string
+          signatory_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          publication_id: string
+          rating?: number | null
+          reaction: string
+          signatory_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          publication_id?: string
+          rating?: number | null
+          reaction?: string
+          signatory_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dataroom_reactions_publication_id_fkey"
+            columns: ["publication_id"]
+            isOneToOne: false
+            referencedRelation: "dataroom_publications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dataroom_reactions_signatory_id_fkey"
+            columns: ["signatory_id"]
+            isOneToOne: false
+            referencedRelation: "dataroom_signatories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dataroom_signatories: {
+        Row: {
+          access_code_hash: string
+          country: string | null
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          id_document_url: string | null
+          id_verified: boolean
+          ip_address: string | null
+          nda_pdf_url: string | null
+          nda_signed_at: string
+          newsletter_optin: boolean
+          organization: string | null
+          phone: string | null
+          profession: string | null
+          profile_type: string | null
+          updated_at: string
+          user_agent: string | null
+          whatsapp: string | null
+        }
+        Insert: {
+          access_code_hash: string
+          country?: string | null
+          created_at?: string
+          email: string
+          full_name: string
+          id?: string
+          id_document_url?: string | null
+          id_verified?: boolean
+          ip_address?: string | null
+          nda_pdf_url?: string | null
+          nda_signed_at?: string
+          newsletter_optin?: boolean
+          organization?: string | null
+          phone?: string | null
+          profession?: string | null
+          profile_type?: string | null
+          updated_at?: string
+          user_agent?: string | null
+          whatsapp?: string | null
+        }
+        Update: {
+          access_code_hash?: string
+          country?: string | null
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          id_document_url?: string | null
+          id_verified?: boolean
+          ip_address?: string | null
+          nda_pdf_url?: string | null
+          nda_signed_at?: string
+          newsletter_optin?: boolean
+          organization?: string | null
+          phone?: string | null
+          profession?: string | null
+          profile_type?: string | null
+          updated_at?: string
+          user_agent?: string | null
+          whatsapp?: string | null
+        }
+        Relationships: []
+      }
       email_logs: {
         Row: {
           body: string
