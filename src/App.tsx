@@ -28,6 +28,9 @@ const OfferingDetail = lazy(() => import("./pages/OfferingDetail"));
 const Partenariats = lazy(() => import("./pages/Partenariats"));
 const TreasurePage = lazy(() => import("./pages/TreasurePage"));
 const WaitlistPage = lazy(() => import("./pages/WaitlistPage"));
+const Dataroom = lazy(() => import("./pages/Dataroom"));
+const DataroomVault = lazy(() => import("./pages/DataroomVault"));
+const AdminDataroom = lazy(() => import("./pages/admin/AdminDataroom"));
 
 // Lazy-loaded admin pages — vitrine: minimal & focused
 const AdminAnalytics = lazy(() => import("./pages/admin/AdminAnalytics"));
