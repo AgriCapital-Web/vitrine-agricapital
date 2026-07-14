@@ -102,6 +102,11 @@ const AppContent = () => {
         <Route path="/partenariats" element={<Partenariats />} />
         <Route path="/partnerships" element={<Partenariats />} />
 
+        {/* AgriCapital Cloud — Data Room */}
+        <Route path="/dataroom" element={<Dataroom />} />
+        <Route path="/dataroom/vault" element={<DataroomVault />} />
+        <Route path="/admin/dataroom" element={<AdminDataroom />} />
+
         {/* English aliases */}
         <Route path="/home" element={<HomePage />} />
         <Route path="/about" element={<HomePage />} />
