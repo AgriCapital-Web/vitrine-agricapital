@@ -5,7 +5,7 @@ import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Check, MapPin, Globe, ArrowRight, Sprout, HandHeart } from "lucide-react";
-import heroAsset from "@/assets/plantation-flyer-hero.png.asset.json";
+import heroAsset from "@/assets/plantation-cle-main-v2.png.asset.json";
 
 const OFFRES = [
   "Valorisation & mise à disposition foncière",
