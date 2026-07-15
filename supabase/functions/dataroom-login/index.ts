@@ -77,30 +77,25 @@ Deno.serve(async (req) => {
     }
 
     if (!authorized) {
-      // Log failed attempt too
       await supabase.from("dataroom_access_logs").insert({
         signatory_id: sig.id,
-        action: "login_failed",
+        action: isMaster ? "login_failed_master" : "login_failed",
         ip_address: ip,
         user_agent: ua,
-        metadata: { attempted_method: isMaster ? "master" : "normal", device_email: device_email ?? null },
+        device_type: device_email ?? null,
       });
       return new Response(JSON.stringify({ error: "Code invalide" }), {
         status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    // Log success with full tracking (IP, UA, method, device email if provided)
+    // Log success — device_type field re-used to capture "device email" (email connecté sur l'appareil)
     await supabase.from("dataroom_access_logs").insert({
       signatory_id: sig.id,
       action: method === "master" ? "login_master_code" : "login",
       ip_address: ip,
       user_agent: ua,
-      metadata: {
-        method,
-        registered_email: sig.email,
-        device_email: device_email ?? null,
-      },
+      device_type: device_email ?? null,
     });
 
     return new Response(JSON.stringify({
