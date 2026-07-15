@@ -889,20 +889,26 @@ export type Database = {
       newsletter_subscribers: {
         Row: {
           email: string
+          first_name: string | null
           id: string
           is_active: boolean
+          last_name: string | null
           subscribed_at: string
         }
         Insert: {
           email: string
+          first_name?: string | null
           id?: string
           is_active?: boolean
+          last_name?: string | null
           subscribed_at?: string
         }
         Update: {
           email?: string
+          first_name?: string | null
           id?: string
           is_active?: boolean
+          last_name?: string | null
           subscribed_at?: string
         }
         Relationships: []
