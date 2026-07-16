@@ -11,20 +11,29 @@ Tu es KAPITA, l'assistante virtuelle d'AgriCapital. Tu réponds comme une consei
 
 RÈGLE DE SOURCE VÉRIFIÉE:
 - Réponds uniquement avec les informations présentes dans ce contexte.
-- Si une information n'est pas présente, oriente vers l'équipe AgriCapital.
-- Ne jamais inventer de prix, de rendement ou de donnée non vérifiée.
-- N'utilise pas Markdown lourd. Utilise du texte simple.
+- Si une information n'est pas présente, oriente vers l'équipe AgriCapital par téléphone, WhatsApp ou email.
+- Ne jamais inventer de prix, de rendement, de condition contractuelle, de promesse financière ou de donnée non vérifiée.
+- Ne cite pas de personne nommément, sauf demande explicite. Parle au nom de l'équipe AgriCapital.
+- N'utilise pas Markdown lourd : pas de **, pas de #, pas de tableaux Markdown. Utilise du texte simple.
 
 🚨 RÈGLES ABSOLUES - CONFIDENTIALITÉ STRICTE:
-- Ne jamais révéler les prix, montants ou détails internes des contrats.
+Tu ne dois JAMAIS révéler:
+- Les prix des offres, montants ou tarifs
+- Les détails internes des contrats
+- Les mécanismes financiers internes
 
 POSITIONNEMENT STRATÉGIQUE:
-- AgriCapital est un OPÉRATEUR ET PROMOTEUR AGRICOLE.
-- Mets en avant : patrimoine agricole durable, 4 formules (PalmInvest, PalmInvest+, TerraPalm, TerraPalm+), garantie d'écoulement, Espace Client Digital.
+AgriCapital est un OPÉRATEUR ET PROMOTEUR AGRICOLE professionnel.
+Mets en avant:
+- La création de patrimoine agricole durable
+- L'accompagnement professionnel et sécurisé
+- Les 4 formules : PalmInvest, PalmInvest+, TerraPalm, TerraPalm+ (sans prix)
+- La garantie d'écoulement sur 25 ans
+- L'Espace Client Digital AgriCapital (client.agricapital.ci)
 
-AGRICAPITAL SARL est une entreprise ivoirienne.
-Siège: Gonaté, Daloa, Côte d'Ivoire.
-Contact: +225 05 64 55 17 17 | contact@agricapital.ci
+AGRICAPITAL SARL est une entreprise ivoirienne spécialisée dans le palmier à huile.
+📍 Siège: Gonaté, Daloa, Côte d'Ivoire.
+📞 Contact: +225 05 64 55 17 17 | contact@agricapital.ci | www.agricapital.ci
 `;
 
 const MODELS = [
@@ -43,26 +52,42 @@ serve(async (req) => {
   const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
   const supabase = createClient(supabaseUrl, supabaseKey);
 
-  let lastError = "";
-  let usedModel = "";
-  let retries = 0;
-  let success = false;
-
   try {
     const { messages, visitorId, language = 'fr', attachment } = await req.json();
     const sanitizedVisitorId = (visitorId || 'anonymous').slice(0, 100);
 
-    const apiMessages = [
-      { role: "system", content: `${SITE_CONTEXT}\nLangue: ${language}` },
-      ...messages.slice(-10)
+    const apiMessages: any[] = [
+      { role: "system", content: `${SITE_CONTEXT}\n\nLangue: ${language}` }
     ];
 
+    // Build messages with attachment support
+    const limitedMessages = messages.slice(-10);
+    for (let i = 0; i < limitedMessages.length; i++) {
+      const msg = limitedMessages[i];
+      if (i === limitedMessages.length - 1 && attachment && attachment.content) {
+        // Handle multimodal
+        const contentParts: any[] = [];
+        if (attachment.type === 'image') {
+          const base64Data = attachment.content.includes(',') ? attachment.content.split(',')[1] : attachment.content;
+          const mimeType = attachment.content.includes('data:') ? attachment.content.split(';')[0].split(':')[1] : 'image/jpeg';
+          contentParts.push({ type: "image_url", image_url: { url: `data:${mimeType};base64,${base64Data}` } });
+          contentParts.push({ type: "text", text: msg.content || "Analyse cette image." });
+        } else {
+          contentParts.push({ type: "text", text: `[Pièce jointe: ${attachment.name}]\n${msg.content}` });
+        }
+        apiMessages.push({ role: msg.role, content: contentParts });
+      } else {
+        apiMessages.push({ role: msg.role, content: msg.content });
+      }
+    }
+
     let response: Response | null = null;
+    let usedModel = "";
+    let lastError = "";
+    let retries = 0;
 
     for (const model of MODELS) {
       usedModel = model;
-      console.log(`KAPITA - Trying model: ${model}`);
-      
       try {
         const r = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
           method: "POST",
@@ -75,11 +100,9 @@ serve(async (req) => {
 
         if (r.ok) {
           response = r;
-          success = true;
           break;
         }
-        
-        lastError = `HTTP ${r.status}: ${await r.text().then(t => t.slice(0, 100))}`;
+        lastError = `HTTP ${r.status}`;
         retries++;
       } catch (e) {
         lastError = e instanceof Error ? e.message : "Network error";
@@ -91,27 +114,22 @@ serve(async (req) => {
       throw new Error(`All models failed. Last error: ${lastError}`);
     }
 
-    // Logging to audit_logs (as operational log)
-    const logMetadata = {
-      model: usedModel,
-      retries,
-      duration_ms: Date.now() - startTime,
-      status: success ? "success" : "failure",
-      error: success ? null : lastError,
-      visitorId: sanitizedVisitorId,
-      language
-    };
-
-    // We don't await this to avoid delaying the response, but Supabase handles it
+    // Log the event
+    const duration = Date.now() - startTime;
     supabase.from('audit_logs').insert({
-      action: 'ai_chat_completion',
+      action: 'ai_chat_request',
       entity_type: 'ai_assistant',
-      metadata: logMetadata
-    }).then(({error}) => {
-      if (error) console.error("Failed to log to audit_logs:", error);
-    });
+      metadata: {
+        model: usedModel,
+        language,
+        visitorId: sanitizedVisitorId,
+        retries,
+        duration_ms: duration,
+        status: 'success'
+      }
+    }).then();
 
-    // Also log to existing ai_chat_logs for history
+    // Log chat history
     const lastUserMsg = messages.filter((m: any) => m.role === 'user').pop();
     if (lastUserMsg) {
       supabase.from('ai_chat_logs').insert({
@@ -130,19 +148,17 @@ serve(async (req) => {
     const duration = Date.now() - startTime;
     console.error("Chat error:", error);
     
-    // Log failure
     supabase.from('audit_logs').insert({
-      action: 'ai_chat_failure',
+      action: 'ai_chat_error',
       entity_type: 'ai_assistant',
       metadata: {
         error: error instanceof Error ? error.message : "Unknown error",
         duration_ms: duration,
-        status: "failure",
-        retries
+        status: 'error'
       }
     }).then();
 
-    return new Response(JSON.stringify({ error: error instanceof Error ? error.message : "Erreur interne" }), {
+    return new Response(JSON.stringify({ error: "Service indisponible" }), {
       status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
