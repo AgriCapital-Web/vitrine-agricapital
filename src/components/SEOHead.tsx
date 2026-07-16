@@ -74,7 +74,7 @@ const SEOHead = ({ title, description, image, type = "website" }: SEOHeadProps) 
   useEffect(() => {
     const seo = seoTranslations[language] || seoTranslations.fr;
     const locale = localeMap[language] || "fr_FR";
-    const baseUrl = "https://agricapital.ci";
+    const baseUrl = "https://agricapital.lovable.app";
     const finalTitle = title || seo.title;
     const finalDescription = description || seo.description;
     const finalImage = image || `${baseUrl}/og-image.png`;
