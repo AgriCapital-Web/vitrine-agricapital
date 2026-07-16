@@ -48,25 +48,43 @@ export type Database = {
         Row: {
           assistant_response: string
           created_at: string
+          duration_ms: number | null
+          error_message: string | null
           id: string
           language: string | null
+          model: string | null
+          retry_count: number
           session_id: string
+          status: string
+          tokens_total: number | null
           user_message: string
         }
         Insert: {
           assistant_response: string
           created_at?: string
+          duration_ms?: number | null
+          error_message?: string | null
           id?: string
           language?: string | null
+          model?: string | null
+          retry_count?: number
           session_id: string
+          status?: string
+          tokens_total?: number | null
           user_message: string
         }
         Update: {
           assistant_response?: string
           created_at?: string
+          duration_ms?: number | null
+          error_message?: string | null
           id?: string
           language?: string | null
+          model?: string | null
+          retry_count?: number
           session_id?: string
+          status?: string
+          tokens_total?: number | null
           user_message?: string
         }
         Relationships: []
@@ -417,12 +435,21 @@ export type Database = {
           created_at: string
           created_by: string | null
           description: string | null
+          dynamic_fields: Json
           file_url: string | null
           id: string
           is_published: boolean
           platform_login: string | null
           platform_password: string | null
+          platform_type: string | null
           platform_url: string | null
+          preview_description: string | null
+          preview_image_url: string | null
+          preview_title: string | null
+          screenshot_url: string | null
+          source_file_name: string | null
+          source_file_size: number | null
+          source_mime_type: string | null
           title: string
           type: string
           updated_at: string
@@ -437,12 +464,21 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           description?: string | null
+          dynamic_fields?: Json
           file_url?: string | null
           id?: string
           is_published?: boolean
           platform_login?: string | null
           platform_password?: string | null
+          platform_type?: string | null
           platform_url?: string | null
+          preview_description?: string | null
+          preview_image_url?: string | null
+          preview_title?: string | null
+          screenshot_url?: string | null
+          source_file_name?: string | null
+          source_file_size?: number | null
+          source_mime_type?: string | null
           title: string
           type: string
           updated_at?: string
@@ -457,12 +493,21 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           description?: string | null
+          dynamic_fields?: Json
           file_url?: string | null
           id?: string
           is_published?: boolean
           platform_login?: string | null
           platform_password?: string | null
+          platform_type?: string | null
           platform_url?: string | null
+          preview_description?: string | null
+          preview_image_url?: string | null
+          preview_title?: string | null
+          screenshot_url?: string | null
+          source_file_name?: string | null
+          source_file_size?: number | null
+          source_mime_type?: string | null
           title?: string
           type?: string
           updated_at?: string
