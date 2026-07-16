@@ -6,293 +6,63 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const RATE_LIMIT_WINDOW_MS = 60 * 1000;
-const MAX_REQUESTS_PER_WINDOW = 20;
-const MAX_MESSAGE_LENGTH = 8000;
-
-const rateLimitStore = new Map<string, { count: number; resetAt: number }>();
-
-const isRateLimited = (ip: string): boolean => {
-  const now = Date.now();
-  const record = rateLimitStore.get(ip);
-  if (!record || now > record.resetAt) {
-    rateLimitStore.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
-    return false;
-  }
-  if (record.count >= MAX_REQUESTS_PER_WINDOW) return true;
-  record.count++;
-  return false;
-};
-
-const cleanupRateLimitStore = () => {
-  const now = Date.now();
-  for (const [ip, record] of rateLimitStore.entries()) {
-    if (now > record.resetAt) rateLimitStore.delete(ip);
-  }
-};
-
 const SITE_CONTEXT = `
 Tu es KAPITA, l'assistante virtuelle d'AgriCapital. Tu réponds comme une conseillère professionnelle, claire, chaleureuse et factuelle.
 
 RÈGLE DE SOURCE VÉRIFIÉE:
-- Réponds uniquement avec les informations présentes dans ce contexte, qui reprend les pages publiques actuelles du site AgriCapital.
-- Si une information n'est pas présente ici, dis simplement que l'équipe AgriCapital pourra confirmer le point par téléphone, WhatsApp ou email.
-- Ne jamais inventer de prix, de rendement, de condition contractuelle, de promesse financière ou de donnée non vérifiée.
-- Ne cite pas de personne nommément, sauf si l'utilisateur demande explicitement la page Fondateur. Dans les échanges ordinaires, signe et parle au nom de l'équipe AgriCapital.
-- N'utilise pas Markdown lourd : pas de **, pas de #, pas de tableaux Markdown. Utilise du texte simple et des listes courtes avec des tirets si utile, pour éviter une lecture vocale parasite.
+- Réponds uniquement avec les informations présentes dans ce contexte.
+- Si une information n'est pas présente, oriente vers l'équipe AgriCapital.
+- Ne jamais inventer de prix, de rendement ou de donnée non vérifiée.
+- N'utilise pas Markdown lourd. Utilise du texte simple.
 
 🚨 RÈGLES ABSOLUES - CONFIDENTIALITÉ STRICTE:
-Tu ne dois JAMAIS révéler:
-- Les prix des offres, montants ou tarifs
-- Les détails internes des contrats
-- Les mécanismes financiers internes
-- Les conditions de résiliation
-- Les stratégies commerciales confidentielles
+- Ne jamais révéler les prix, montants ou détails internes des contrats.
 
 POSITIONNEMENT STRATÉGIQUE:
-AgriCapital est un OPÉRATEUR ET PROMOTEUR AGRICOLE professionnel. Tu dois TOUJOURS mettre en avant:
-- La création de patrimoine agricole durable
-- L'accompagnement professionnel et sécurisé
-- Les 4 formules : PalmInvest, PalmInvest+, TerraPalm, TerraPalm+ (sans prix)
-- La garantie d'écoulement sur 25 ans
-- La sécurisation foncière et contractuelle
-- L'Espace Client Digital AgriCapital pour le suivi client sécurisé
+- AgriCapital est un OPÉRATEUR ET PROMOTEUR AGRICOLE.
+- Mets en avant : patrimoine agricole durable, 4 formules (PalmInvest, PalmInvest+, TerraPalm, TerraPalm+), garantie d'écoulement, Espace Client Digital.
 
-Tu peux:
-- Analyser des images (photos de plantations, sols, maladies des plantes) avec précision
-- Lire et analyser des documents PDF, Word et autres formats
-- Comprendre et répondre aux messages vocaux transcrits
-- Fournir des conseils agronomiques détaillés sur le palmier à huile
-- Orienter vers le site agricapital.ci et les contacts de l'équipe
-
-AGRICAPITAL SARL est une entreprise ivoirienne spécialisée dans la création et la gestion de plantations de palmiers à huile clé en main.
-
-📍 Siège: Gonaté, Daloa, Côte d'Ivoire (région du Haut-Sassandra)
-📞 Contact: +225 05 64 55 17 17 | contact@agricapital.ci | www.agricapital.ci
-
-🌱 MISSION:
-Permettre à chacun de devenir planteur de palmier à huile dans un cadre sécurisé et professionnel.
-
-📊 CAPACITÉ OPÉRATIONNELLE:
-- Pépinière de 120 hectares en croissance active
-- 50 hectares disponibles pour implantation immédiate
-- 500+ hectares de terres identifiées
-- 10 000 hectares de potentiel foncier identifié à terme dans le réseau AgriCapital
-- Garantie d'écoulement sur 25 ans
-
-👥 DEUX PROFILS CLIENTS:
-1. Particuliers et Professionnels (SANS terre) : formules PalmInvest et PalmInvest+
-2. Propriétaires Fonciers (AVEC terre) : formules TerraPalm et TerraPalm+
-
-🗺️ ZONE: Haut-Sassandra (Daloa)
-
-ESPACE CLIENT DIGITAL AGRICAPITAL:
-Un portail sécurisé permet aux clients d'effectuer leurs paiements mensuels, de suivre l'évolution de leur plantation, d'accéder à leurs documents, rapports, photos et vidéos de terrain, et d'échanger avec les équipes tout au long du cycle de production. Adresse: client.agricapital.ci.
-
-DOMAINES D'INTERVENTION:
-- Plantation clé en main: plants certifiés, défrichage, piquetage, planting, intrants et fertilisation. Plantation opérationnelle livrée prête à produire après la période de développement.
-- Sécurisation et accès au foncier agricole: identification, analyse et sécurisation juridique des terres agricoles.
-- Suivi technique et agronomique: visites régulières, conseils, reporting digital et accompagnement continu.
-- Garantie d'écoulement: débouchés assurés grâce aux partenariats avec les acteurs industriels de la filière palmier à huile.
-
-BRIEFS INVESTISSEURS:
-- Trésor caché du foncier agricole: des terres fertiles peuvent devenir un patrimoine productif et transmissible lorsqu'elles sont sécurisées et valorisées par une structure professionnelle.
-- Trésor caché du palmier à huile: le palmier à huile est présent dans l'alimentation, la cosmétique, l'industrie, la santé et l'énergie. Il produit toute l'année, deux fois par mois, pendant environ 25 ans.
-
-FAQ VÉRIFIÉE:
-- AgriCapital est constituée en SARL et enregistrée au RCCM CI-DAL-01-2025-B12-13435.
-- Les clients conservent la propriété de leur plantation.
-- Les plants certifiés Tenera proviennent de semences d'origine Iro Lamé fournies par le partenaire Les Palmistes.
-- La sécurisation juridique est assurée avec le partenaire Cabinet Legal Form.
-- Une plantation de palmier à huile entre en production environ 36 mois après la mise en terre.
-- Les étapes opérationnelles: validation foncière, préparation du terrain et trouaison, mise en place avec plants certifiés, entretien et suivi technique sur 36 mois, mise en production et commercialisation.
-- Les contacts officiels sont: +225 05 64 55 17 17, contact@agricapital.ci, www.agricapital.ci.
-
-INSTRUCTIONS DE STYLE:
-- Réponds dans la langue du visiteur.
-- Reste bref si la question est simple.
-- Pour les longues réponses, utilise des titres en texte simple sans symbole #.
-- Évite les caractères qui se lisent mal en audio: astérisques, dièses, underscores, barres verticales.
-
-✅ À FAIRE:
-- Mets toujours en avant le patrimoine agricole durable
-- Parle des 4 formules (sans prix ni détails financiers)
-- Utilise un langage professionnel, rassurant et naturel
-- Termine en proposant de contacter l'équipe ou rejoindre la liste d'attente
-- Utilise "Particuliers et Professionnels" au lieu de "Souscripteurs" ou "Investisseurs"
-
-❌ À NE PAS FAIRE:
-- Ne révèle JAMAIS les prix, montants, tarifs
-- Ne parle PAS de "Palmier Solidaire" ni de programme social/ONG
-- Ne mentionne pas "360 localités" ni "200 producteurs"
-- Ne présente pas AgriCapital comme une ONG ou association
-- Ne parle pas de subventions ou d'impact social
-- Ne cite pas spontanément le nom du fondateur dans les réponses commerciales, vocales ou FAQ.
-- N'utilise PAS les termes "souscripteurs", "investisseurs agricoles", "acte de jouissance", "notarié"
-- Utilise plutôt : "contrats sécurisés", "cadre juridique solide", "accompagnement professionnel"
+AGRICAPITAL SARL est une entreprise ivoirienne.
+Siège: Gonaté, Daloa, Côte d'Ivoire.
+Contact: +225 05 64 55 17 17 | contact@agricapital.ci
 `;
 
+const MODELS = [
+  "google/gemini-1.5-flash",
+  "openai/gpt-4o-mini",
+  "anthropic/claude-3-5-sonnet-20240620",
+  "google/gemini-1.5-pro"
+];
+
 serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
-  }
+  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
-  cleanupRateLimitStore();
+  const startTime = Date.now();
+  const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+  const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+  const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+  const supabase = createClient(supabaseUrl, supabaseKey);
 
-  const clientIP = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || 
-                   req.headers.get("x-real-ip") || "unknown";
-
-  if (isRateLimited(clientIP)) {
-    return new Response(JSON.stringify({ error: "Trop de requêtes. Veuillez patienter." }), {
-      status: 429,
-      headers: { ...corsHeaders, "Content-Type": "application/json", "Retry-After": "60" },
-    });
-  }
+  let lastError = "";
+  let usedModel = "";
+  let retries = 0;
+  let success = false;
 
   try {
     const { messages, visitorId, language = 'fr', attachment } = await req.json();
-    
-    if (!messages || !Array.isArray(messages) || messages.length === 0) {
-      return new Response(JSON.stringify({ error: "Messages requis" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
+    const sanitizedVisitorId = (visitorId || 'anonymous').slice(0, 100);
 
-    for (const msg of messages) {
-      if (typeof msg.content !== 'string' && !Array.isArray(msg.content)) {
-        return new Response(JSON.stringify({ error: "Format de message invalide" }), {
-          status: 400,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-      const textContent = typeof msg.content === 'string' ? msg.content : '';
-      if (textContent.length > MAX_MESSAGE_LENGTH) {
-        return new Response(JSON.stringify({ error: `Message trop long. Maximum ${MAX_MESSAGE_LENGTH} caractères.` }), {
-          status: 400,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-    }
-
-    const limitedMessages = messages.slice(-12);
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
-
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
-    const sanitizedVisitorId = (visitorId || 'anonymous').slice(0, 100).replace(/[^a-zA-Z0-9-_]/g, '');
-
-    const langInstruction = {
-      fr: "Réponds en français clair et naturel, adapté à la Côte d'Ivoire.",
-      en: "Reply in English but keep your warm Ivorian personality.",
-      ar: "أجب بالعربية مع الحفاظ على شخصيتك الإيفوارية الدافئة.",
-      es: "Responde en español manteniendo tu personalidad marfileña cálida.",
-      de: "Antworte auf Deutsch, aber behalte deine warmherzige ivorische Persönlichkeit.",
-      zh: "用中文回答，但保持你温暖的科特迪瓦个性。",
-    }[language] || "Réponds en français avec un ton ivoirien naturel.";
-
-    const apiMessages: any[] = [
-      { role: "system", content: `${SITE_CONTEXT}\n\n${langInstruction}\nLangue: ${language}\nID visiteur: ${sanitizedVisitorId}` }
+    const apiMessages = [
+      { role: "system", content: `${SITE_CONTEXT}\nLangue: ${language}` },
+      ...messages.slice(-10)
     ];
-
-    for (let i = 0; i < limitedMessages.length - 1; i++) {
-      apiMessages.push({ role: limitedMessages[i].role, content: limitedMessages[i].content });
-    }
-
-    const lastMessage = limitedMessages[limitedMessages.length - 1];
-    
-    if (attachment && attachment.content) {
-      const contentParts: any[] = [];
-      
-      if (attachment.type === 'image') {
-        const base64Data = attachment.content.includes(',') ? attachment.content.split(',')[1] : attachment.content;
-        const mimeType = attachment.content.includes('data:') ? attachment.content.split(';')[0].split(':')[1] : 'image/jpeg';
-        contentParts.push({ type: "image_url", image_url: { url: `data:${mimeType};base64,${base64Data}` } });
-        contentParts.push({ type: "text", text: `L'utilisateur a envoyé cette image (${attachment.name || 'image'}). Analyse-la en détail : identifie le contenu, le contexte agricole si applicable, les problèmes éventuels (maladies, carences, etc.) et donne des recommandations précises. ${lastMessage.content || 'Que peux-tu me dire sur cette image ?'}` });
-      } else if (attachment.type === 'document') {
-        const base64Data = attachment.content.includes(',') ? attachment.content.split(',')[1] : attachment.content;
-        try {
-          const decodedText = atob(base64Data);
-          const textContent = decodedText.substring(0, 8000);
-          contentParts.push({ type: "text", text: `L'utilisateur a envoyé un document (${attachment.name || 'document'}). Voici son contenu extrait:\n\n${textContent}\n\n${lastMessage.content || 'Analyse ce document et donne-moi un résumé détaillé.'}` });
-        } catch {
-          contentParts.push({ type: "text", text: `L'utilisateur a envoyé un document (${attachment.name || 'document'}) mais le contenu n'a pas pu être extrait. ${lastMessage.content || 'Peux-tu m\'aider ?'}` });
-        }
-      } else if (attachment.type === 'audio') {
-        const base64Data = attachment.content.includes(',') ? attachment.content.split(',')[1] : attachment.content;
-        let transcribedText = "";
-        
-        try {
-          const ELEVENLABS_API_KEY = Deno.env.get("ELEVENLABS_API_KEY");
-          if (ELEVENLABS_API_KEY) {
-            const binaryString = atob(base64Data);
-            const bytes = new Uint8Array(binaryString.length);
-            for (let i = 0; i < binaryString.length; i++) bytes[i] = binaryString.charCodeAt(i);
-            
-            const mimeType = attachment.content.includes('data:') ? attachment.content.split(';')[0].split(':')[1] : 'audio/webm';
-            const formData = new FormData();
-            formData.append("file", new Blob([bytes.buffer as ArrayBuffer], { type: mimeType }), attachment.name || "voice.webm");
-            formData.append("model_id", "scribe_v2");
-            formData.append("language_code", language === 'fr' ? 'fra' : language === 'en' ? 'eng' : language === 'ar' ? 'ara' : language === 'es' ? 'spa' : language === 'de' ? 'deu' : 'zho');
-            
-            const transcribeResponse = await fetch("https://api.elevenlabs.io/v1/speech-to-text", {
-              method: "POST",
-              headers: { "xi-api-key": ELEVENLABS_API_KEY },
-              body: formData,
-            });
-            
-            if (transcribeResponse.ok) {
-              const result = await transcribeResponse.json();
-              transcribedText = result.text || "";
-            }
-          }
-        } catch (e) {
-          console.error("Transcription error:", e);
-        }
-        
-        if (!transcribedText) {
-          // Fallback: use Lovable AI for audio understanding
-          try {
-            const audioMime = attachment.content.includes('data:') ? attachment.content.split(';')[0].split(':')[1] : 'audio/webm';
-            contentParts.push({ 
-              type: "text", 
-              text: `L'utilisateur a envoyé un message vocal mais la transcription automatique a échoué. Demande-lui poliment de reformuler sa question par écrit ou de réessayer.` 
-            });
-          } catch {
-            contentParts.push({ type: "text", text: "L'utilisateur a envoyé un message vocal mais la transcription a échoué. Demande-lui de reformuler." });
-          }
-        } else {
-          contentParts.push({
-            type: "text",
-            text: `L'utilisateur a envoyé un message vocal. Transcription: "${transcribedText}". Réponds naturellement, en texte simple sans astérisques ni symboles Markdown.`
-          });
-        }
-      }
-
-      apiMessages.push({ role: lastMessage.role, content: contentParts });
-    } else {
-      apiMessages.push({ role: lastMessage.role, content: lastMessage.content });
-    }
-
-    // Bascule automatique multi-modèles (Gemini → GPT → Claude équivalents via Lovable AI Gateway)
-    const primaryModel = attachment && attachment.type === 'image'
-      ? "google/gemini-2.5-pro"
-      : "google/gemini-3-flash-preview";
-    const fallbackModels = [
-      "openai/gpt-5-mini",
-      "openai/gpt-5-nano",
-      "google/gemini-2.5-flash",
-    ];
-    const modelChain = [primaryModel, ...fallbackModels.filter((m) => m !== primaryModel)];
 
     let response: Response | null = null;
-    let usedModel = primaryModel;
-    let lastError = "";
 
-    for (const model of modelChain) {
-      console.log(`KAPITA - Tentative modèle: ${model}, lang: ${language}, attachment: ${attachment?.type || 'none'}`);
+    for (const model of MODELS) {
+      usedModel = model;
+      console.log(`KAPITA - Trying model: ${model}`);
+      
       try {
         const r = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
           method: "POST",
@@ -302,54 +72,77 @@ serve(async (req) => {
           },
           body: JSON.stringify({ model, messages: apiMessages, stream: true }),
         });
+
         if (r.ok) {
           response = r;
-          usedModel = model;
-          console.log(`KAPITA - Succès avec modèle: ${model}`);
+          success = true;
           break;
         }
-        if (r.status === 402) {
-          return new Response(JSON.stringify({ error: "Crédits épuisés." }), {
-            status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
-          });
-        }
-        lastError = `${model} → HTTP ${r.status}`;
-        console.error(`KAPITA - Échec modèle ${model}:`, r.status, (await r.text()).slice(0, 200));
+        
+        lastError = `HTTP ${r.status}: ${await r.text().then(t => t.slice(0, 100))}`;
+        retries++;
       } catch (e) {
-        lastError = `${model} → ${e instanceof Error ? e.message : "erreur réseau"}`;
-        console.error(`KAPITA - Exception modèle ${model}:`, e);
+        lastError = e instanceof Error ? e.message : "Network error";
+        retries++;
       }
     }
 
-    if (!response) {
-      console.error("KAPITA - Tous les modèles ont échoué:", lastError);
-      return new Response(JSON.stringify({ error: "Le service IA est temporairement indisponible. Veuillez réessayer." }), {
-        status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+    if (!response || !response.body) {
+      throw new Error(`All models failed. Last error: ${lastError}`);
     }
 
+    // Logging to audit_logs (as operational log)
+    const logMetadata = {
+      model: usedModel,
+      retries,
+      duration_ms: Date.now() - startTime,
+      status: success ? "success" : "failure",
+      error: success ? null : lastError,
+      visitorId: sanitizedVisitorId,
+      language
+    };
 
-    try {
-      const lastUserMessage = limitedMessages.filter((m: any) => m.role === 'user').pop();
-      if (lastUserMessage) {
-        const msgText = typeof lastUserMessage.content === 'string' ? lastUserMessage.content : '[multimodal]';
-        await supabase.from('ai_chat_logs').insert({
-          session_id: sanitizedVisitorId,
-          user_message: msgText.slice(0, 5000),
-          assistant_response: 'streaming',
-          language,
-        });
-      }
-    } catch (logError) {
-      console.error("Log error:", logError);
+    // We don't await this to avoid delaying the response, but Supabase handles it
+    supabase.from('audit_logs').insert({
+      action: 'ai_chat_completion',
+      entity_type: 'ai_assistant',
+      metadata: logMetadata
+    }).then(({error}) => {
+      if (error) console.error("Failed to log to audit_logs:", error);
+    });
+
+    // Also log to existing ai_chat_logs for history
+    const lastUserMsg = messages.filter((m: any) => m.role === 'user').pop();
+    if (lastUserMsg) {
+      supabase.from('ai_chat_logs').insert({
+        session_id: sanitizedVisitorId,
+        user_message: (typeof lastUserMsg.content === 'string' ? lastUserMsg.content : '[multimodal]').slice(0, 2000),
+        assistant_response: 'streaming',
+        language
+      }).then();
     }
 
     return new Response(response.body, {
       headers: { ...corsHeaders, "Content-Type": "text/event-stream" },
     });
+
   } catch (error) {
+    const duration = Date.now() - startTime;
     console.error("Chat error:", error);
-    return new Response(JSON.stringify({ error: error instanceof Error ? error.message : "Erreur inconnue" }), {
+    
+    // Log failure
+    supabase.from('audit_logs').insert({
+      action: 'ai_chat_failure',
+      entity_type: 'ai_assistant',
+      metadata: {
+        error: error instanceof Error ? error.message : "Unknown error",
+        duration_ms: duration,
+        status: "failure",
+        retries
+      }
+    }).then();
+
+    return new Response(JSON.stringify({ error: error instanceof Error ? error.message : "Erreur interne" }), {
       status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
