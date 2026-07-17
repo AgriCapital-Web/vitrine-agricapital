@@ -4,8 +4,7 @@ import {
   Mail, Settings, Bell, Database,
   Bot, UserCircle, Newspaper, Home, Shield, History, Image, Send, Upload,
 } from "lucide-react";
-import logoAsset from "@/assets/logo-agricapital-main-v3.png.asset.json";
-const logoUrl = logoAsset.url;
+const logoUrl = "/logo-agricapital.png";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
 

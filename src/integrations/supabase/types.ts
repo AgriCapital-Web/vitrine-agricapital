@@ -1744,6 +1744,14 @@ export type Database = {
         }
         Relationships: []
       }
+      visitor_counters: {
+        Row: {
+          id: string | null
+          total_visitors: number | null
+          weekly_visitors: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       get_public_visitor_count: { Args: never; Returns: number }
