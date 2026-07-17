@@ -1,6 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
-import nurseryAsset from "@/assets/processus-terrain.jpg.asset.json";
-const nurseryImage = nurseryAsset.url;
+const nurseryImage = "/processus-terrain.jpg";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 const convertNumber = (num: string, language: string): string => {
