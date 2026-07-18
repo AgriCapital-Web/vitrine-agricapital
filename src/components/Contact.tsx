@@ -206,6 +206,10 @@ const Contact = () => {
             </Card>
           </div>
         </div>
+
+        <div className="max-w-6xl mx-auto mt-10">
+          <LocationMap />
+        </div>
       </div>
     </section>
   );
