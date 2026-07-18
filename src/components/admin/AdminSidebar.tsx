@@ -20,6 +20,8 @@ const menuItems: MenuItem[] = [
   { icon: BarChart3, label: "Tableau de bord", path: "/admin/dashboard" },
   { icon: BarChart3, label: "Analytiques", path: "/admin/analytics" },
 
+  { divider: true, label: "AgriCapital Cloud" },
+  { icon: Database, label: "Data Room", path: "/admin/dataroom" },
   { divider: true, label: "Contenu" },
   { icon: Newspaper, label: "Actualités", path: "/admin/news" },
   { icon: Image, label: "Galerie photo", path: "/admin/gallery" },
