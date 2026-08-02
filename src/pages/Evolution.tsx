@@ -47,7 +47,8 @@ const Evolution = () => {
       viewAll: "Voir toutes les photos",
       m1: { date: "19 Novembre 2025", title: "Lancement des Opérations Terrain", desc: "Démarrage officiel d'AgriCapital avec l'installation de l'infrastructure opérationnelle et le début des activités sur le terrain." },
       m2: { date: "Nov – Déc 2025", title: "Pépinière Daloa — 120 ha", desc: "Installation complète de la pépinière de 120 hectares à Daloa avec irrigation autonome et plants certifiés Tenera." },
-      m3: { date: "En cours", title: "Déploiement Commercial", desc: "Ouverture de la liste d'attente, prospection communautaire active et premiers engagements de clients intéressés par nos formules." },
+      m3: { date: "1er Août 2026", title: "Inauguration du 1er bureau de proximité — Gonaté", desc: "AgriCapital a inauguré son premier bureau de proximité à Gonaté (département de Daloa), en présence de plus de 100 participants : autorités locales, propriétaires fonciers, partenaires techniques, investisseurs, clients, jeunes et femmes. Cette ouverture marque le lancement officiel du déploiement opérationnel du modèle de création et de gestion d'actifs agricoles au plus près des territoires ruraux." },
+      m4: { date: "En cours", title: "Déploiement Commercial", desc: "Ouverture de la liste d'attente, prospection communautaire active et premiers engagements de clients intéressés par nos formules." },
     },
     en: {
       title: "Project Evolution",
@@ -71,7 +72,8 @@ const Evolution = () => {
       viewAll: "View all photos",
       m1: { date: "November 19, 2025", title: "Field Operations Launch", desc: "Official start of AgriCapital with operational infrastructure installation and field activities." },
       m2: { date: "Nov – Dec 2025", title: "Daloa Nursery — 120 ha", desc: "Complete installation of the 120-hectare nursery in Daloa with autonomous irrigation and certified Tenera plants." },
-      m3: { date: "Ongoing", title: "Commercial Deployment", desc: "Waitlist opening, active community prospecting and first client commitments." },
+      m3: { date: "August 1, 2026", title: "First local office opened — Gonaté", desc: "AgriCapital opened its first local office in Gonaté (Daloa department) with over 100 attendees: local authorities, landowners, technical partners, investors, clients, youth and women. It marks the official launch of the operational rollout of our agricultural asset creation and management model." },
+      m4: { date: "Ongoing", title: "Commercial Deployment", desc: "Waitlist opening, active community prospecting and first client commitments." },
     },
   };
 
@@ -80,10 +82,18 @@ const Evolution = () => {
   const milestones = [
     { ...t.m1, status: "completed", icon: Target },
     { ...t.m2, status: "completed", icon: Sprout },
-    { ...t.m3, status: "in_progress", icon: Users },
+    { ...t.m3, status: "completed", icon: MapPin },
+    { ...t.m4, status: "in_progress", icon: Users },
   ];
 
   const curatedPhotos = [
+    { src: "/inauguration/bureau-gonate-enseigne.webp", title: "Bureau de proximité de Gonaté", comment: "Inauguration du premier bureau de proximité AgriCapital, le 1er août 2026.", featured: true },
+    { src: "/inauguration/inauguration-assemblee.webp", title: "Cérémonie d'inauguration", comment: "Plus de 100 participants : autorités locales, propriétaires fonciers, partenaires, clients, jeunes et femmes.", featured: true },
+    { src: "/inauguration/inauguration-prise-parole.webp", title: "Présentation du modèle", comment: "Présentation publique de la vision et du modèle de création d'actifs agricoles.", featured: true },
+    { src: "/inauguration/inauguration-remise-symbolique.webp", title: "Remise symbolique", comment: "Moment fort de la cérémonie d'ouverture du bureau de Gonaté.", featured: false },
+    { src: "/inauguration/inauguration-groupe.webp", title: "Équipe et partenaires", comment: "L'équipe AgriCapital entourée de ses partenaires techniques et stratégiques.", featured: false },
+    { src: "/inauguration/bureau-gonate-interieur.webp", title: "Espace d'accueil client", comment: "Guichet dédié à l'information, l'accompagnement et la contractualisation.", featured: false },
+    { src: "/inauguration/pepiniere-plants-palmier.webp", title: "Pépinière — 20 000+ plants", comment: "Plants Tenera destinés aux plantations clés en main des souscripteurs.", featured: false },
     { src: nurseryPepiniere, title: "Pépinière structurée", comment: "Plants sélectionnés et organisation professionnelle du site.", featured: true },
     { src: palmNursery, title: "Plants en croissance", comment: "Développement progressif des plants pour les futures plantations.", featured: true },
     { src: nurserySite, title: "Suivi en pépinière", comment: "Contrôle régulier de la croissance et de l’état sanitaire des plants.", featured: false },

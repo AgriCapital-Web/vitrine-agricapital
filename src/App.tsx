@@ -2,12 +2,14 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation, useNavigate } from "react-router-dom";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { usePageTracking } from "@/hooks/usePageTracking";
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { Loader2 } from "lucide-react";
 import ScrollToTop from "@/components/ScrollToTop";
+import { isDataroomHost } from "@/lib/canonical-host";
+
 
 import HomePage from "./pages/HomePage";
 import NotFound from "./pages/NotFound";
@@ -65,9 +67,22 @@ const LoadingFallback = () => (
 
 const AppContent = () => {
   usePageTracking();
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  // data.agricapital.ci (or dataroom.*) serves the Data Room directly,
+  // no DNS-side rewrite or extra deployment needed.
+  useEffect(() => {
+    if (!isDataroomHost()) return;
+    if (location.pathname === "/" || location.pathname === "/index.html") {
+      navigate("/dataroom", { replace: true });
+    }
+  }, [location.pathname, navigate]);
+
   return (
     <Suspense fallback={<LoadingFallback />}>
       <Routes>
+
         {/* Public */}
         <Route path="/" element={<HomePage />} />
         <Route path="/accueil" element={<HomePage />} />
