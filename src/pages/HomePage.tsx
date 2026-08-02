@@ -111,17 +111,32 @@ const HomePage = () => {
       }
     }
 
+    // Hash based navigation (e.g. /#approche) coming from other pages
+    if (!targetSection && location.hash) {
+      const raw = location.hash.replace('#', '').toLowerCase();
+      targetSection = sectionMap[raw] || raw;
+    }
+
     if (targetSection) {
-      // Small delay to ensure DOM is ready
-      const timer = setTimeout(() => {
+      // Retry a few times: lazy sections may not be mounted on first tick
+      let attempts = 0;
+      const tryScroll = () => {
         const element = document.getElementById(targetSection!);
         if (element) {
-          element.scrollIntoView({ behavior: 'smooth' });
+          const top = element.getBoundingClientRect().top + window.scrollY - 80;
+          window.scrollTo({ top, behavior: 'smooth' });
+          return true;
         }
-      }, 100);
-      return () => clearTimeout(timer);
+        return false;
+      };
+      if (tryScroll()) return;
+      const interval = window.setInterval(() => {
+        attempts += 1;
+        if (tryScroll() || attempts > 20) window.clearInterval(interval);
+      }, 120);
+      return () => window.clearInterval(interval);
     }
-  }, [section, location.pathname]);
+  }, [section, location.pathname, location.hash]);
 
   return (
     <div className="min-h-screen bg-background overflow-x-hidden max-w-full">
@@ -133,7 +148,9 @@ const HomePage = () => {
       
       <ClientPortalSection />
       <DomainesIntervention />
+      <InaugurationSection />
       <About />
+
       <Ambitions />
       <Approach />
       <SolutionsSummary />
