@@ -56,21 +56,16 @@ const Navigation = () => {
     setOpenSubmenu(null);
     setOpenMobileSubmenu(null);
 
-    const isHomePage = location.pathname === "/" ||
-      location.pathname === "/fr" ||
-      location.pathname === "/en" ||
-      location.pathname.startsWith("/accueil") ||
-      location.pathname.startsWith("/home");
-
-    if (isHomePage) {
-      const element = document.getElementById(id);
-      if (element) {
-        element.scrollIntoView({ behavior: "smooth" });
-      }
-    } else {
-      navigate(`/#${id}`);
+    const element = document.getElementById(id);
+    if (element) {
+      const top = element.getBoundingClientRect().top + window.scrollY - 80;
+      window.scrollTo({ top, behavior: "smooth" });
+      return;
     }
+    // Section not on the current page → go home and let HomePage resolve the hash
+    navigate(`/#${id}`);
   };
+
 
   const handleLanguageChange = (lang: Language) => {
     setLanguage(lang);
@@ -96,12 +91,14 @@ const Navigation = () => {
       children: [
         { label: t.nav.about, action: "apropos" },
         { label: menuLabels.capacity, action: "impact" },
+        { label: language === 'fr' ? "Inauguration Gonaté" : "Gonaté opening", action: "inauguration" },
         { label: menuLabels.evolution, action: "/evolution", isRoute: true },
       ],
     },
     {
       label: menuLabels.offers,
       children: [
+        { label: language === 'fr' ? "Solutions & Services" : "Solutions & Services", action: "/solutions", isRoute: true },
         { label: t.nav.approach, action: "approche" },
         { label: t.nav.partnership, action: "partenariat" },
       ],
@@ -111,11 +108,12 @@ const Navigation = () => {
       label: menuLabels.resources,
       children: [
         { label: menuLabels.news, action: "/actualites", isRoute: true },
-        { label: menuLabels.testimonials, action: "temoignages" },
+        { label: menuLabels.testimonials, action: "/temoignages", isRoute: true },
         { label: "FAQ", action: "/faq", isRoute: true },
       ],
     },
   ];
+
 
   const handleItemClick = (item: SubMenuItem | MenuItem) => {
     if (item.isRoute && item.action) {
