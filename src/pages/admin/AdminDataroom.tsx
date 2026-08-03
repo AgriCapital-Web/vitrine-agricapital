@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -7,11 +7,13 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Switch } from "@/components/ui/switch";
 import { toast } from "@/hooks/use-toast";
-import { 
-  Download, Trash2, Plus, FileText, Users, MessageSquare, 
+import {
+  Download, Trash2, Plus, FileText, Users, MessageSquare,
   FileSignature, Upload, Link2, Image as ImageIcon,
-  Edit, Save, X, Eye, EyeOff, ExternalLink
+  Edit, Save, X, Eye, EyeOff, ExternalLink, Search, Lock, ShieldCheck, Globe
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
@@ -24,25 +26,42 @@ const ALLOWED_BY_TYPE: Record<string, string[]> = {
   presentation: ["application/pdf", "application/vnd.ms-powerpoint", "application/vnd.openxmlformats-officedocument.presentationml.presentation"],
 };
 
-const emptyForm = { 
-  type: "document", 
-  title: "", 
-  description: "", 
-  category: "", 
-  file_url: "", 
-  video_url: "", 
-  platform_url: "", 
-  platform_type: "website", 
-  preview_title: "", 
-  preview_description: "", 
-  preview_image_url: "", 
-  screenshot_url: "", 
-  dynamic_fields: {} as Record<string, string>, 
-  source_file_name: "", 
-  source_file_size: 0, 
+const CATEGORIES = [
+  "Stratégie",
+  "Finance",
+  "Juridique",
+  "Technique",
+  "Foncier",
+  "Opérations",
+  "Marketing",
+  "Gouvernance",
+];
+
+const VISIBILITIES: { value: string; label: string; help: string; icon: any }[] = [
+  { value: "public", label: "Public (teaser)", help: "Visible par tout visiteur du portail, sans NDA.", icon: Globe },
+  { value: "nda", label: "Signataires NDA", help: "Réservé aux signataires ayant validé le NDA.", icon: ShieldCheck },
+  { value: "vip", label: "Accès restreint (VIP)", help: "Réservé aux profils investisseurs validés manuellement.", icon: Lock },
+];
+
+const emptyForm = {
+  type: "document",
+  title: "",
+  description: "",
+  category: "",
+  file_url: "",
+  video_url: "",
+  platform_url: "",
+  platform_type: "website",
+  preview_title: "",
+  preview_description: "",
+  preview_image_url: "",
+  screenshot_url: "",
+  dynamic_fields: {} as Record<string, string>,
+  source_file_name: "",
+  source_file_size: 0,
   source_mime_type: "",
   is_published: true,
-  visibility: "public"
+  visibility: "nda",
 };
 
 const makePlatformPreview = (url: string, type: string) => {
@@ -59,6 +78,8 @@ const makePlatformPreview = (url: string, type: string) => {
   };
 };
 
+const visibilityMeta = (v: string) => VISIBILITIES.find((x) => x.value === v) ?? VISIBILITIES[1];
+
 export default function AdminDataroom() {
   const [pubs, setPubs] = useState<any[]>([]);
   const [sigs, setSigs] = useState<any[]>([]);
@@ -69,6 +90,17 @@ export default function AdminDataroom() {
   const [saving, setSaving] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
 
+  // filtres
+  const [search, setSearch] = useState("");
+  const [filterType, setFilterType] = useState("all");
+  const [filterCategory, setFilterCategory] = useState("all");
+  const [filterVisibility, setFilterVisibility] = useState("all");
+  const [filterStatus, setFilterStatus] = useState("all");
+
+  // aperçu
+  const [preview, setPreview] = useState<{ pub: any; url: string | null } | null>(null);
+  const [previewLoading, setPreviewLoading] = useState(false);
+
   const load = async () => {
     const [p, s, c, i] = await Promise.all([
       supabase.from("dataroom_publications").select("*").order("created_at", { ascending: false }),
@@ -76,69 +108,91 @@ export default function AdminDataroom() {
       supabase.from("dataroom_comments").select("*, dataroom_signatories(full_name,email), dataroom_publications(title)").order("created_at", { ascending: false }),
       supabase.from("dataroom_intents").select("*, dataroom_signatories(full_name,email), dataroom_publications(title)").order("created_at", { ascending: false }),
     ]);
-    setPubs(p.data ?? []); 
-    setSigs(s.data ?? []); 
-    setComments(c.data ?? []); 
+    setPubs(p.data ?? []);
+    setSigs(s.data ?? []);
+    setComments(c.data ?? []);
     setIntents(i.data ?? []);
   };
 
   useEffect(() => { load(); }, []);
 
+  const categories = useMemo(() => {
+    const set = new Set<string>(CATEGORIES);
+    pubs.forEach((p) => p.category && set.add(p.category));
+    return Array.from(set).sort();
+  }, [pubs]);
+
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return pubs.filter((p) => {
+      if (q && !`${p.title} ${p.description ?? ""} ${p.category ?? ""} ${p.source_file_name ?? ""}`.toLowerCase().includes(q)) return false;
+      if (filterType !== "all" && p.type !== filterType) return false;
+      if (filterCategory !== "all" && (p.category || "") !== filterCategory) return false;
+      if (filterVisibility !== "all" && (p.visibility || "nda") !== filterVisibility) return false;
+      if (filterStatus === "published" && !p.is_published) return false;
+      if (filterStatus === "draft" && p.is_published) return false;
+      return true;
+    });
+  }, [pubs, search, filterType, filterCategory, filterVisibility, filterStatus]);
+
   const handleSave = async () => {
     if (!form.title) return toast({ title: "Titre requis", variant: "destructive" });
     setSaving(true);
     let payload: any = { ...form };
-    
+
     try {
       if (editingId) {
-        // Update
+        delete payload.id;
+        delete payload.created_at;
+        delete payload.updated_at;
+        delete payload.views_count;
+        delete payload.created_by;
         const { error } = await supabase.from("dataroom_publications").update(payload).eq("id", editingId);
         if (error) throw error;
         toast({ title: "Publication mise à jour" });
       } else {
-        // Create
         if (form.type === "platform") {
-          if (!form.platform_url) return toast({ title: "URL plateforme requise", variant: "destructive" });
-          const preview = makePlatformPreview(form.platform_url, form.platform_type);
-          payload = { 
-            ...payload, 
-            platform_url: preview.normalizedUrl, 
-            preview_title: payload.preview_title || preview.previewTitle, 
-            preview_description: payload.preview_description || preview.previewDescription, 
-            preview_image_url: preview.previewImage, 
-            screenshot_url: preview.previewImage, 
-            cover_url: preview.previewImage, 
-            dynamic_fields: preview.dynamicFields 
+          if (!form.platform_url) { setSaving(false); return toast({ title: "URL plateforme requise", variant: "destructive" }); }
+          const p = makePlatformPreview(form.platform_url, form.platform_type);
+          payload = {
+            ...payload,
+            platform_url: p.normalizedUrl,
+            preview_title: payload.preview_title || p.previewTitle,
+            preview_description: payload.preview_description || p.previewDescription,
+            preview_image_url: p.previewImage,
+            screenshot_url: p.previewImage,
+            cover_url: p.previewImage,
+            dynamic_fields: p.dynamicFields,
           };
         } else {
-          if (!selectedFile) return toast({ title: "Téléversement requis", description: "Veuillez choisir un fichier.", variant: "destructive" });
+          if (!selectedFile) { setSaving(false); return toast({ title: "Téléversement requis", description: "Veuillez choisir un fichier.", variant: "destructive" }); }
           const allowed = ALLOWED_BY_TYPE[form.type] || [];
-          if (!allowed.includes(selectedFile.type)) return toast({ title: "Type de fichier non autorisé", variant: "destructive" });
-          if (selectedFile.size > MAX_FILE_SIZE) return toast({ title: "Fichier trop volumineux", description: "Max 25 Mo", variant: "destructive" });
-          
+          if (!allowed.includes(selectedFile.type)) { setSaving(false); return toast({ title: "Type de fichier non autorisé", variant: "destructive" }); }
+          if (selectedFile.size > MAX_FILE_SIZE) { setSaving(false); return toast({ title: "Fichier trop volumineux", description: "Max 25 Mo", variant: "destructive" }); }
+
           const path = `${form.type}/${crypto.randomUUID()}-${selectedFile.name.replace(/[^a-zA-Z0-9._-]/g, "-")}`;
           const { error: uploadError } = await supabase.storage.from(BUCKET).upload(path, selectedFile, { contentType: selectedFile.type, upsert: false });
           if (uploadError) throw uploadError;
-          
+
           const { data: signed } = await supabase.storage.from(BUCKET).createSignedUrl(path, 60 * 60 * 24 * 7);
-          payload = { 
-            ...payload, 
-            file_url: path, 
-            video_url: null, 
-            platform_url: null, 
-            cover_url: selectedFile.type.startsWith("image/") ? signed?.signedUrl : null, 
-            source_file_name: selectedFile.name, 
-            source_file_size: selectedFile.size, 
-            source_mime_type: selectedFile.type 
+          payload = {
+            ...payload,
+            file_url: path,
+            video_url: null,
+            platform_url: null,
+            cover_url: selectedFile.type.startsWith("image/") ? signed?.signedUrl : null,
+            source_file_name: selectedFile.name,
+            source_file_size: selectedFile.size,
+            source_mime_type: selectedFile.type,
           };
         }
         const { error } = await supabase.from("dataroom_publications").insert(payload);
         if (error) throw error;
         toast({ title: "Publication créée" });
       }
-      
-      setForm(emptyForm); 
-      setSelectedFile(null); 
+
+      setForm(emptyForm);
+      setSelectedFile(null);
       setEditingId(null);
       load();
     } catch (error: any) {
@@ -149,12 +203,9 @@ export default function AdminDataroom() {
   };
 
   const startEdit = (p: any) => {
-    setForm({
-      ...emptyForm,
-      ...p
-    });
+    setForm({ ...emptyForm, ...p });
     setEditingId(p.id);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const cancelEdit = () => {
@@ -163,10 +214,25 @@ export default function AdminDataroom() {
     setSelectedFile(null);
   };
 
-  const delPub = async (id: string) => {
-    if (!confirm("Supprimer cette publication ?")) return;
-    await supabase.from("dataroom_publications").delete().eq("id", id);
+  const delPub = async (p: any) => {
+    if (!confirm(`Supprimer « ${p.title} » ?`)) return;
+    if (p.file_url) await supabase.storage.from(BUCKET).remove([p.file_url]);
+    const { error } = await supabase.from("dataroom_publications").delete().eq("id", p.id);
+    if (error) return toast({ title: "Erreur", description: error.message, variant: "destructive" });
+    toast({ title: "Publication supprimée" });
     load();
+  };
+
+  const togglePublish = async (p: any) => {
+    const { error } = await supabase.from("dataroom_publications").update({ is_published: !p.is_published }).eq("id", p.id);
+    if (error) return toast({ title: "Erreur", description: error.message, variant: "destructive" });
+    setPubs((prev) => prev.map((x) => (x.id === p.id ? { ...x, is_published: !p.is_published } : x)));
+  };
+
+  const changeVisibility = async (p: any, visibility: string) => {
+    const { error } = await supabase.from("dataroom_publications").update({ visibility }).eq("id", p.id);
+    if (error) return toast({ title: "Erreur", description: error.message, variant: "destructive" });
+    setPubs((prev) => prev.map((x) => (x.id === p.id ? { ...x, visibility } : x)));
   };
 
   const approveComment = async (id: string, v: boolean) => {
@@ -174,10 +240,57 @@ export default function AdminDataroom() {
     load();
   };
 
+  const signedUrl = async (path: string, expires = 300) => {
+    const { data, error } = await supabase.storage.from(BUCKET).createSignedUrl(path, expires);
+    if (error) { toast({ title: "Erreur d'accès au fichier", description: error.message, variant: "destructive" }); return null; }
+    return data.signedUrl;
+  };
+
   const downloadFile = async (path: string) => {
-    const { data, error } = await supabase.storage.from(BUCKET).createSignedUrl(path, 60);
-    if (error) return toast({ title: "Erreur de téléchargement", description: error.message, variant: "destructive" });
-    window.open(data.signedUrl, '_blank');
+    const url = await signedUrl(path, 60);
+    if (url) window.open(url, "_blank");
+  };
+
+  const openPreview = async (p: any) => {
+    setPreviewLoading(true);
+    setPreview({ pub: p, url: null });
+    let url: string | null = null;
+    if (p.file_url) url = await signedUrl(p.file_url);
+    else if (p.platform_url) url = p.platform_url;
+    setPreview({ pub: p, url });
+    setPreviewLoading(false);
+  };
+
+  const renderPreviewBody = () => {
+    if (!preview) return null;
+    const { pub, url } = preview;
+    if (previewLoading) return <p className="text-sm text-muted-foreground py-8 text-center">Chargement de l'aperçu…</p>;
+    if (!url) return <p className="text-sm text-muted-foreground py-8 text-center">Aucun contenu à prévisualiser.</p>;
+    const mime = pub.source_mime_type || "";
+    if (pub.type === "photo" || mime.startsWith("image/")) {
+      return <img src={url} alt={pub.title} className="w-full max-h-[65vh] object-contain rounded-md bg-muted" />;
+    }
+    if (pub.type === "video" || mime.startsWith("video/")) {
+      return <video src={url} controls className="w-full max-h-[65vh] rounded-md bg-black" />;
+    }
+    if (mime === "application/pdf") {
+      return <iframe src={url} title={pub.title} className="w-full h-[65vh] rounded-md border" />;
+    }
+    if (pub.type === "platform") {
+      return (
+        <div className="space-y-3">
+          {pub.preview_image_url && <img src={pub.preview_image_url} alt={pub.title} className="w-full rounded-md" />}
+          <a href={url} target="_blank" rel="noopener noreferrer" className="text-sm text-primary underline break-all">{url}</a>
+        </div>
+      );
+    }
+    return (
+      <div className="text-center py-8 space-y-3">
+        <FileText className="w-10 h-10 mx-auto text-muted-foreground" />
+        <p className="text-sm text-muted-foreground">Aperçu non disponible pour ce format ({mime || "inconnu"}).</p>
+        <Button onClick={() => window.open(url, "_blank")}><Download className="w-4 h-4 mr-2" />Ouvrir le fichier</Button>
+      </div>
+    );
   };
 
   return (
@@ -186,7 +299,7 @@ export default function AdminDataroom() {
         <div className="flex justify-between items-center">
           <div>
             <h1 className="text-2xl font-bold">AgriCapital Cloud — Data Room</h1>
-            <p className="text-sm text-muted-foreground">Gestion du portail documentaire confidentiel</p>
+            <p className="text-sm text-muted-foreground">Gestion complète des documents, catégories et permissions d'accès</p>
           </div>
           {editingId && (
             <Button variant="outline" onClick={cancelEdit}>
@@ -196,7 +309,7 @@ export default function AdminDataroom() {
         </div>
 
         <Tabs defaultValue="pubs">
-          <TabsList className="mb-4">
+          <TabsList className="mb-4 flex-wrap h-auto">
             <TabsTrigger value="pubs"><FileText className="w-4 h-4 mr-2" />Publications</TabsTrigger>
             <TabsTrigger value="nda"><FileSignature className="w-4 h-4 mr-2" />NDA / Signataires</TabsTrigger>
             <TabsTrigger value="comments"><MessageSquare className="w-4 h-4 mr-2" />Commentaires</TabsTrigger>
@@ -206,29 +319,28 @@ export default function AdminDataroom() {
           <TabsContent value="pubs" className="space-y-6">
             <Card className={editingId ? "border-primary bg-primary/5" : ""}>
               <CardContent className="p-4 grid gap-4 md:grid-cols-2">
-                <div className="md:col-span-2 flex items-center justify-between">
+                <div className="md:col-span-2 flex items-center justify-between flex-wrap gap-2">
                   <h3 className="font-semibold text-lg">
                     {editingId ? "Modifier la publication" : "Nouvelle publication"}
                   </h3>
-                  <div className="flex gap-2">
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      onClick={() => setForm({ ...form, is_published: !form.is_published })}
-                      className={form.is_published ? "text-green-600" : "text-amber-600"}
-                    >
-                      {form.is_published ? <Eye className="w-4 h-4 mr-2" /> : <EyeOff className="w-4 h-4 mr-2" />}
+                  <div className="flex items-center gap-2">
+                    <Label htmlFor="pub-switch" className="text-sm text-muted-foreground">
                       {form.is_published ? "Publié" : "Brouillon"}
-                    </Button>
+                    </Label>
+                    <Switch
+                      id="pub-switch"
+                      checked={form.is_published}
+                      onCheckedChange={(v) => setForm({ ...form, is_published: v })}
+                    />
                   </div>
                 </div>
 
                 {!editingId && (
                   <div>
                     <Label>Type</Label>
-                    <select 
-                      className="w-full h-10 rounded-md border bg-background px-3" 
-                      value={form.type} 
+                    <select
+                      className="w-full h-10 rounded-md border bg-background px-3"
+                      value={form.type}
                       onChange={(e) => { setForm({ ...emptyForm, type: e.target.value }); setSelectedFile(null); }}
                     >
                       <option value="document">Document</option>
@@ -239,29 +351,42 @@ export default function AdminDataroom() {
                     </select>
                   </div>
                 )}
-                
+
                 <div>
                   <Label>Catégorie</Label>
-                  <Input 
+                  <Input
+                    list="dataroom-categories"
                     placeholder="Ex: Finance, Juridique, Technique..."
-                    value={form.category || ""} 
-                    onChange={(e) => setForm({ ...form, category: e.target.value })} 
+                    value={form.category || ""}
+                    onChange={(e) => setForm({ ...form, category: e.target.value })}
                   />
+                  <datalist id="dataroom-categories">
+                    {categories.map((c) => <option key={c} value={c} />)}
+                  </datalist>
                 </div>
-                
-                <div className={editingId ? "md:col-span-1" : "md:col-span-2"}>
+
+                <div>
                   <Label>Titre *</Label>
-                  <Input 
-                    value={form.title} 
-                    onChange={(e) => setForm({ ...form, title: e.target.value })} 
-                  />
+                  <Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
+                </div>
+
+                <div>
+                  <Label>Permission d'accès</Label>
+                  <select
+                    className="w-full h-10 rounded-md border bg-background px-3"
+                    value={form.visibility || "nda"}
+                    onChange={(e) => setForm({ ...form, visibility: e.target.value })}
+                  >
+                    {VISIBILITIES.map((v) => <option key={v.value} value={v.value}>{v.label}</option>)}
+                  </select>
+                  <p className="text-xs text-muted-foreground mt-1">{visibilityMeta(form.visibility).help}</p>
                 </div>
 
                 <div className="md:col-span-2">
                   <Label>Description</Label>
-                  <Textarea 
-                    value={form.description || ""} 
-                    onChange={(e) => setForm({ ...form, description: e.target.value })} 
+                  <Textarea
+                    value={form.description || ""}
+                    onChange={(e) => setForm({ ...form, description: e.target.value })}
                     placeholder="Description détaillée visible par les investisseurs"
                   />
                 </div>
@@ -270,9 +395,9 @@ export default function AdminDataroom() {
                   <>
                     <div>
                       <Label>Type de plateforme</Label>
-                      <select 
-                        className="w-full h-10 rounded-md border bg-background px-3" 
-                        value={form.platform_type || "website"} 
+                      <select
+                        className="w-full h-10 rounded-md border bg-background px-3"
+                        value={form.platform_type || "website"}
                         onChange={(e) => setForm({ ...form, platform_type: e.target.value })}
                       >
                         <option value="website">Site web</option>
@@ -285,20 +410,20 @@ export default function AdminDataroom() {
                     </div>
                     <div>
                       <Label>URL plateforme</Label>
-                      <Input 
-                        value={form.platform_url || ""} 
-                        onChange={(e) => setForm({ ...form, platform_url: e.target.value })} 
-                        placeholder="https://..." 
+                      <Input
+                        value={form.platform_url || ""}
+                        onChange={(e) => setForm({ ...form, platform_url: e.target.value })}
+                        placeholder="https://..."
                       />
                     </div>
                   </>
                 ) : !editingId ? (
                   <div className="md:col-span-2 rounded-md border border-dashed p-4 space-y-2 bg-muted/50">
                     <Label className="flex items-center gap-2"><Upload className="w-4 h-4" />Téléversement obligatoire</Label>
-                    <Input 
-                      type="file" 
-                      accept={(ALLOWED_BY_TYPE[form.type] || []).join(",")} 
-                      onChange={(e) => setSelectedFile(e.target.files?.[0] ?? null)} 
+                    <Input
+                      type="file"
+                      accept={(ALLOWED_BY_TYPE[form.type] || []).join(",")}
+                      onChange={(e) => setSelectedFile(e.target.files?.[0] ?? null)}
                     />
                     <p className="text-xs text-muted-foreground">
                       Types autorisés : {(ALLOWED_BY_TYPE[form.type] || []).join(", ")} · max 25 Mo
@@ -306,23 +431,26 @@ export default function AdminDataroom() {
                     {selectedFile && <p className="text-xs font-medium text-primary">{selectedFile.name} · {(selectedFile.size / 1024 / 1024).toFixed(2)} Mo</p>}
                   </div>
                 ) : (
-                  <div className="md:col-span-2 p-3 bg-muted rounded-md text-sm flex items-center justify-between">
+                  <div className="md:col-span-2 p-3 bg-muted rounded-md text-sm flex items-center justify-between gap-2 flex-wrap">
                     <div className="flex items-center gap-2">
                       <FileText className="w-4 h-4 text-muted-foreground" />
                       <span>Fichier : {form.source_file_name || "Lien externe"}</span>
                     </div>
                     {form.file_url && (
-                      <Button variant="ghost" size="sm" onClick={() => downloadFile(form.file_url)}>
-                        <Download className="w-3 h-3 mr-2" /> Voir/Télécharger
-                      </Button>
+                      <div className="flex gap-2">
+                        <Button variant="ghost" size="sm" onClick={() => openPreview({ ...form, id: editingId })}>
+                          <Eye className="w-3 h-3 mr-2" /> Aperçu
+                        </Button>
+                        <Button variant="ghost" size="sm" onClick={() => downloadFile(form.file_url)}>
+                          <Download className="w-3 h-3 mr-2" /> Télécharger
+                        </Button>
+                      </div>
                     )}
                   </div>
                 )}
 
                 <div className="md:col-span-2 flex justify-end gap-2 pt-2">
-                  {editingId && (
-                    <Button variant="ghost" onClick={cancelEdit}>Annuler</Button>
-                  )}
+                  {editingId && <Button variant="ghost" onClick={cancelEdit}>Annuler</Button>}
                   <Button onClick={handleSave} disabled={saving} className="min-w-[150px]">
                     {saving ? "Enregistrement..." : editingId ? <><Save className="w-4 h-4 mr-2" />Enregistrer</> : <><Plus className="w-4 h-4 mr-2" />Ajouter</>}
                   </Button>
@@ -330,59 +458,115 @@ export default function AdminDataroom() {
               </CardContent>
             </Card>
 
+            {/* Filtres */}
+            <Card>
+              <CardContent className="p-3 grid gap-2 md:grid-cols-5">
+                <div className="relative md:col-span-1">
+                  <Search className="w-4 h-4 absolute left-3 top-3 text-muted-foreground" />
+                  <Input className="pl-9" placeholder="Rechercher..." value={search} onChange={(e) => setSearch(e.target.value)} />
+                </div>
+                <select className="h-10 rounded-md border bg-background px-3 text-sm" value={filterType} onChange={(e) => setFilterType(e.target.value)}>
+                  <option value="all">Tous les types</option>
+                  <option value="document">Document</option>
+                  <option value="photo">Photo</option>
+                  <option value="video">Vidéo</option>
+                  <option value="presentation">Présentation</option>
+                  <option value="platform">Plateforme</option>
+                </select>
+                <select className="h-10 rounded-md border bg-background px-3 text-sm" value={filterCategory} onChange={(e) => setFilterCategory(e.target.value)}>
+                  <option value="all">Toutes les catégories</option>
+                  {categories.map((c) => <option key={c} value={c}>{c}</option>)}
+                </select>
+                <select className="h-10 rounded-md border bg-background px-3 text-sm" value={filterVisibility} onChange={(e) => setFilterVisibility(e.target.value)}>
+                  <option value="all">Toutes les permissions</option>
+                  {VISIBILITIES.map((v) => <option key={v.value} value={v.value}>{v.label}</option>)}
+                </select>
+                <select className="h-10 rounded-md border bg-background px-3 text-sm" value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}>
+                  <option value="all">Tous les statuts</option>
+                  <option value="published">Publiés</option>
+                  <option value="draft">Brouillons</option>
+                </select>
+              </CardContent>
+            </Card>
+
             <div className="grid gap-3">
               <h3 className="font-semibold text-lg flex items-center gap-2">
                 Liste des publications
-                <Badge variant="outline">{pubs.length}</Badge>
+                <Badge variant="outline">{filtered.length} / {pubs.length}</Badge>
               </h3>
-              {pubs.map((p) => (
-                <Card key={p.id} className="overflow-hidden group hover:border-primary/50 transition-colors">
-                  <CardContent className="p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                    <div className="flex gap-4 items-start">
-                      <div className="w-12 h-12 rounded bg-muted flex items-center justify-center flex-shrink-0">
-                        {p.type === "platform" ? <Link2 className="w-6 h-6 text-blue-500" /> : 
-                         p.type === "photo" ? <ImageIcon className="w-6 h-6 text-green-500" /> :
-                         p.type === "video" ? <ImageIcon className="w-6 h-6 text-purple-500" /> :
-                         <FileText className="w-6 h-6 text-amber-500" />}
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="font-bold">{p.title}</span>
-                          {!p.is_published && <Badge variant="secondary" className="text-[10px] h-4">BROUILLON</Badge>}
+              {filtered.map((p) => {
+                const vm = visibilityMeta(p.visibility || "nda");
+                const VIcon = vm.icon;
+                return (
+                  <Card key={p.id} className="overflow-hidden group hover:border-primary/50 transition-colors">
+                    <CardContent className="p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                      <div className="flex gap-4 items-start min-w-0">
+                        <button
+                          onClick={() => openPreview(p)}
+                          className="w-14 h-14 rounded bg-muted flex items-center justify-center flex-shrink-0 overflow-hidden"
+                          title="Aperçu"
+                        >
+                          {p.cover_url || p.preview_image_url ? (
+                            <img src={p.cover_url || p.preview_image_url} alt={p.title} className="w-full h-full object-cover" />
+                          ) : p.type === "platform" ? <Link2 className="w-6 h-6 text-blue-500" />
+                            : p.type === "photo" ? <ImageIcon className="w-6 h-6 text-green-500" />
+                            : p.type === "video" ? <ImageIcon className="w-6 h-6 text-purple-500" />
+                            : <FileText className="w-6 h-6 text-amber-500" />}
+                        </button>
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="font-bold">{p.title}</span>
+                            {!p.is_published && <Badge variant="secondary" className="text-[10px] h-4">BROUILLON</Badge>}
+                            <Badge variant="outline" className="text-[10px] h-4 gap-1"><VIcon className="w-3 h-3" />{vm.label}</Badge>
+                          </div>
+                          <div className="text-xs text-muted-foreground flex items-center gap-3 flex-wrap mt-1">
+                            <span className="bg-muted px-1.5 py-0.5 rounded text-[10px] uppercase font-bold">{p.type}</span>
+                            <span>{p.category || "Sans catégorie"}</span>
+                            <span className="flex items-center gap-1"><Eye className="w-3 h-3" /> {p.views_count} vues</span>
+                            {p.source_file_name && <span className="truncate max-w-[150px] italic">({p.source_file_name})</span>}
+                            <span>{new Date(p.created_at).toLocaleDateString()}</span>
+                          </div>
                         </div>
-                        <div className="text-xs text-muted-foreground flex items-center gap-3 flex-wrap mt-1">
-                          <span className="bg-muted px-1.5 py-0.5 rounded text-[10px] uppercase font-bold">{p.type}</span>
-                          <span>{p.category || "Sans catégorie"}</span>
-                          <span className="flex items-center gap-1"><Eye className="w-3 h-3" /> {p.views_count} vues</span>
-                          {p.source_file_name && <span className="truncate max-w-[150px] italic">({p.source_file_name})</span>}
-                          <span>{new Date(p.created_at).toLocaleDateString()}</span>
-                        </div>
                       </div>
-                    </div>
-                    <div className="flex items-center gap-2 w-full md:w-auto justify-end border-t md:border-t-0 pt-2 md:pt-0">
-                      {p.file_url && (
-                        <Button variant="ghost" size="icon" onClick={() => downloadFile(p.file_url)} title="Télécharger">
-                          <Download className="w-4 h-4" />
+                      <div className="flex items-center gap-2 w-full md:w-auto justify-end border-t md:border-t-0 pt-2 md:pt-0 flex-wrap">
+                        <select
+                          className="h-8 rounded-md border bg-background px-2 text-xs"
+                          value={p.visibility || "nda"}
+                          onChange={(e) => changeVisibility(p, e.target.value)}
+                          title="Permission d'accès"
+                        >
+                          {VISIBILITIES.map((v) => <option key={v.value} value={v.value}>{v.label}</option>)}
+                        </select>
+                        <Button variant="ghost" size="icon" onClick={() => togglePublish(p)} title={p.is_published ? "Dépublier" : "Publier"}>
+                          {p.is_published ? <Eye className="w-4 h-4 text-green-600" /> : <EyeOff className="w-4 h-4 text-amber-600" />}
                         </Button>
-                      )}
-                      {p.platform_url && (
-                        <Button variant="ghost" size="icon" asChild title="Ouvrir">
-                          <a href={p.platform_url} target="_blank" rel="noopener noreferrer">
-                            <ExternalLink className="w-4 h-4" />
-                          </a>
+                        <Button variant="ghost" size="icon" onClick={() => openPreview(p)} title="Aperçu">
+                          <Search className="w-4 h-4" />
                         </Button>
-                      )}
-                      <Button variant="ghost" size="icon" onClick={() => startEdit(p)} title="Modifier">
-                        <Edit className="w-4 h-4" />
-                      </Button>
-                      <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive hover:bg-destructive/10" onClick={() => delPub(p.id)} title="Supprimer">
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-              {pubs.length === 0 && (
+                        {p.file_url && (
+                          <Button variant="ghost" size="icon" onClick={() => downloadFile(p.file_url)} title="Télécharger">
+                            <Download className="w-4 h-4" />
+                          </Button>
+                        )}
+                        {p.platform_url && (
+                          <Button variant="ghost" size="icon" asChild title="Ouvrir">
+                            <a href={p.platform_url} target="_blank" rel="noopener noreferrer">
+                              <ExternalLink className="w-4 h-4" />
+                            </a>
+                          </Button>
+                        )}
+                        <Button variant="ghost" size="icon" onClick={() => startEdit(p)} title="Modifier">
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive hover:bg-destructive/10" onClick={() => delPub(p)} title="Supprimer">
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+              {filtered.length === 0 && (
                 <div className="text-center py-12 border rounded-lg border-dashed">
                   <p className="text-muted-foreground text-sm">Aucune publication trouvée.</p>
                 </div>
@@ -421,7 +605,7 @@ export default function AdminDataroom() {
                     <div className="text-xs text-muted-foreground font-medium">
                       {c.dataroom_signatories?.full_name} sur <span className="text-foreground">{c.dataroom_publications?.title}</span>
                     </div>
-                    <Badge variant={c.approved ? "default" : "outline"} className={c.approved ? "bg-green-500 hover:bg-green-600" : ""}>
+                    <Badge variant={c.approved ? "default" : "outline"}>
                       {c.approved ? "Approuvé" : "En attente"}
                     </Badge>
                   </div>
@@ -456,6 +640,23 @@ export default function AdminDataroom() {
           </TabsContent>
         </Tabs>
       </div>
+
+      <Dialog open={!!preview} onOpenChange={(o) => !o && setPreview(null)}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 pr-6">
+              {preview?.pub?.title}
+              {preview?.pub && (
+                <Badge variant="outline" className="text-[10px]">{visibilityMeta(preview.pub.visibility || "nda").label}</Badge>
+              )}
+            </DialogTitle>
+          </DialogHeader>
+          {preview?.pub?.description && (
+            <p className="text-sm text-muted-foreground">{preview.pub.description}</p>
+          )}
+          {renderPreviewBody()}
+        </DialogContent>
+      </Dialog>
     </AdminLayout>
   );
 }
