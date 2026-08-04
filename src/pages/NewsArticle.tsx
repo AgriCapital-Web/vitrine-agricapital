@@ -7,6 +7,7 @@ import DOMPurify from "dompurify";
 import DynamicNavigation from "@/components/DynamicNavigation";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
+import ArticleJsonLD from "@/components/ArticleJsonLD";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
