@@ -13,8 +13,22 @@ import { toast } from "@/hooks/use-toast";
 import {
   Download, Trash2, Plus, FileText, Users, MessageSquare,
   FileSignature, Upload, Link2, Image as ImageIcon,
-  Edit, Save, X, Eye, EyeOff, ExternalLink, Search, Lock, ShieldCheck, Globe
+  Edit, Save, X, Eye, EyeOff, ExternalLink, Search, Lock, ShieldCheck, Globe, History, RotateCcw
 } from "lucide-react";
+
+const WORKFLOW_LABEL: Record<string, string> = {
+  draft: "Brouillon",
+  in_review: "En revue",
+  published: "Publié",
+  archived: "Archivé",
+};
+
+const WORKFLOW_STYLE: Record<string, string> = {
+  draft: "bg-muted text-muted-foreground",
+  in_review: "bg-amber-50 text-amber-700 border-amber-200",
+  published: "bg-emerald-50 text-emerald-700 border-emerald-200",
+  archived: "bg-slate-100 text-slate-600",
+};
 import { Badge } from "@/components/ui/badge";
 
 const BUCKET = "dataroom";
@@ -366,9 +380,13 @@ export default function AdminDataroom() {
     return data.signedUrl;
   };
 
-  const downloadFile = async (path: string) => {
+  const downloadFile = async (path: string, pubId?: string) => {
     const url = await signedUrl(path, 60);
     if (url) window.open(url, "_blank");
+    if (pubId) {
+      await supabase.rpc("increment_dataroom_download", { _publication_id: pubId });
+      setPubs((prev) => prev.map((x) => (x.id === pubId ? { ...x, downloads_count: (x.downloads_count || 0) + 1 } : x)));
+    }
   };
 
   const openPreview = async (p: any) => {
@@ -603,8 +621,15 @@ export default function AdminDataroom() {
                 </select>
                 <select className="h-10 rounded-md border bg-background px-3 text-sm" value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}>
                   <option value="all">Tous les statuts</option>
-                  <option value="published">Publiés</option>
                   <option value="draft">Brouillons</option>
+                  <option value="in_review">En revue</option>
+                  <option value="published">Publiés</option>
+                  <option value="archived">Archivés</option>
+                </select>
+                <select className="h-10 rounded-md border bg-background px-3 text-sm" value={sortBy} onChange={(e) => setSortBy(e.target.value as any)}>
+                  <option value="recent">Tri : plus récents</option>
+                  <option value="views">Tri : plus vus</option>
+                  <option value="downloads">Tri : plus téléchargés</option>
                 </select>
               </CardContent>
             </Card>
@@ -636,13 +661,17 @@ export default function AdminDataroom() {
                         <div className="min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
                             <span className="font-bold">{p.title}</span>
-                            {!p.is_published && <Badge variant="secondary" className="text-[10px] h-4">BROUILLON</Badge>}
+                            <Badge variant="outline" className={`text-[10px] h-4 ${WORKFLOW_STYLE[p.workflow_status || "draft"]}`}>
+                              {WORKFLOW_LABEL[p.workflow_status || "draft"]}
+                            </Badge>
                             <Badge variant="outline" className="text-[10px] h-4 gap-1"><VIcon className="w-3 h-3" />{vm.label}</Badge>
+                            <Badge variant="secondary" className="text-[10px] h-4">v{p.current_version || 1}</Badge>
                           </div>
                           <div className="text-xs text-muted-foreground flex items-center gap-3 flex-wrap mt-1">
                             <span className="bg-muted px-1.5 py-0.5 rounded text-[10px] uppercase font-bold">{p.type}</span>
                             <span>{p.category || "Sans catégorie"}</span>
                             <span className="flex items-center gap-1"><Eye className="w-3 h-3" /> {p.views_count} vues</span>
+                            <span className="flex items-center gap-1"><Download className="w-3 h-3" /> {p.downloads_count || 0} téléch.</span>
                             {p.source_file_name && <span className="truncate max-w-[150px] italic">({p.source_file_name})</span>}
                             <span>{new Date(p.created_at).toLocaleDateString()}</span>
                           </div>
@@ -651,14 +680,28 @@ export default function AdminDataroom() {
                       <div className="flex items-center gap-2 w-full md:w-auto justify-end border-t md:border-t-0 pt-2 md:pt-0 flex-wrap">
                         <select
                           className="h-8 rounded-md border bg-background px-2 text-xs"
+                          value={p.workflow_status || "draft"}
+                          onChange={(e) => changeWorkflow(p, e.target.value)}
+                          title="Statut de validation"
+                        >
+                          <option value="draft">Brouillon</option>
+                          <option value="in_review">En revue</option>
+                          <option value="published">Publié</option>
+                          <option value="archived">Archivé</option>
+                        </select>
+                        <select
+                          className="h-8 rounded-md border bg-background px-2 text-xs"
                           value={p.visibility || "nda"}
                           onChange={(e) => changeVisibility(p, e.target.value)}
                           title="Permission d'accès"
                         >
                           {VISIBILITIES.map((v) => <option key={v.value} value={v.value}>{v.label}</option>)}
                         </select>
-                        <Button variant="ghost" size="icon" onClick={() => togglePublish(p)} title={p.is_published ? "Dépublier" : "Publier"}>
-                          {p.is_published ? <Eye className="w-4 h-4 text-green-600" /> : <EyeOff className="w-4 h-4 text-amber-600" />}
+                        <Button variant="ghost" size="icon" onClick={() => openWorkflow(p)} title="Revue & versions">
+                          <History className="w-4 h-4 text-primary" />
+                        </Button>
+                        <Button variant="ghost" size="icon" onClick={() => togglePublish(p)} title={p.workflow_status === "published" ? "Dépublier" : "Publier"}>
+                          {p.workflow_status === "published" ? <Eye className="w-4 h-4 text-green-600" /> : <EyeOff className="w-4 h-4 text-amber-600" />}
                         </Button>
                         <Button variant="ghost" size="icon" onClick={() => openPreview(p)} title="Aperçu">
                           <Search className="w-4 h-4" />
