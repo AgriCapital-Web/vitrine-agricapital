@@ -101,6 +101,13 @@ export default function AdminDataroom() {
   const [preview, setPreview] = useState<{ pub: any; url: string | null } | null>(null);
   const [previewLoading, setPreviewLoading] = useState(false);
 
+  // workflow / versions / popularité
+  const [sortBy, setSortBy] = useState<"recent" | "views" | "downloads">("recent");
+  const [workflowPub, setWorkflowPub] = useState<any | null>(null);
+  const [reviewComments, setReviewComments] = useState<any[]>([]);
+  const [versions, setVersions] = useState<any[]>([]);
+  const [newReview, setNewReview] = useState("");
+
   const load = async () => {
     const [p, s, c, i] = await Promise.all([
       supabase.from("dataroom_publications").select("*").order("created_at", { ascending: false }),
@@ -124,16 +131,18 @@ export default function AdminDataroom() {
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    return pubs.filter((p) => {
+    const list = pubs.filter((p) => {
       if (q && !`${p.title} ${p.description ?? ""} ${p.category ?? ""} ${p.source_file_name ?? ""}`.toLowerCase().includes(q)) return false;
       if (filterType !== "all" && p.type !== filterType) return false;
       if (filterCategory !== "all" && (p.category || "") !== filterCategory) return false;
       if (filterVisibility !== "all" && (p.visibility || "nda") !== filterVisibility) return false;
-      if (filterStatus === "published" && !p.is_published) return false;
-      if (filterStatus === "draft" && p.is_published) return false;
+      if (filterStatus !== "all" && (p.workflow_status || (p.is_published ? "published" : "draft")) !== filterStatus) return false;
       return true;
     });
-  }, [pubs, search, filterType, filterCategory, filterVisibility, filterStatus]);
+    if (sortBy === "views") return [...list].sort((a, b) => (b.views_count || 0) - (a.views_count || 0));
+    if (sortBy === "downloads") return [...list].sort((a, b) => (b.downloads_count || 0) - (a.downloads_count || 0));
+    return list;
+  }, [pubs, search, filterType, filterCategory, filterVisibility, filterStatus, sortBy]);
 
   const handleSave = async () => {
     if (!form.title) return toast({ title: "Titre requis", variant: "destructive" });
@@ -146,7 +155,29 @@ export default function AdminDataroom() {
         delete payload.created_at;
         delete payload.updated_at;
         delete payload.views_count;
+        delete payload.downloads_count;
         delete payload.created_by;
+        delete payload.current_version;
+        delete payload.reviewed_by;
+        delete payload.reviewed_at;
+        delete payload.published_at;
+        // Snapshot de la version courante avant écrasement (historique restaurable)
+        const previous = pubs.find((x) => x.id === editingId);
+        if (previous) {
+          await supabase.from("dataroom_versions").insert({
+            publication_id: editingId,
+            version_number: previous.current_version || 1,
+            title: previous.title,
+            description: previous.description,
+            file_url: previous.file_url,
+            source_file_name: previous.source_file_name,
+            source_file_size: previous.source_file_size,
+            source_mime_type: previous.source_mime_type,
+            snapshot: previous,
+            change_note: "Sauvegarde automatique avant modification",
+          });
+          payload.current_version = (previous.current_version || 1) + 1;
+        }
         const { error } = await supabase.from("dataroom_publications").update(payload).eq("id", editingId);
         if (error) throw error;
         toast({ title: "Publication mise à jour" });
@@ -224,9 +255,98 @@ export default function AdminDataroom() {
   };
 
   const togglePublish = async (p: any) => {
-    const { error } = await supabase.from("dataroom_publications").update({ is_published: !p.is_published }).eq("id", p.id);
+    const next = p.workflow_status === "published" ? "draft" : "published";
+    await changeWorkflow(p, next);
+  };
+
+  const changeWorkflow = async (p: any, workflow_status: string) => {
+    const { data: userData } = await supabase.auth.getUser();
+    const patch: any = { workflow_status };
+    if (workflow_status === "in_review" || workflow_status === "published") {
+      patch.reviewed_by = userData?.user?.id ?? null;
+      patch.reviewed_at = new Date().toISOString();
+    }
+    const { error } = await supabase.from("dataroom_publications").update(patch).eq("id", p.id);
     if (error) return toast({ title: "Erreur", description: error.message, variant: "destructive" });
-    setPubs((prev) => prev.map((x) => (x.id === p.id ? { ...x, is_published: !p.is_published } : x)));
+    await supabase.from("dataroom_review_comments").insert({
+      publication_id: p.id,
+      author_id: userData?.user?.id ?? null,
+      author_name: userData?.user?.email ?? "Administrateur",
+      body: `Statut changé : ${WORKFLOW_LABEL[p.workflow_status || "draft"]} → ${WORKFLOW_LABEL[workflow_status]}`,
+      status_at_comment: workflow_status,
+    });
+    setPubs((prev) => prev.map((x) => (x.id === p.id ? { ...x, ...patch, is_published: workflow_status === "published" } : x)));
+    if (workflowPub?.id === p.id) openWorkflow({ ...p, ...patch });
+    toast({ title: `Statut : ${WORKFLOW_LABEL[workflow_status]}` });
+  };
+
+  const openWorkflow = async (p: any) => {
+    setWorkflowPub(p);
+    setNewReview("");
+    const [c, v] = await Promise.all([
+      supabase.from("dataroom_review_comments").select("*").eq("publication_id", p.id).order("created_at", { ascending: false }),
+      supabase.from("dataroom_versions").select("*").eq("publication_id", p.id).order("version_number", { ascending: false }),
+    ]);
+    setReviewComments(c.data ?? []);
+    setVersions(v.data ?? []);
+  };
+
+  const addReviewComment = async () => {
+    if (!newReview.trim() || !workflowPub) return;
+    const { data: userData } = await supabase.auth.getUser();
+    const { error } = await supabase.from("dataroom_review_comments").insert({
+      publication_id: workflowPub.id,
+      author_id: userData?.user?.id ?? null,
+      author_name: userData?.user?.email ?? "Administrateur",
+      body: newReview.trim(),
+      status_at_comment: workflowPub.workflow_status || "draft",
+    });
+    if (error) return toast({ title: "Erreur", description: error.message, variant: "destructive" });
+    setNewReview("");
+    openWorkflow(workflowPub);
+  };
+
+  const restoreVersion = async (v: any) => {
+    if (!workflowPub) return;
+    if (!confirm(`Restaurer la version ${v.version_number} de « ${workflowPub.title} » ?`)) return;
+    const snap = (v.snapshot || {}) as any;
+    const { data: userData } = await supabase.auth.getUser();
+    // On archive d'abord l'état courant afin de pouvoir revenir en arrière
+    await supabase.from("dataroom_versions").insert({
+      publication_id: workflowPub.id,
+      version_number: (workflowPub.current_version || 1),
+      title: workflowPub.title,
+      description: workflowPub.description,
+      file_url: workflowPub.file_url,
+      source_file_name: workflowPub.source_file_name,
+      source_file_size: workflowPub.source_file_size,
+      source_mime_type: workflowPub.source_mime_type,
+      snapshot: workflowPub,
+      change_note: `Sauvegarde avant restauration de la v${v.version_number}`,
+    });
+    const patch = {
+      title: snap.title ?? v.title,
+      description: snap.description ?? v.description,
+      file_url: snap.file_url ?? v.file_url,
+      source_file_name: snap.source_file_name ?? v.source_file_name,
+      source_file_size: snap.source_file_size ?? v.source_file_size,
+      source_mime_type: snap.source_mime_type ?? v.source_mime_type,
+      category: snap.category ?? workflowPub.category,
+      visibility: snap.visibility ?? workflowPub.visibility,
+      current_version: (workflowPub.current_version || 1) + 1,
+    };
+    const { error } = await supabase.from("dataroom_publications").update(patch).eq("id", workflowPub.id);
+    if (error) return toast({ title: "Erreur", description: error.message, variant: "destructive" });
+    await supabase.from("dataroom_review_comments").insert({
+      publication_id: workflowPub.id,
+      author_id: userData?.user?.id ?? null,
+      author_name: userData?.user?.email ?? "Administrateur",
+      body: `Restauration de la version ${v.version_number}`,
+      status_at_comment: workflowPub.workflow_status || "draft",
+    });
+    toast({ title: `Version ${v.version_number} restaurée` });
+    await load();
+    openWorkflow({ ...workflowPub, ...patch });
   };
 
   const changeVisibility = async (p: any, visibility: string) => {
