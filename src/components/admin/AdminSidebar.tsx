@@ -39,6 +39,7 @@ const menuItems: MenuItem[] = [
   { divider: true, label: "Configuration" },
   { icon: Shield, label: "Utilisateurs & Rôles", path: "/admin/users" },
   { icon: Database, label: "Base de données", path: "/admin/database" },
+  { icon: Image, label: "Images cassées", path: "/admin/broken-images" },
   { icon: Settings, label: "Paramètres", path: "/admin/settings" },
 ];
 

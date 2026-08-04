@@ -13,8 +13,22 @@ import { toast } from "@/hooks/use-toast";
 import {
   Download, Trash2, Plus, FileText, Users, MessageSquare,
   FileSignature, Upload, Link2, Image as ImageIcon,
-  Edit, Save, X, Eye, EyeOff, ExternalLink, Search, Lock, ShieldCheck, Globe
+  Edit, Save, X, Eye, EyeOff, ExternalLink, Search, Lock, ShieldCheck, Globe, History, RotateCcw
 } from "lucide-react";
+
+const WORKFLOW_LABEL: Record<string, string> = {
+  draft: "Brouillon",
+  in_review: "En revue",
+  published: "Publié",
+  archived: "Archivé",
+};
+
+const WORKFLOW_STYLE: Record<string, string> = {
+  draft: "bg-muted text-muted-foreground",
+  in_review: "bg-amber-50 text-amber-700 border-amber-200",
+  published: "bg-emerald-50 text-emerald-700 border-emerald-200",
+  archived: "bg-slate-100 text-slate-600",
+};
 import { Badge } from "@/components/ui/badge";
 
 const BUCKET = "dataroom";
@@ -60,7 +74,8 @@ const emptyForm = {
   source_file_name: "",
   source_file_size: 0,
   source_mime_type: "",
-  is_published: true,
+  is_published: false,
+  workflow_status: "draft",
   visibility: "nda",
 };
 
@@ -101,6 +116,13 @@ export default function AdminDataroom() {
   const [preview, setPreview] = useState<{ pub: any; url: string | null } | null>(null);
   const [previewLoading, setPreviewLoading] = useState(false);
 
+  // workflow / versions / popularité
+  const [sortBy, setSortBy] = useState<"recent" | "views" | "downloads">("recent");
+  const [workflowPub, setWorkflowPub] = useState<any | null>(null);
+  const [reviewComments, setReviewComments] = useState<any[]>([]);
+  const [versions, setVersions] = useState<any[]>([]);
+  const [newReview, setNewReview] = useState("");
+
   const load = async () => {
     const [p, s, c, i] = await Promise.all([
       supabase.from("dataroom_publications").select("*").order("created_at", { ascending: false }),
@@ -124,16 +146,18 @@ export default function AdminDataroom() {
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    return pubs.filter((p) => {
+    const list = pubs.filter((p) => {
       if (q && !`${p.title} ${p.description ?? ""} ${p.category ?? ""} ${p.source_file_name ?? ""}`.toLowerCase().includes(q)) return false;
       if (filterType !== "all" && p.type !== filterType) return false;
       if (filterCategory !== "all" && (p.category || "") !== filterCategory) return false;
       if (filterVisibility !== "all" && (p.visibility || "nda") !== filterVisibility) return false;
-      if (filterStatus === "published" && !p.is_published) return false;
-      if (filterStatus === "draft" && p.is_published) return false;
+      if (filterStatus !== "all" && (p.workflow_status || (p.is_published ? "published" : "draft")) !== filterStatus) return false;
       return true;
     });
-  }, [pubs, search, filterType, filterCategory, filterVisibility, filterStatus]);
+    if (sortBy === "views") return [...list].sort((a, b) => (b.views_count || 0) - (a.views_count || 0));
+    if (sortBy === "downloads") return [...list].sort((a, b) => (b.downloads_count || 0) - (a.downloads_count || 0));
+    return list;
+  }, [pubs, search, filterType, filterCategory, filterVisibility, filterStatus, sortBy]);
 
   const handleSave = async () => {
     if (!form.title) return toast({ title: "Titre requis", variant: "destructive" });
@@ -146,7 +170,29 @@ export default function AdminDataroom() {
         delete payload.created_at;
         delete payload.updated_at;
         delete payload.views_count;
+        delete payload.downloads_count;
         delete payload.created_by;
+        delete payload.current_version;
+        delete payload.reviewed_by;
+        delete payload.reviewed_at;
+        delete payload.published_at;
+        // Snapshot de la version courante avant écrasement (historique restaurable)
+        const previous = pubs.find((x) => x.id === editingId);
+        if (previous) {
+          await supabase.from("dataroom_versions").insert({
+            publication_id: editingId,
+            version_number: previous.current_version || 1,
+            title: previous.title,
+            description: previous.description,
+            file_url: previous.file_url,
+            source_file_name: previous.source_file_name,
+            source_file_size: previous.source_file_size,
+            source_mime_type: previous.source_mime_type,
+            snapshot: previous,
+            change_note: "Sauvegarde automatique avant modification",
+          });
+          payload.current_version = (previous.current_version || 1) + 1;
+        }
         const { error } = await supabase.from("dataroom_publications").update(payload).eq("id", editingId);
         if (error) throw error;
         toast({ title: "Publication mise à jour" });
@@ -224,9 +270,98 @@ export default function AdminDataroom() {
   };
 
   const togglePublish = async (p: any) => {
-    const { error } = await supabase.from("dataroom_publications").update({ is_published: !p.is_published }).eq("id", p.id);
+    const next = p.workflow_status === "published" ? "draft" : "published";
+    await changeWorkflow(p, next);
+  };
+
+  const changeWorkflow = async (p: any, workflow_status: string) => {
+    const { data: userData } = await supabase.auth.getUser();
+    const patch: any = { workflow_status };
+    if (workflow_status === "in_review" || workflow_status === "published") {
+      patch.reviewed_by = userData?.user?.id ?? null;
+      patch.reviewed_at = new Date().toISOString();
+    }
+    const { error } = await supabase.from("dataroom_publications").update(patch).eq("id", p.id);
     if (error) return toast({ title: "Erreur", description: error.message, variant: "destructive" });
-    setPubs((prev) => prev.map((x) => (x.id === p.id ? { ...x, is_published: !p.is_published } : x)));
+    await supabase.from("dataroom_review_comments").insert({
+      publication_id: p.id,
+      author_id: userData?.user?.id ?? null,
+      author_name: userData?.user?.email ?? "Administrateur",
+      body: `Statut changé : ${WORKFLOW_LABEL[p.workflow_status || "draft"]} → ${WORKFLOW_LABEL[workflow_status]}`,
+      status_at_comment: workflow_status,
+    });
+    setPubs((prev) => prev.map((x) => (x.id === p.id ? { ...x, ...patch, is_published: workflow_status === "published" } : x)));
+    if (workflowPub?.id === p.id) openWorkflow({ ...p, ...patch });
+    toast({ title: `Statut : ${WORKFLOW_LABEL[workflow_status]}` });
+  };
+
+  const openWorkflow = async (p: any) => {
+    setWorkflowPub(p);
+    setNewReview("");
+    const [c, v] = await Promise.all([
+      supabase.from("dataroom_review_comments").select("*").eq("publication_id", p.id).order("created_at", { ascending: false }),
+      supabase.from("dataroom_versions").select("*").eq("publication_id", p.id).order("version_number", { ascending: false }),
+    ]);
+    setReviewComments(c.data ?? []);
+    setVersions(v.data ?? []);
+  };
+
+  const addReviewComment = async () => {
+    if (!newReview.trim() || !workflowPub) return;
+    const { data: userData } = await supabase.auth.getUser();
+    const { error } = await supabase.from("dataroom_review_comments").insert({
+      publication_id: workflowPub.id,
+      author_id: userData?.user?.id ?? null,
+      author_name: userData?.user?.email ?? "Administrateur",
+      body: newReview.trim(),
+      status_at_comment: workflowPub.workflow_status || "draft",
+    });
+    if (error) return toast({ title: "Erreur", description: error.message, variant: "destructive" });
+    setNewReview("");
+    openWorkflow(workflowPub);
+  };
+
+  const restoreVersion = async (v: any) => {
+    if (!workflowPub) return;
+    if (!confirm(`Restaurer la version ${v.version_number} de « ${workflowPub.title} » ?`)) return;
+    const snap = (v.snapshot || {}) as any;
+    const { data: userData } = await supabase.auth.getUser();
+    // On archive d'abord l'état courant afin de pouvoir revenir en arrière
+    await supabase.from("dataroom_versions").insert({
+      publication_id: workflowPub.id,
+      version_number: (workflowPub.current_version || 1),
+      title: workflowPub.title,
+      description: workflowPub.description,
+      file_url: workflowPub.file_url,
+      source_file_name: workflowPub.source_file_name,
+      source_file_size: workflowPub.source_file_size,
+      source_mime_type: workflowPub.source_mime_type,
+      snapshot: workflowPub,
+      change_note: `Sauvegarde avant restauration de la v${v.version_number}`,
+    });
+    const patch = {
+      title: snap.title ?? v.title,
+      description: snap.description ?? v.description,
+      file_url: snap.file_url ?? v.file_url,
+      source_file_name: snap.source_file_name ?? v.source_file_name,
+      source_file_size: snap.source_file_size ?? v.source_file_size,
+      source_mime_type: snap.source_mime_type ?? v.source_mime_type,
+      category: snap.category ?? workflowPub.category,
+      visibility: snap.visibility ?? workflowPub.visibility,
+      current_version: (workflowPub.current_version || 1) + 1,
+    };
+    const { error } = await supabase.from("dataroom_publications").update(patch).eq("id", workflowPub.id);
+    if (error) return toast({ title: "Erreur", description: error.message, variant: "destructive" });
+    await supabase.from("dataroom_review_comments").insert({
+      publication_id: workflowPub.id,
+      author_id: userData?.user?.id ?? null,
+      author_name: userData?.user?.email ?? "Administrateur",
+      body: `Restauration de la version ${v.version_number}`,
+      status_at_comment: workflowPub.workflow_status || "draft",
+    });
+    toast({ title: `Version ${v.version_number} restaurée` });
+    await load();
+    openWorkflow({ ...workflowPub, ...patch });
   };
 
   const changeVisibility = async (p: any, visibility: string) => {
@@ -246,9 +381,13 @@ export default function AdminDataroom() {
     return data.signedUrl;
   };
 
-  const downloadFile = async (path: string) => {
+  const downloadFile = async (path: string, pubId?: string) => {
     const url = await signedUrl(path, 60);
     if (url) window.open(url, "_blank");
+    if (pubId) {
+      await supabase.rpc("increment_dataroom_download", { _publication_id: pubId });
+      setPubs((prev) => prev.map((x) => (x.id === pubId ? { ...x, downloads_count: (x.downloads_count || 0) + 1 } : x)));
+    }
   };
 
   const openPreview = async (p: any) => {
@@ -324,14 +463,17 @@ export default function AdminDataroom() {
                     {editingId ? "Modifier la publication" : "Nouvelle publication"}
                   </h3>
                   <div className="flex items-center gap-2">
-                    <Label htmlFor="pub-switch" className="text-sm text-muted-foreground">
-                      {form.is_published ? "Publié" : "Brouillon"}
-                    </Label>
-                    <Switch
-                      id="pub-switch"
-                      checked={form.is_published}
-                      onCheckedChange={(v) => setForm({ ...form, is_published: v })}
-                    />
+                    <Label className="text-sm text-muted-foreground">Statut de validation</Label>
+                    <select
+                      className="h-9 rounded-md border bg-background px-2 text-sm"
+                      value={form.workflow_status || "draft"}
+                      onChange={(e) => setForm({ ...form, workflow_status: e.target.value, is_published: e.target.value === "published" })}
+                    >
+                      <option value="draft">Brouillon</option>
+                      <option value="in_review">En revue</option>
+                      <option value="published">Publié</option>
+                      <option value="archived">Archivé</option>
+                    </select>
                   </div>
                 </div>
 
@@ -483,8 +625,15 @@ export default function AdminDataroom() {
                 </select>
                 <select className="h-10 rounded-md border bg-background px-3 text-sm" value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}>
                   <option value="all">Tous les statuts</option>
-                  <option value="published">Publiés</option>
                   <option value="draft">Brouillons</option>
+                  <option value="in_review">En revue</option>
+                  <option value="published">Publiés</option>
+                  <option value="archived">Archivés</option>
+                </select>
+                <select className="h-10 rounded-md border bg-background px-3 text-sm" value={sortBy} onChange={(e) => setSortBy(e.target.value as any)}>
+                  <option value="recent">Tri : plus récents</option>
+                  <option value="views">Tri : plus vus</option>
+                  <option value="downloads">Tri : plus téléchargés</option>
                 </select>
               </CardContent>
             </Card>
@@ -516,13 +665,17 @@ export default function AdminDataroom() {
                         <div className="min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
                             <span className="font-bold">{p.title}</span>
-                            {!p.is_published && <Badge variant="secondary" className="text-[10px] h-4">BROUILLON</Badge>}
+                            <Badge variant="outline" className={`text-[10px] h-4 ${WORKFLOW_STYLE[p.workflow_status || "draft"]}`}>
+                              {WORKFLOW_LABEL[p.workflow_status || "draft"]}
+                            </Badge>
                             <Badge variant="outline" className="text-[10px] h-4 gap-1"><VIcon className="w-3 h-3" />{vm.label}</Badge>
+                            <Badge variant="secondary" className="text-[10px] h-4">v{p.current_version || 1}</Badge>
                           </div>
                           <div className="text-xs text-muted-foreground flex items-center gap-3 flex-wrap mt-1">
                             <span className="bg-muted px-1.5 py-0.5 rounded text-[10px] uppercase font-bold">{p.type}</span>
                             <span>{p.category || "Sans catégorie"}</span>
                             <span className="flex items-center gap-1"><Eye className="w-3 h-3" /> {p.views_count} vues</span>
+                            <span className="flex items-center gap-1"><Download className="w-3 h-3" /> {p.downloads_count || 0} téléch.</span>
                             {p.source_file_name && <span className="truncate max-w-[150px] italic">({p.source_file_name})</span>}
                             <span>{new Date(p.created_at).toLocaleDateString()}</span>
                           </div>
@@ -531,20 +684,34 @@ export default function AdminDataroom() {
                       <div className="flex items-center gap-2 w-full md:w-auto justify-end border-t md:border-t-0 pt-2 md:pt-0 flex-wrap">
                         <select
                           className="h-8 rounded-md border bg-background px-2 text-xs"
+                          value={p.workflow_status || "draft"}
+                          onChange={(e) => changeWorkflow(p, e.target.value)}
+                          title="Statut de validation"
+                        >
+                          <option value="draft">Brouillon</option>
+                          <option value="in_review">En revue</option>
+                          <option value="published">Publié</option>
+                          <option value="archived">Archivé</option>
+                        </select>
+                        <select
+                          className="h-8 rounded-md border bg-background px-2 text-xs"
                           value={p.visibility || "nda"}
                           onChange={(e) => changeVisibility(p, e.target.value)}
                           title="Permission d'accès"
                         >
                           {VISIBILITIES.map((v) => <option key={v.value} value={v.value}>{v.label}</option>)}
                         </select>
-                        <Button variant="ghost" size="icon" onClick={() => togglePublish(p)} title={p.is_published ? "Dépublier" : "Publier"}>
-                          {p.is_published ? <Eye className="w-4 h-4 text-green-600" /> : <EyeOff className="w-4 h-4 text-amber-600" />}
+                        <Button variant="ghost" size="icon" onClick={() => openWorkflow(p)} title="Revue & versions">
+                          <History className="w-4 h-4 text-primary" />
+                        </Button>
+                        <Button variant="ghost" size="icon" onClick={() => togglePublish(p)} title={p.workflow_status === "published" ? "Dépublier" : "Publier"}>
+                          {p.workflow_status === "published" ? <Eye className="w-4 h-4 text-green-600" /> : <EyeOff className="w-4 h-4 text-amber-600" />}
                         </Button>
                         <Button variant="ghost" size="icon" onClick={() => openPreview(p)} title="Aperçu">
                           <Search className="w-4 h-4" />
                         </Button>
                         {p.file_url && (
-                          <Button variant="ghost" size="icon" onClick={() => downloadFile(p.file_url)} title="Télécharger">
+                          <Button variant="ghost" size="icon" onClick={() => downloadFile(p.file_url, p.id)} title="Télécharger">
                             <Download className="w-4 h-4" />
                           </Button>
                         )}
@@ -655,6 +822,95 @@ export default function AdminDataroom() {
             <p className="text-sm text-muted-foreground">{preview.pub.description}</p>
           )}
           {renderPreviewBody()}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!workflowPub} onOpenChange={(o) => !o && setWorkflowPub(null)}>
+        <DialogContent className="max-w-3xl max-h-[88vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 pr-6">
+              <History className="w-5 h-5 text-primary" />
+              Revue & versions — {workflowPub?.title}
+            </DialogTitle>
+          </DialogHeader>
+
+          {workflowPub && (
+            <div className="space-y-6">
+              <div className="flex items-center gap-2 flex-wrap">
+                {["draft", "in_review", "published", "archived"].map((s, i) => (
+                  <div key={s} className="flex items-center gap-2">
+                    {i > 0 && <span className="text-muted-foreground">→</span>}
+                    <Button
+                      size="sm"
+                      variant={(workflowPub.workflow_status || "draft") === s ? "default" : "outline"}
+                      onClick={() => changeWorkflow(workflowPub, s)}
+                    >
+                      {WORKFLOW_LABEL[s]}
+                    </Button>
+                  </div>
+                ))}
+              </div>
+
+              <div className="space-y-2">
+                <Label className="font-semibold">Commentaires de revue (internes)</Label>
+                <div className="flex gap-2">
+                  <Textarea
+                    value={newReview}
+                    onChange={(e) => setNewReview(e.target.value)}
+                    placeholder="Remarque, correction demandée, validation…"
+                    rows={2}
+                  />
+                  <Button onClick={addReviewComment} disabled={!newReview.trim()}>
+                    <Plus className="w-4 h-4" />
+                  </Button>
+                </div>
+                <div className="space-y-2 max-h-56 overflow-y-auto">
+                  {reviewComments.map((c) => (
+                    <div key={c.id} className="text-sm border-l-2 border-primary/40 pl-3 py-1">
+                      <div className="text-xs text-muted-foreground">
+                        {c.author_name} · {new Date(c.created_at).toLocaleString("fr-FR")}
+                      </div>
+                      <div>{c.body}</div>
+                    </div>
+                  ))}
+                  {reviewComments.length === 0 && (
+                    <p className="text-xs text-muted-foreground">Aucun commentaire de revue.</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="font-semibold">
+                  Historique des versions (actuelle : v{workflowPub.current_version || 1})
+                </Label>
+                <div className="space-y-2 max-h-64 overflow-y-auto">
+                  {versions.map((v) => (
+                    <div key={v.id} className="flex items-center justify-between gap-3 border rounded-md p-2">
+                      <div className="min-w-0">
+                        <div className="text-sm font-semibold">v{v.version_number} — {v.title}</div>
+                        <div className="text-xs text-muted-foreground truncate">
+                          {v.change_note} · {new Date(v.created_at).toLocaleString("fr-FR")}
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        {v.file_url && (
+                          <Button size="sm" variant="ghost" onClick={() => downloadFile(v.file_url)}>
+                            <Download className="w-4 h-4" />
+                          </Button>
+                        )}
+                        <Button size="sm" variant="outline" onClick={() => restoreVersion(v)}>
+                          <RotateCcw className="w-4 h-4 mr-1" /> Restaurer
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                  {versions.length === 0 && (
+                    <p className="text-xs text-muted-foreground">Aucune version antérieure enregistrée.</p>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </AdminLayout>

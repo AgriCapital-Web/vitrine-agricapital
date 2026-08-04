@@ -254,6 +254,39 @@ export type Database = {
         }
         Relationships: []
       }
+      broken_image_logs: {
+        Row: {
+          first_seen_at: string
+          hits: number
+          id: string
+          image_url: string
+          last_seen_at: string
+          page_url: string | null
+          status: string
+          user_agent: string | null
+        }
+        Insert: {
+          first_seen_at?: string
+          hits?: number
+          id?: string
+          image_url: string
+          last_seen_at?: string
+          page_url?: string | null
+          status?: string
+          user_agent?: string | null
+        }
+        Update: {
+          first_seen_at?: string
+          hits?: number
+          id?: string
+          image_url?: string
+          last_seen_at?: string
+          page_url?: string | null
+          status?: string
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       contact_messages: {
         Row: {
           created_at: string
@@ -434,7 +467,9 @@ export type Database = {
           cover_url: string | null
           created_at: string
           created_by: string | null
+          current_version: number
           description: string | null
+          downloads_count: number
           dynamic_fields: Json
           file_url: string | null
           id: string
@@ -446,6 +481,9 @@ export type Database = {
           preview_description: string | null
           preview_image_url: string | null
           preview_title: string | null
+          published_at: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
           screenshot_url: string | null
           source_file_name: string | null
           source_file_size: number | null
@@ -457,13 +495,16 @@ export type Database = {
           views_count: number
           visibility: string
           watermark_enabled: boolean
+          workflow_status: string
         }
         Insert: {
           category?: string | null
           cover_url?: string | null
           created_at?: string
           created_by?: string | null
+          current_version?: number
           description?: string | null
+          downloads_count?: number
           dynamic_fields?: Json
           file_url?: string | null
           id?: string
@@ -475,6 +516,9 @@ export type Database = {
           preview_description?: string | null
           preview_image_url?: string | null
           preview_title?: string | null
+          published_at?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
           screenshot_url?: string | null
           source_file_name?: string | null
           source_file_size?: number | null
@@ -486,13 +530,16 @@ export type Database = {
           views_count?: number
           visibility?: string
           watermark_enabled?: boolean
+          workflow_status?: string
         }
         Update: {
           category?: string | null
           cover_url?: string | null
           created_at?: string
           created_by?: string | null
+          current_version?: number
           description?: string | null
+          downloads_count?: number
           dynamic_fields?: Json
           file_url?: string | null
           id?: string
@@ -504,6 +551,9 @@ export type Database = {
           preview_description?: string | null
           preview_image_url?: string | null
           preview_title?: string | null
+          published_at?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
           screenshot_url?: string | null
           source_file_name?: string | null
           source_file_size?: number | null
@@ -515,6 +565,7 @@ export type Database = {
           views_count?: number
           visibility?: string
           watermark_enabled?: boolean
+          workflow_status?: string
         }
         Relationships: []
       }
@@ -556,6 +607,44 @@ export type Database = {
             columns: ["signatory_id"]
             isOneToOne: false
             referencedRelation: "dataroom_signatories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dataroom_review_comments: {
+        Row: {
+          author_id: string | null
+          author_name: string | null
+          body: string
+          created_at: string
+          id: string
+          publication_id: string
+          status_at_comment: string | null
+        }
+        Insert: {
+          author_id?: string | null
+          author_name?: string | null
+          body: string
+          created_at?: string
+          id?: string
+          publication_id: string
+          status_at_comment?: string | null
+        }
+        Update: {
+          author_id?: string | null
+          author_name?: string | null
+          body?: string
+          created_at?: string
+          id?: string
+          publication_id?: string
+          status_at_comment?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dataroom_review_comments_publication_id_fkey"
+            columns: ["publication_id"]
+            isOneToOne: false
+            referencedRelation: "dataroom_publications"
             referencedColumns: ["id"]
           },
         ]
@@ -625,6 +714,62 @@ export type Database = {
           whatsapp?: string | null
         }
         Relationships: []
+      }
+      dataroom_versions: {
+        Row: {
+          change_note: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          file_url: string | null
+          id: string
+          publication_id: string
+          snapshot: Json
+          source_file_name: string | null
+          source_file_size: number | null
+          source_mime_type: string | null
+          title: string | null
+          version_number: number
+        }
+        Insert: {
+          change_note?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          file_url?: string | null
+          id?: string
+          publication_id: string
+          snapshot?: Json
+          source_file_name?: string | null
+          source_file_size?: number | null
+          source_mime_type?: string | null
+          title?: string | null
+          version_number: number
+        }
+        Update: {
+          change_note?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          file_url?: string | null
+          id?: string
+          publication_id?: string
+          snapshot?: Json
+          source_file_name?: string | null
+          source_file_size?: number | null
+          source_mime_type?: string | null
+          title?: string | null
+          version_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dataroom_versions_publication_id_fkey"
+            columns: ["publication_id"]
+            isOneToOne: false
+            referencedRelation: "dataroom_publications"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       email_logs: {
         Row: {
@@ -1762,8 +1907,20 @@ export type Database = {
         }
         Returns: boolean
       }
+      increment_dataroom_download: {
+        Args: { _publication_id: string }
+        Returns: undefined
+      }
+      increment_dataroom_view: {
+        Args: { _publication_id: string }
+        Returns: undefined
+      }
       increment_news_share: { Args: { p_news_id: string }; Returns: number }
       increment_news_view: { Args: { p_news_id: string }; Returns: number }
+      report_broken_image: {
+        Args: { _image_url: string; _page_url: string; _user_agent: string }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"

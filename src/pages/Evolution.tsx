@@ -8,6 +8,7 @@ import { Link } from "react-router-dom";
 import DynamicNavigation from "@/components/DynamicNavigation";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
+import ArticleJsonLD from "@/components/ArticleJsonLD";
 import { supabase } from "@/integrations/supabase/client";
 
 import nurseryPepiniere from "@/assets/nursery-pepiniere-daloa.jpg";
@@ -141,6 +142,18 @@ const Evolution = () => {
   return (
     <>
       <SEOHead />
+      <ArticleJsonLD
+        type="Article"
+        headline={t.title}
+        description={t.subtitle}
+        image="/inauguration/bureau-gonate-enseigne.webp"
+        datePublished="2025-11-19"
+        dateModified="2026-08-01"
+        path="/evolution"
+        section="Évolution du projet"
+        keywords={["AgriCapital", "palmier à huile", "Daloa", "Gonaté", "actif agricole"]}
+        breadcrumbs={[{ name: "Évolution du projet", path: "/evolution" }]}
+      />
       <DynamicNavigation />
 
       <main className="pt-16 min-h-screen bg-background">
