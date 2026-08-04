@@ -8,6 +8,7 @@ import { Link } from "react-router-dom";
 import DynamicNavigation from "@/components/DynamicNavigation";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
+import ArticleJsonLD from "@/components/ArticleJsonLD";
 import { supabase } from "@/integrations/supabase/client";
 
 import nurseryPepiniere from "@/assets/nursery-pepiniere-daloa.jpg";
