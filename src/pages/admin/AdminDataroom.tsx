@@ -74,7 +74,8 @@ const emptyForm = {
   source_file_name: "",
   source_file_size: 0,
   source_mime_type: "",
-  is_published: true,
+  is_published: false,
+  workflow_status: "draft",
   visibility: "nda",
 };
 
@@ -462,14 +463,17 @@ export default function AdminDataroom() {
                     {editingId ? "Modifier la publication" : "Nouvelle publication"}
                   </h3>
                   <div className="flex items-center gap-2">
-                    <Label htmlFor="pub-switch" className="text-sm text-muted-foreground">
-                      {form.is_published ? "Publié" : "Brouillon"}
-                    </Label>
-                    <Switch
-                      id="pub-switch"
-                      checked={form.is_published}
-                      onCheckedChange={(v) => setForm({ ...form, is_published: v })}
-                    />
+                    <Label className="text-sm text-muted-foreground">Statut de validation</Label>
+                    <select
+                      className="h-9 rounded-md border bg-background px-2 text-sm"
+                      value={form.workflow_status || "draft"}
+                      onChange={(e) => setForm({ ...form, workflow_status: e.target.value, is_published: e.target.value === "published" })}
+                    >
+                      <option value="draft">Brouillon</option>
+                      <option value="in_review">En revue</option>
+                      <option value="published">Publié</option>
+                      <option value="archived">Archivé</option>
+                    </select>
                   </div>
                 </div>
 
@@ -707,7 +711,7 @@ export default function AdminDataroom() {
                           <Search className="w-4 h-4" />
                         </Button>
                         {p.file_url && (
-                          <Button variant="ghost" size="icon" onClick={() => downloadFile(p.file_url)} title="Télécharger">
+                          <Button variant="ghost" size="icon" onClick={() => downloadFile(p.file_url, p.id)} title="Télécharger">
                             <Download className="w-4 h-4" />
                           </Button>
                         )}
@@ -818,6 +822,95 @@ export default function AdminDataroom() {
             <p className="text-sm text-muted-foreground">{preview.pub.description}</p>
           )}
           {renderPreviewBody()}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!workflowPub} onOpenChange={(o) => !o && setWorkflowPub(null)}>
+        <DialogContent className="max-w-3xl max-h-[88vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 pr-6">
+              <History className="w-5 h-5 text-primary" />
+              Revue & versions — {workflowPub?.title}
+            </DialogTitle>
+          </DialogHeader>
+
+          {workflowPub && (
+            <div className="space-y-6">
+              <div className="flex items-center gap-2 flex-wrap">
+                {["draft", "in_review", "published", "archived"].map((s, i) => (
+                  <div key={s} className="flex items-center gap-2">
+                    {i > 0 && <span className="text-muted-foreground">→</span>}
+                    <Button
+                      size="sm"
+                      variant={(workflowPub.workflow_status || "draft") === s ? "default" : "outline"}
+                      onClick={() => changeWorkflow(workflowPub, s)}
+                    >
+                      {WORKFLOW_LABEL[s]}
+                    </Button>
+                  </div>
+                ))}
+              </div>
+
+              <div className="space-y-2">
+                <Label className="font-semibold">Commentaires de revue (internes)</Label>
+                <div className="flex gap-2">
+                  <Textarea
+                    value={newReview}
+                    onChange={(e) => setNewReview(e.target.value)}
+                    placeholder="Remarque, correction demandée, validation…"
+                    rows={2}
+                  />
+                  <Button onClick={addReviewComment} disabled={!newReview.trim()}>
+                    <Plus className="w-4 h-4" />
+                  </Button>
+                </div>
+                <div className="space-y-2 max-h-56 overflow-y-auto">
+                  {reviewComments.map((c) => (
+                    <div key={c.id} className="text-sm border-l-2 border-primary/40 pl-3 py-1">
+                      <div className="text-xs text-muted-foreground">
+                        {c.author_name} · {new Date(c.created_at).toLocaleString("fr-FR")}
+                      </div>
+                      <div>{c.body}</div>
+                    </div>
+                  ))}
+                  {reviewComments.length === 0 && (
+                    <p className="text-xs text-muted-foreground">Aucun commentaire de revue.</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="font-semibold">
+                  Historique des versions (actuelle : v{workflowPub.current_version || 1})
+                </Label>
+                <div className="space-y-2 max-h-64 overflow-y-auto">
+                  {versions.map((v) => (
+                    <div key={v.id} className="flex items-center justify-between gap-3 border rounded-md p-2">
+                      <div className="min-w-0">
+                        <div className="text-sm font-semibold">v{v.version_number} — {v.title}</div>
+                        <div className="text-xs text-muted-foreground truncate">
+                          {v.change_note} · {new Date(v.created_at).toLocaleString("fr-FR")}
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        {v.file_url && (
+                          <Button size="sm" variant="ghost" onClick={() => downloadFile(v.file_url)}>
+                            <Download className="w-4 h-4" />
+                          </Button>
+                        )}
+                        <Button size="sm" variant="outline" onClick={() => restoreVersion(v)}>
+                          <RotateCcw className="w-4 h-4 mr-1" /> Restaurer
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                  {versions.length === 0 && (
+                    <p className="text-xs text-muted-foreground">Aucune version antérieure enregistrée.</p>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </AdminLayout>
