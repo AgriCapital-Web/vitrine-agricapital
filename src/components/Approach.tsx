@@ -1,5 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
-const nurseryImage = "/processus-terrain.jpg";
+const nurseryImage = "/processus-5-etapes.webp";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 const convertNumber = (num: string, language: string): string => {
