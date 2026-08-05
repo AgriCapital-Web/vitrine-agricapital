@@ -13,8 +13,11 @@ import { toast } from "@/hooks/use-toast";
 import {
   Download, Trash2, Plus, FileText, Users, MessageSquare,
   FileSignature, Upload, Link2, Image as ImageIcon,
-  Edit, Save, X, Eye, EyeOff, ExternalLink, Search, Lock, ShieldCheck, Globe, History, RotateCcw
+  Edit, Save, X, Eye, EyeOff, ExternalLink, Search, Lock, ShieldCheck, Globe, History, RotateCcw,
+  TrendingUp, Wand2
 } from "lucide-react";
+import DataroomTrends from "@/components/admin/DataroomTrends";
+import { autofillFromFile } from "@/lib/dataroom-autofill";
 
 const WORKFLOW_LABEL: Record<string, string> = {
   draft: "Brouillon",
@@ -122,6 +125,34 @@ export default function AdminDataroom() {
   const [reviewComments, setReviewComments] = useState<any[]>([]);
   const [versions, setVersions] = useState<any[]>([]);
   const [newReview, setNewReview] = useState("");
+
+  const [autofilling, setAutofilling] = useState(false);
+
+  const handleFileSelected = async (file: File | null) => {
+    setSelectedFile(file);
+    if (!file) return;
+    setAutofilling(true);
+    try {
+      const meta = await autofillFromFile(file);
+      setForm((prev) => ({
+        ...prev,
+        type: meta.type,
+        title: prev.title || meta.title,
+        category: prev.category || meta.category,
+        description: prev.description || meta.description,
+        visibility: prev.visibility && prev.visibility !== "nda" ? prev.visibility : meta.visibility,
+        source_file_name: meta.source_file_name,
+        source_file_size: meta.source_file_size,
+        source_mime_type: meta.source_mime_type,
+        dynamic_fields: { ...(prev.dynamic_fields || {}), ...meta.dynamic_fields },
+      }));
+      toast({ title: "Import automatique", description: `Champs remplis depuis « ${file.name} »` });
+    } catch (e: any) {
+      toast({ title: "Import partiel", description: e.message, variant: "destructive" });
+    } finally {
+      setAutofilling(false);
+    }
+  };
 
   const load = async () => {
     const [p, s, c, i] = await Promise.all([
@@ -453,6 +484,7 @@ export default function AdminDataroom() {
             <TabsTrigger value="nda"><FileSignature className="w-4 h-4 mr-2" />NDA / Signataires</TabsTrigger>
             <TabsTrigger value="comments"><MessageSquare className="w-4 h-4 mr-2" />Commentaires</TabsTrigger>
             <TabsTrigger value="intents"><Users className="w-4 h-4 mr-2" />Intentions</TabsTrigger>
+            <TabsTrigger value="trends"><TrendingUp className="w-4 h-4 mr-2" />Tendances</TabsTrigger>
           </TabsList>
 
           <TabsContent value="pubs" className="space-y-6">
@@ -565,8 +597,12 @@ export default function AdminDataroom() {
                     <Input
                       type="file"
                       accept={(ALLOWED_BY_TYPE[form.type] || []).join(",")}
-                      onChange={(e) => setSelectedFile(e.target.files?.[0] ?? null)}
+                      onChange={(e) => handleFileSelected(e.target.files?.[0] ?? null)}
                     />
+                    <p className="text-xs text-primary flex items-center gap-2">
+                      <Wand2 className="w-3 h-3" />
+                      {autofilling ? "Analyse du fichier en cours…" : "Import automatique : titre, catégorie, description et permission sont déduits du fichier."}
+                    </p>
                     <p className="text-xs text-muted-foreground">
                       Types autorisés : {(ALLOWED_BY_TYPE[form.type] || []).join(", ")} · max 25 Mo
                     </p>
@@ -739,6 +775,10 @@ export default function AdminDataroom() {
                 </div>
               )}
             </div>
+          </TabsContent>
+
+          <TabsContent value="trends">
+            <DataroomTrends pubs={pubs} />
           </TabsContent>
 
           <TabsContent value="nda">
