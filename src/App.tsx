@@ -75,7 +75,7 @@ const AppContent = () => {
   // no DNS-side rewrite or extra deployment needed.
   useEffect(() => {
     if (!isDataroomHost()) return;
-    if (location.pathname === "/" || location.pathname === "/index.html") {
+    if (location.pathname === "/" || location.pathname === "/index.html" || location.pathname === "/data") {
       navigate("/dataroom", { replace: true });
     }
   }, [location.pathname, navigate]);
@@ -119,6 +119,10 @@ const AppContent = () => {
         <Route path="/partnerships" element={<Partenariats />} />
 
         {/* AgriCapital Cloud — Data Room */}
+        <Route path="/data" element={<Dataroom />} />
+        <Route path="/data/vault" element={<DataroomVault />} />
+        <Route path="/cloud" element={<Dataroom />} />
+        <Route path="/agricapital-cloud" element={<Dataroom />} />
         <Route path="/dataroom" element={<Dataroom />} />
         <Route path="/dataroom/vault" element={<DataroomVault />} />
         <Route path="/admin/dataroom" element={<AdminDataroom />} />
