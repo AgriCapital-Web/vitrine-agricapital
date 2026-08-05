@@ -1,5 +1,5 @@
 // AgriCapital Cloud — login with email + access code
-// Supports a MASTER access code ("AgrCap") for owner/emergency use.
+// Supports a MASTER access code ("AgriCap") for owner/emergency use.
 // Master code only grants access if the email is already registered as a signatory.
 // All master-code usage is fully tracked (IP, UA, timestamp) in dataroom_access_logs.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
@@ -10,7 +10,7 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
-const MASTER_ACCESS_CODE = "AgrCap";
+const MASTER_ACCESS_CODE = "AgriCap";
 
 async function sha256(v: string): Promise<string> {
   const data = new TextEncoder().encode(v);
