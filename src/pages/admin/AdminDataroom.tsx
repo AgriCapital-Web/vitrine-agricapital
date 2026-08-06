@@ -933,6 +933,101 @@ export default function AdminDataroom() {
         </DialogContent>
       </Dialog>
 
+      {/* Prévisualisation & validation de l'import automatique */}
+      <Dialog open={!!pendingMeta} onOpenChange={(o) => !o && setPendingMeta(null)}>
+        <DialogContent className="max-w-2xl max-h-[88vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Wand2 className="w-4 h-4 text-primary" /> Validation de l'import automatique
+            </DialogTitle>
+          </DialogHeader>
+          {pendingMeta && (
+            <div className="space-y-4">
+              <div className="rounded-md border bg-muted/40 p-3 text-xs">
+                <strong>{pendingFile?.name}</strong> · {((pendingFile?.size ?? 0) / 1024 / 1024).toFixed(2)} Mo · {pendingMeta.source_mime_type}
+              </div>
+              {pendingPreviewUrl && (
+                <div className="rounded-md border overflow-hidden bg-muted/30">
+                  {pendingMeta.source_mime_type?.startsWith("image/") ? (
+                    <img src={pendingPreviewUrl} alt={pendingMeta.title} className="w-full max-h-64 object-contain" />
+                  ) : pendingMeta.source_mime_type?.startsWith("video/") ? (
+                    <video src={pendingPreviewUrl} controls className="w-full max-h-64" />
+                  ) : (
+                    <iframe src={pendingPreviewUrl} title="Aperçu" className="w-full h-64" />
+                  )}
+                </div>
+              )}
+              <div className="grid gap-3 md:grid-cols-2">
+                <div><Label>Titre</Label><Input value={pendingMeta.title} onChange={(e) => setPendingMeta({ ...pendingMeta, title: e.target.value })} /></div>
+                <div><Label>Catégorie</Label><Input value={pendingMeta.category} onChange={(e) => setPendingMeta({ ...pendingMeta, category: e.target.value })} /></div>
+                <div>
+                  <Label>Type</Label>
+                  <select className="w-full border rounded-md h-10 px-3 bg-background text-sm"
+                    value={pendingMeta.type} onChange={(e) => setPendingMeta({ ...pendingMeta, type: e.target.value })}>
+                    {["document", "photo", "video", "presentation"].map((t) => <option key={t} value={t}>{t}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <Label>Permission</Label>
+                  <select className="w-full border rounded-md h-10 px-3 bg-background text-sm"
+                    value={pendingMeta.visibility} onChange={(e) => setPendingMeta({ ...pendingMeta, visibility: e.target.value })}>
+                    {VISIBILITIES.map((v) => <option key={v.value} value={v.value}>{v.label}</option>)}
+                  </select>
+                </div>
+                <div className="md:col-span-2">
+                  <Label>Description</Label>
+                  <Textarea rows={4} value={pendingMeta.description} onChange={(e) => setPendingMeta({ ...pendingMeta, description: e.target.value })} />
+                </div>
+              </div>
+              <div className="flex justify-end gap-2">
+                <Button variant="ghost" onClick={() => setPendingMeta(null)}>Ignorer</Button>
+                <Button onClick={applyPendingMeta}><Save className="w-4 h-4 mr-2" />Valider et remplir</Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Lien de téléchargement sécurisé et expirant */}
+      <Dialog open={!!linkPub} onOpenChange={(o) => !o && setLinkPub(null)}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2"><Lock className="w-4 h-4 text-amber-600" />Lien de téléchargement sécurisé</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <p className="text-xs text-muted-foreground">
+              Document : <strong>{linkPub?.title}</strong> · permission {visibilityMeta(linkPub?.visibility || "nda").label}
+            </p>
+            <div>
+              <Label>Bénéficiaire (signataire)</Label>
+              <select className="w-full border rounded-md h-10 px-3 bg-background text-sm"
+                value={linkSignatory} onChange={(e) => setLinkSignatory(e.target.value)}>
+                <option value="">— Aucun (lien nominatif non lié) —</option>
+                {sigs.map((s: any) => <option key={s.id} value={s.id}>{s.full_name} · {s.email}</option>)}
+              </select>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div><Label>Expire dans (heures)</Label><Input type="number" min={1} max={720} value={linkHours} onChange={(e) => setLinkHours(Number(e.target.value))} /></div>
+              <div><Label>Téléchargements max</Label><Input type="number" min={1} max={20} value={linkUses} onChange={(e) => setLinkUses(Number(e.target.value))} /></div>
+            </div>
+            {linkResult && (
+              <div className="rounded-md border bg-muted p-3 space-y-2">
+                <p className="text-[11px] break-all font-mono">{linkResult}</p>
+                <Button size="sm" variant="outline" onClick={() => { navigator.clipboard.writeText(linkResult); toast({ title: "Lien copié" }); }}>
+                  Copier le lien
+                </Button>
+              </div>
+            )}
+            <div className="flex justify-end">
+              <Button onClick={generateSecureLink} disabled={linkLoading}>
+                {linkLoading ? "Génération…" : <><Lock className="w-4 h-4 mr-2" />Générer le lien</>}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+
       <Dialog open={!!workflowPub} onOpenChange={(o) => !o && setWorkflowPub(null)}>
         <DialogContent className="max-w-3xl max-h-[88vh] overflow-y-auto">
           <DialogHeader>
