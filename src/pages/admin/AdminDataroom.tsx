@@ -461,6 +461,8 @@ export default function AdminDataroom() {
     const { error } = await supabase.from("dataroom_publications").update({ visibility }).eq("id", p.id);
     if (error) return toast({ title: "Erreur", description: error.message, variant: "destructive" });
     setPubs((prev) => prev.map((x) => (x.id === p.id ? { ...x, visibility } : x)));
+    notifySignatories(p.id, "visibility", p.visibility || "nda", visibility);
+    toast({ title: "Permission mise à jour", description: "Signataires notifiés par e-mail." });
   };
 
   const approveComment = async (id: string, v: boolean) => {
