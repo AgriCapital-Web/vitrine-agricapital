@@ -811,8 +811,12 @@ export default function AdminDataroom() {
                           <Search className="w-4 h-4" />
                         </Button>
                         {p.file_url && (
-                          <Button variant="ghost" size="icon" onClick={() => downloadFile(p.file_url, p.id)} title="Télécharger">
-                            <Download className="w-4 h-4" />
+                          <Button
+                            variant="ghost" size="icon"
+                            onClick={() => { setLinkPub(p); setLinkResult(null); setLinkSignatory(""); }}
+                            title="Générer un lien de téléchargement sécurisé et expirant"
+                          >
+                            <Lock className="w-4 h-4 text-amber-600" />
                           </Button>
                         )}
                         {p.platform_url && (
