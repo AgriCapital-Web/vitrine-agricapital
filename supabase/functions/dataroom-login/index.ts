@@ -10,7 +10,8 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
-const MASTER_ACCESS_CODE = "AgriCap";
+// Codes maîtres acceptés (insensibles à la casse et aux espaces)
+const MASTER_ACCESS_CODES = ["agricap", "agrica"];
 
 async function sha256(v: string): Promise<string> {
   const data = new TextEncoder().encode(v);
