@@ -160,7 +160,7 @@ RÉPONSE STRICTEMENT EN JSON:
         model: "google/gemini-3-flash-preview",
         messages: [
           { role: "system", content: systemPrompt },
-          { role: "user", content: `Transforme cette idée en article professionnel complet:\n\n"${sanitizedInput}"` },
+          { role: "user", content: `Structure et organise ce texte SANS rien ajouter ni inventer (mise en forme, orthographe, paragraphes, titres uniquement) :\n\n"${sanitizedInput}"` },
         ],
       }),
     });
