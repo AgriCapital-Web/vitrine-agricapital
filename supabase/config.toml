@@ -44,3 +44,9 @@ verify_jwt = false
 
 [functions.dataroom-login]
 verify_jwt = false
+
+[functions.dataroom-notify]
+verify_jwt = false
+
+[functions.dataroom-download-link]
+verify_jwt = false

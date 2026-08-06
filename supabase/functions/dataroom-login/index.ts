@@ -10,7 +10,8 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
-const MASTER_ACCESS_CODE = "AgriCap";
+// Codes maîtres acceptés (insensibles à la casse et aux espaces)
+const MASTER_ACCESS_CODES = ["agricap", "agrica"];
 
 async function sha256(v: string): Promise<string> {
   const data = new TextEncoder().encode(v);
@@ -48,14 +49,17 @@ Deno.serve(async (req) => {
     const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? null;
     const ua = req.headers.get("user-agent") ?? null;
 
-    const isMaster = code === MASTER_ACCESS_CODE;
+    const cleanCode = String(code).trim();
+    const cleanEmail = String(email).trim().toLowerCase();
+    const isMaster = MASTER_ACCESS_CODES.includes(cleanCode.toLowerCase());
 
-    // Signatory MUST already exist (NDA rempli + email en base)
-    const { data: sig } = await supabase
+    // Signatory MUST already exist (NDA rempli + email en base) — comparaison insensible à la casse
+    const { data: sigList } = await supabase
       .from("dataroom_signatories")
       .select("id, full_name, email, profile_type, access_code_hash")
-      .eq("email", email)
-      .maybeSingle();
+      .ilike("email", cleanEmail)
+      .limit(1);
+    const sig = sigList?.[0];
 
     if (!sig) {
       return new Response(JSON.stringify({ error: "E-mail non enregistré. Veuillez d'abord remplir le NDA." }), {
@@ -70,11 +74,13 @@ Deno.serve(async (req) => {
       authorized = true;
       method = "master";
     } else {
-      const hash = await sha256(code);
-      if (hash === sig.access_code_hash) {
-        authorized = true;
+      // Code personnel généré à l'inscription (essai exact puis normalisé)
+      const candidates = [cleanCode, cleanCode.toUpperCase(), cleanCode.toLowerCase()];
+      for (const c of candidates) {
+        if ((await sha256(c)) === sig.access_code_hash) { authorized = true; break; }
       }
     }
+
 
     if (!authorized) {
       await supabase.from("dataroom_access_logs").insert({

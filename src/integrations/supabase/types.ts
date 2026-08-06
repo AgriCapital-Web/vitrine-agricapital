@@ -416,6 +416,72 @@ export type Database = {
           },
         ]
       }
+      dataroom_download_links: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          email: string | null
+          expires_at: string
+          id: string
+          last_used_at: string | null
+          max_uses: number
+          publication_id: string
+          revoked: boolean
+          signatory_id: string | null
+          token_hash: string
+          updated_at: string
+          used_count: number
+          visibility_scope: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          email?: string | null
+          expires_at: string
+          id?: string
+          last_used_at?: string | null
+          max_uses?: number
+          publication_id: string
+          revoked?: boolean
+          signatory_id?: string | null
+          token_hash: string
+          updated_at?: string
+          used_count?: number
+          visibility_scope?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          email?: string | null
+          expires_at?: string
+          id?: string
+          last_used_at?: string | null
+          max_uses?: number
+          publication_id?: string
+          revoked?: boolean
+          signatory_id?: string | null
+          token_hash?: string
+          updated_at?: string
+          used_count?: number
+          visibility_scope?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dataroom_download_links_publication_id_fkey"
+            columns: ["publication_id"]
+            isOneToOne: false
+            referencedRelation: "dataroom_publications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dataroom_download_links_signatory_id_fkey"
+            columns: ["signatory_id"]
+            isOneToOne: false
+            referencedRelation: "dataroom_signatories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       dataroom_intents: {
         Row: {
           created_at: string

@@ -127,32 +127,91 @@ export default function AdminDataroom() {
   const [newReview, setNewReview] = useState("");
 
   const [autofilling, setAutofilling] = useState(false);
+  const [pendingMeta, setPendingMeta] = useState<any | null>(null);
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
+  const [pendingPreviewUrl, setPendingPreviewUrl] = useState<string | null>(null);
+
+  // liens de téléchargement sécurisés
+  const [linkPub, setLinkPub] = useState<any | null>(null);
+  const [linkSignatory, setLinkSignatory] = useState<string>("");
+  const [linkHours, setLinkHours] = useState(24);
+  const [linkUses, setLinkUses] = useState(1);
+  const [linkResult, setLinkResult] = useState<string | null>(null);
+  const [linkLoading, setLinkLoading] = useState(false);
+
+  const notifySignatories = async (publication_id: string, event: "workflow" | "visibility", from: string, to: string) => {
+    try {
+      await supabase.functions.invoke("dataroom-notify", { body: { publication_id, event, from, to } });
+    } catch (e) {
+      console.warn("notification signataires échouée", e);
+    }
+  };
 
   const handleFileSelected = async (file: File | null) => {
     setSelectedFile(file);
-    if (!file) return;
+    if (pendingPreviewUrl) URL.revokeObjectURL(pendingPreviewUrl);
+    setPendingPreviewUrl(null);
+    if (!file) { setPendingMeta(null); setPendingFile(null); return; }
     setAutofilling(true);
     try {
       const meta = await autofillFromFile(file);
-      setForm((prev) => ({
-        ...prev,
-        type: meta.type,
-        title: prev.title || meta.title,
-        category: prev.category || meta.category,
-        description: prev.description || meta.description,
-        visibility: prev.visibility && prev.visibility !== "nda" ? prev.visibility : meta.visibility,
-        source_file_name: meta.source_file_name,
-        source_file_size: meta.source_file_size,
-        source_mime_type: meta.source_mime_type,
-        dynamic_fields: { ...(prev.dynamic_fields || {}), ...meta.dynamic_fields },
-      }));
-      toast({ title: "Import automatique", description: `Champs remplis depuis « ${file.name} »` });
+      setPendingFile(file);
+      setPendingMeta(meta);
+      if (file.type.startsWith("image/") || file.type === "application/pdf" || file.type.startsWith("video/")) {
+        setPendingPreviewUrl(URL.createObjectURL(file));
+      }
     } catch (e: any) {
       toast({ title: "Import partiel", description: e.message, variant: "destructive" });
     } finally {
       setAutofilling(false);
     }
   };
+
+  const applyPendingMeta = () => {
+    const meta = pendingMeta;
+    if (!meta) return;
+    setForm((prev) => ({
+      ...prev,
+      type: meta.type,
+      title: meta.title,
+      category: meta.category,
+      description: meta.description,
+      visibility: meta.visibility,
+      source_file_name: meta.source_file_name,
+      source_file_size: meta.source_file_size,
+      source_mime_type: meta.source_mime_type,
+      dynamic_fields: { ...(prev.dynamic_fields || {}), ...meta.dynamic_fields },
+    }));
+    toast({ title: "Champs validés", description: `Métadonnées appliquées depuis « ${meta.source_file_name} »` });
+    setPendingMeta(null);
+  };
+
+  const generateSecureLink = async () => {
+    if (!linkPub) return;
+    setLinkLoading(true);
+    setLinkResult(null);
+    try {
+      const { data, error } = await supabase.functions.invoke("dataroom-download-link", {
+        body: {
+          action: "create",
+          publication_id: linkPub.id,
+          signatory_id: linkSignatory || null,
+          email: sigs.find((s: any) => s.id === linkSignatory)?.email ?? null,
+          expires_in_hours: linkHours,
+          max_uses: linkUses,
+        },
+      });
+      if (error) throw error;
+      if ((data as any)?.error) throw new Error((data as any).error);
+      setLinkResult((data as any).download_url);
+      toast({ title: "Lien sécurisé généré", description: `Expire dans ${linkHours} h · ${linkUses} téléchargement(s)` });
+    } catch (e: any) {
+      toast({ title: "Erreur", description: e.message, variant: "destructive" });
+    } finally {
+      setLinkLoading(false);
+    }
+  };
+
 
   const load = async () => {
     const [p, s, c, i] = await Promise.all([
@@ -323,7 +382,10 @@ export default function AdminDataroom() {
     });
     setPubs((prev) => prev.map((x) => (x.id === p.id ? { ...x, ...patch, is_published: workflow_status === "published" } : x)));
     if (workflowPub?.id === p.id) openWorkflow({ ...p, ...patch });
-    toast({ title: `Statut : ${WORKFLOW_LABEL[workflow_status]}` });
+    if (workflow_status === "in_review" || workflow_status === "published") {
+      notifySignatories(p.id, "workflow", p.workflow_status || "draft", workflow_status);
+    }
+    toast({ title: `Statut : ${WORKFLOW_LABEL[workflow_status]}`, description: (workflow_status === "in_review" || workflow_status === "published") ? "Signataires notifiés par e-mail." : undefined });
   };
 
   const openWorkflow = async (p: any) => {
@@ -399,6 +461,8 @@ export default function AdminDataroom() {
     const { error } = await supabase.from("dataroom_publications").update({ visibility }).eq("id", p.id);
     if (error) return toast({ title: "Erreur", description: error.message, variant: "destructive" });
     setPubs((prev) => prev.map((x) => (x.id === p.id ? { ...x, visibility } : x)));
+    notifySignatories(p.id, "visibility", p.visibility || "nda", visibility);
+    toast({ title: "Permission mise à jour", description: "Signataires notifiés par e-mail." });
   };
 
   const approveComment = async (id: string, v: boolean) => {
@@ -601,7 +665,7 @@ export default function AdminDataroom() {
                     />
                     <p className="text-xs text-primary flex items-center gap-2">
                       <Wand2 className="w-3 h-3" />
-                      {autofilling ? "Analyse du fichier en cours…" : "Import automatique : titre, catégorie, description et permission sont déduits du fichier."}
+                      {autofilling ? "Analyse du fichier en cours…" : "Import automatique : un écran de prévisualisation vous permet de valider les champs déduits avant application."}
                     </p>
                     <p className="text-xs text-muted-foreground">
                       Types autorisés : {(ALLOWED_BY_TYPE[form.type] || []).join(", ")} · max 25 Mo
@@ -747,8 +811,12 @@ export default function AdminDataroom() {
                           <Search className="w-4 h-4" />
                         </Button>
                         {p.file_url && (
-                          <Button variant="ghost" size="icon" onClick={() => downloadFile(p.file_url, p.id)} title="Télécharger">
-                            <Download className="w-4 h-4" />
+                          <Button
+                            variant="ghost" size="icon"
+                            onClick={() => { setLinkPub(p); setLinkResult(null); setLinkSignatory(""); }}
+                            title="Générer un lien de téléchargement sécurisé et expirant"
+                          >
+                            <Lock className="w-4 h-4 text-amber-600" />
                           </Button>
                         )}
                         {p.platform_url && (
@@ -864,6 +932,101 @@ export default function AdminDataroom() {
           {renderPreviewBody()}
         </DialogContent>
       </Dialog>
+
+      {/* Prévisualisation & validation de l'import automatique */}
+      <Dialog open={!!pendingMeta} onOpenChange={(o) => !o && setPendingMeta(null)}>
+        <DialogContent className="max-w-2xl max-h-[88vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Wand2 className="w-4 h-4 text-primary" /> Validation de l'import automatique
+            </DialogTitle>
+          </DialogHeader>
+          {pendingMeta && (
+            <div className="space-y-4">
+              <div className="rounded-md border bg-muted/40 p-3 text-xs">
+                <strong>{pendingFile?.name}</strong> · {((pendingFile?.size ?? 0) / 1024 / 1024).toFixed(2)} Mo · {pendingMeta.source_mime_type}
+              </div>
+              {pendingPreviewUrl && (
+                <div className="rounded-md border overflow-hidden bg-muted/30">
+                  {pendingMeta.source_mime_type?.startsWith("image/") ? (
+                    <img src={pendingPreviewUrl} alt={pendingMeta.title} className="w-full max-h-64 object-contain" />
+                  ) : pendingMeta.source_mime_type?.startsWith("video/") ? (
+                    <video src={pendingPreviewUrl} controls className="w-full max-h-64" />
+                  ) : (
+                    <iframe src={pendingPreviewUrl} title="Aperçu" className="w-full h-64" />
+                  )}
+                </div>
+              )}
+              <div className="grid gap-3 md:grid-cols-2">
+                <div><Label>Titre</Label><Input value={pendingMeta.title} onChange={(e) => setPendingMeta({ ...pendingMeta, title: e.target.value })} /></div>
+                <div><Label>Catégorie</Label><Input value={pendingMeta.category} onChange={(e) => setPendingMeta({ ...pendingMeta, category: e.target.value })} /></div>
+                <div>
+                  <Label>Type</Label>
+                  <select className="w-full border rounded-md h-10 px-3 bg-background text-sm"
+                    value={pendingMeta.type} onChange={(e) => setPendingMeta({ ...pendingMeta, type: e.target.value })}>
+                    {["document", "photo", "video", "presentation"].map((t) => <option key={t} value={t}>{t}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <Label>Permission</Label>
+                  <select className="w-full border rounded-md h-10 px-3 bg-background text-sm"
+                    value={pendingMeta.visibility} onChange={(e) => setPendingMeta({ ...pendingMeta, visibility: e.target.value })}>
+                    {VISIBILITIES.map((v) => <option key={v.value} value={v.value}>{v.label}</option>)}
+                  </select>
+                </div>
+                <div className="md:col-span-2">
+                  <Label>Description</Label>
+                  <Textarea rows={4} value={pendingMeta.description} onChange={(e) => setPendingMeta({ ...pendingMeta, description: e.target.value })} />
+                </div>
+              </div>
+              <div className="flex justify-end gap-2">
+                <Button variant="ghost" onClick={() => setPendingMeta(null)}>Ignorer</Button>
+                <Button onClick={applyPendingMeta}><Save className="w-4 h-4 mr-2" />Valider et remplir</Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Lien de téléchargement sécurisé et expirant */}
+      <Dialog open={!!linkPub} onOpenChange={(o) => !o && setLinkPub(null)}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2"><Lock className="w-4 h-4 text-amber-600" />Lien de téléchargement sécurisé</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <p className="text-xs text-muted-foreground">
+              Document : <strong>{linkPub?.title}</strong> · permission {visibilityMeta(linkPub?.visibility || "nda").label}
+            </p>
+            <div>
+              <Label>Bénéficiaire (signataire)</Label>
+              <select className="w-full border rounded-md h-10 px-3 bg-background text-sm"
+                value={linkSignatory} onChange={(e) => setLinkSignatory(e.target.value)}>
+                <option value="">— Aucun (lien nominatif non lié) —</option>
+                {sigs.map((s: any) => <option key={s.id} value={s.id}>{s.full_name} · {s.email}</option>)}
+              </select>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div><Label>Expire dans (heures)</Label><Input type="number" min={1} max={720} value={linkHours} onChange={(e) => setLinkHours(Number(e.target.value))} /></div>
+              <div><Label>Téléchargements max</Label><Input type="number" min={1} max={20} value={linkUses} onChange={(e) => setLinkUses(Number(e.target.value))} /></div>
+            </div>
+            {linkResult && (
+              <div className="rounded-md border bg-muted p-3 space-y-2">
+                <p className="text-[11px] break-all font-mono">{linkResult}</p>
+                <Button size="sm" variant="outline" onClick={() => { navigator.clipboard.writeText(linkResult); toast({ title: "Lien copié" }); }}>
+                  Copier le lien
+                </Button>
+              </div>
+            )}
+            <div className="flex justify-end">
+              <Button onClick={generateSecureLink} disabled={linkLoading}>
+                {linkLoading ? "Génération…" : <><Lock className="w-4 h-4 mr-2" />Générer le lien</>}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
 
       <Dialog open={!!workflowPub} onOpenChange={(o) => !o && setWorkflowPub(null)}>
         <DialogContent className="max-w-3xl max-h-[88vh] overflow-y-auto">
