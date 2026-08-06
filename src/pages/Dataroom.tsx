@@ -180,7 +180,7 @@ export default function Dataroom() {
           <TabsContent value="code">
             <form onSubmit={submitLogin} className="space-y-4">
               <div><Label>E-mail</Label><Input type="email" required value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} /></div>
-              <div><Label>Code d'accès (6 caractères)</Label><Input required maxLength={6} value={loginCode} onChange={(e) => setLoginCode(e.target.value)} className="tracking-widest font-mono text-center" /></div>
+              <div><Label>Code d'accès</Label><Input required maxLength={32} value={loginCode} onChange={(e) => setLoginCode(e.target.value.trim())} className="tracking-widest font-mono text-center" /></div>
               <Button type="submit" disabled={loading} className="w-full">
                 {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <KeyRound className="w-4 h-4 mr-2" />}
                 Accéder au portail
