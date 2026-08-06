@@ -382,7 +382,10 @@ export default function AdminDataroom() {
     });
     setPubs((prev) => prev.map((x) => (x.id === p.id ? { ...x, ...patch, is_published: workflow_status === "published" } : x)));
     if (workflowPub?.id === p.id) openWorkflow({ ...p, ...patch });
-    toast({ title: `Statut : ${WORKFLOW_LABEL[workflow_status]}` });
+    if (workflow_status === "in_review" || workflow_status === "published") {
+      notifySignatories(p.id, "workflow", p.workflow_status || "draft", workflow_status);
+    }
+    toast({ title: `Statut : ${WORKFLOW_LABEL[workflow_status]}`, description: (workflow_status === "in_review" || workflow_status === "published") ? "Signataires notifiés par e-mail." : undefined });
   };
 
   const openWorkflow = async (p: any) => {
