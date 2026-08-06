@@ -127,32 +127,91 @@ export default function AdminDataroom() {
   const [newReview, setNewReview] = useState("");
 
   const [autofilling, setAutofilling] = useState(false);
+  const [pendingMeta, setPendingMeta] = useState<any | null>(null);
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
+  const [pendingPreviewUrl, setPendingPreviewUrl] = useState<string | null>(null);
+
+  // liens de téléchargement sécurisés
+  const [linkPub, setLinkPub] = useState<any | null>(null);
+  const [linkSignatory, setLinkSignatory] = useState<string>("");
+  const [linkHours, setLinkHours] = useState(24);
+  const [linkUses, setLinkUses] = useState(1);
+  const [linkResult, setLinkResult] = useState<string | null>(null);
+  const [linkLoading, setLinkLoading] = useState(false);
+
+  const notifySignatories = async (publication_id: string, event: "workflow" | "visibility", from: string, to: string) => {
+    try {
+      await supabase.functions.invoke("dataroom-notify", { body: { publication_id, event, from, to } });
+    } catch (e) {
+      console.warn("notification signataires échouée", e);
+    }
+  };
 
   const handleFileSelected = async (file: File | null) => {
     setSelectedFile(file);
-    if (!file) return;
+    if (pendingPreviewUrl) URL.revokeObjectURL(pendingPreviewUrl);
+    setPendingPreviewUrl(null);
+    if (!file) { setPendingMeta(null); setPendingFile(null); return; }
     setAutofilling(true);
     try {
       const meta = await autofillFromFile(file);
-      setForm((prev) => ({
-        ...prev,
-        type: meta.type,
-        title: prev.title || meta.title,
-        category: prev.category || meta.category,
-        description: prev.description || meta.description,
-        visibility: prev.visibility && prev.visibility !== "nda" ? prev.visibility : meta.visibility,
-        source_file_name: meta.source_file_name,
-        source_file_size: meta.source_file_size,
-        source_mime_type: meta.source_mime_type,
-        dynamic_fields: { ...(prev.dynamic_fields || {}), ...meta.dynamic_fields },
-      }));
-      toast({ title: "Import automatique", description: `Champs remplis depuis « ${file.name} »` });
+      setPendingFile(file);
+      setPendingMeta(meta);
+      if (file.type.startsWith("image/") || file.type === "application/pdf" || file.type.startsWith("video/")) {
+        setPendingPreviewUrl(URL.createObjectURL(file));
+      }
     } catch (e: any) {
       toast({ title: "Import partiel", description: e.message, variant: "destructive" });
     } finally {
       setAutofilling(false);
     }
   };
+
+  const applyPendingMeta = () => {
+    const meta = pendingMeta;
+    if (!meta) return;
+    setForm((prev) => ({
+      ...prev,
+      type: meta.type,
+      title: meta.title,
+      category: meta.category,
+      description: meta.description,
+      visibility: meta.visibility,
+      source_file_name: meta.source_file_name,
+      source_file_size: meta.source_file_size,
+      source_mime_type: meta.source_mime_type,
+      dynamic_fields: { ...(prev.dynamic_fields || {}), ...meta.dynamic_fields },
+    }));
+    toast({ title: "Champs validés", description: `Métadonnées appliquées depuis « ${meta.source_file_name} »` });
+    setPendingMeta(null);
+  };
+
+  const generateSecureLink = async () => {
+    if (!linkPub) return;
+    setLinkLoading(true);
+    setLinkResult(null);
+    try {
+      const { data, error } = await supabase.functions.invoke("dataroom-download-link", {
+        body: {
+          action: "create",
+          publication_id: linkPub.id,
+          signatory_id: linkSignatory || null,
+          email: sigs.find((s: any) => s.id === linkSignatory)?.email ?? null,
+          expires_in_hours: linkHours,
+          max_uses: linkUses,
+        },
+      });
+      if (error) throw error;
+      if ((data as any)?.error) throw new Error((data as any).error);
+      setLinkResult((data as any).download_url);
+      toast({ title: "Lien sécurisé généré", description: `Expire dans ${linkHours} h · ${linkUses} téléchargement(s)` });
+    } catch (e: any) {
+      toast({ title: "Erreur", description: e.message, variant: "destructive" });
+    } finally {
+      setLinkLoading(false);
+    }
+  };
+
 
   const load = async () => {
     const [p, s, c, i] = await Promise.all([
