@@ -96,6 +96,38 @@ export default function DataroomTrends({ pubs }: Props) {
     return rows.sort((a, b) => b.total - a.total).slice(0, 8);
   }, [logs, pubs]);
 
+  const downloadCsv = (filename: string, rows: (string | number)[][]) => {
+    const csv = rows
+      .map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(";"))
+      .join("\n");
+    const blob = new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8;" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  };
+
+  const exportDaily = () => {
+    downloadCsv(
+      `dataroom-tendances-${range}j-${new Date().toISOString().slice(0, 10)}.csv`,
+      [["Date", "Vues", "Téléchargements"], ...series.map((d) => [d.date, d.vues, d.telechargements])],
+    );
+  };
+
+  const exportDocs = () => {
+    downloadCsv(
+      `dataroom-documents-${range}j-${new Date().toISOString().slice(0, 10)}.csv`,
+      [
+        ["Document", "Vues", "Téléchargements", "Total", "Vues cumulées", "Téléch. cumulés"],
+        ...topDocs.map((d) => {
+          const p = pubs.find((x) => x.id === d.id);
+          return [p?.title ?? d.titre, d.vues, d.telechargements, d.total, p?.views_count ?? 0, p?.downloads_count ?? 0];
+        }),
+      ],
+    );
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between flex-wrap gap-3">
@@ -103,14 +135,21 @@ export default function DataroomTrends({ pubs }: Props) {
           <TrendingUp className="w-5 h-5 text-primary" />
           <h3 className="font-semibold text-lg">Tendances vues & téléchargements</h3>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           {RANGES.map((r) => (
             <Button key={r} size="sm" variant={range === r ? "default" : "outline"} onClick={() => setRange(r)}>
               {r} jours
             </Button>
           ))}
+          <Button size="sm" variant="outline" onClick={exportDaily}>
+            <FileSpreadsheet className="w-4 h-4 mr-2" />CSV quotidien
+          </Button>
+          <Button size="sm" variant="outline" onClick={exportDocs}>
+            <FileSpreadsheet className="w-4 h-4 mr-2" />CSV documents
+          </Button>
         </div>
       </div>
+
 
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
