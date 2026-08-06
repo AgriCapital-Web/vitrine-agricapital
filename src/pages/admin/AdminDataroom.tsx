@@ -665,7 +665,7 @@ export default function AdminDataroom() {
                     />
                     <p className="text-xs text-primary flex items-center gap-2">
                       <Wand2 className="w-3 h-3" />
-                      {autofilling ? "Analyse du fichier en cours…" : "Import automatique : titre, catégorie, description et permission sont déduits du fichier."}
+                      {autofilling ? "Analyse du fichier en cours…" : "Import automatique : un écran de prévisualisation vous permet de valider les champs déduits avant application."}
                     </p>
                     <p className="text-xs text-muted-foreground">
                       Types autorisés : {(ALLOWED_BY_TYPE[form.type] || []).join(", ")} · max 25 Mo
