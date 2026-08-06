@@ -68,7 +68,20 @@ export default function DataroomVault() {
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-8">
+      <main
+        className="container mx-auto px-4 py-8 select-none"
+        onContextMenu={(e) => e.preventDefault()}
+        onDragStart={(e) => e.preventDefault()}
+      >
+        <div className="mb-6 rounded-lg border border-amber-300 bg-amber-50 text-amber-900 px-4 py-3 text-xs flex items-start gap-2">
+          <ShieldCheck className="w-4 h-4 mt-0.5 shrink-0" />
+          <span>
+            <strong>Consultation en ligne uniquement.</strong> Le téléchargement des documents est
+            désactivé. Un lien de téléchargement sécurisé et expirant peut vous être transmis par
+            AgriCapital sur demande, selon votre niveau de permission.
+          </span>
+        </div>
+
         <div className="flex flex-wrap gap-2 mb-6">
           {[["all","Tout"],["document","Documents"],["photo","Photos"],["video","Vidéos"],["presentation","Présentations"],["platform","Plateformes"]].map(([k,l]) => (
             <button key={k} onClick={() => setFilter(k)}
