@@ -22,6 +22,7 @@ const menuItems: MenuItem[] = [
 
   { divider: true, label: "AgriCapital Cloud" },
   { icon: Cloud, label: "AgriCapital Cloud", path: "/admin/dataroom" },
+  { icon: Link2, label: "Liens de téléchargement", path: "/admin/dataroom-links" },
   { divider: true, label: "Contenu" },
   { icon: Newspaper, label: "Actualités", path: "/admin/news" },
   { icon: Image, label: "Galerie photo", path: "/admin/gallery" },
