@@ -199,35 +199,57 @@ const Evolution = () => {
         <section className="py-16 sm:py-24">
           <div className="container mx-auto px-4">
             <h2 className="text-3xl sm:text-4xl text-center mb-12 sm:mb-16">{t.milestones}</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-6xl mx-auto">
-              {milestones.map((ms, i) => {
-                const Icon = ms.icon;
-                const style = statusStyles[ms.status as keyof typeof statusStyles];
-                return (
-                  <div key={i} className={`rounded-xl border-l-4 ${style.border} ${style.bg} border border-border p-5 sm:p-6`}>
-                    <div className="flex items-start gap-4">
-                      <div className={`p-2.5 rounded-xl ${style.iconBg} shrink-0`}>
-                        <Icon className="w-5 h-5" />
+            <div className="relative max-w-5xl mx-auto">
+              {/* Ligne de chronologie */}
+              <div className="absolute left-4 md:left-1/2 top-0 bottom-0 w-px bg-border md:-translate-x-1/2" aria-hidden />
+              <div className="space-y-10 sm:space-y-14">
+                {milestones.map((ms, i) => {
+                  const Icon = ms.icon;
+                  const style = statusStyles[ms.status as keyof typeof statusStyles];
+                  const right = i % 2 === 1;
+                  return (
+                    <div key={i} className="relative pl-12 md:pl-0 md:grid md:grid-cols-2 md:gap-10 items-center">
+                      {/* Pastille */}
+                      <div className={`absolute left-4 md:left-1/2 top-6 md:top-1/2 -translate-x-1/2 md:-translate-y-1/2 z-10 w-9 h-9 rounded-full border-4 border-background flex items-center justify-center ${style.iconBg}`}>
+                        <Icon className="w-4 h-4" />
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex flex-wrap items-center gap-2 mb-2">
-                          <span className="text-xs font-medium text-muted-foreground flex items-center gap-1">
-                            <Calendar className="w-3 h-3" />
-                            {ms.date}
-                          </span>
-                          <Badge variant="outline" className={`text-xs ${style.badge}`}>
-                            {ms.status === "completed" && <><CheckCircle className="w-3 h-3 mr-1" />{t.completed}</>}
-                            {ms.status === "in_progress" && t.inProgress}
-                            {ms.status === "upcoming" && <><Clock className="w-3 h-3 mr-1" />{t.upcoming}</>}
-                          </Badge>
+
+                      {/* Visuel */}
+                      <div className={`${right ? "md:order-2 md:pl-10" : "md:order-1 md:pr-10"} mb-4 md:mb-0`}>
+                        <div className="overflow-hidden rounded-2xl border border-border shadow-medium aspect-[16/10] bg-muted group">
+                          <img
+                            src={ms.image}
+                            alt={ms.title}
+                            loading="lazy"
+                            onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/placeholder.svg"; }}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                          />
                         </div>
-                        <h3 className="text-lg font-bold font-sans mb-1.5">{ms.title}</h3>
-                        <p className="text-sm text-muted-foreground leading-relaxed">{ms.desc}</p>
+                      </div>
+
+                      {/* Contenu */}
+                      <div className={`${right ? "md:order-1 md:pr-10 md:text-right" : "md:order-2 md:pl-10"}`}>
+                        <div className={`rounded-xl border-l-4 ${style.border} ${style.bg} border border-border p-5 sm:p-6 ${right ? "md:border-l-0 md:border-r-4" : ""}`}>
+                          <div className={`flex flex-wrap items-center gap-2 mb-2 ${right ? "md:justify-end" : ""}`}>
+                            <span className="text-xs font-bold tracking-wider text-primary">{ms.year}</span>
+                            <span className="text-xs font-medium text-muted-foreground flex items-center gap-1">
+                              <Calendar className="w-3 h-3" />
+                              {ms.date}
+                            </span>
+                            <Badge variant="outline" className={`text-xs ${style.badge}`}>
+                              {ms.status === "completed" && <><CheckCircle className="w-3 h-3 mr-1" />{t.completed}</>}
+                              {ms.status === "in_progress" && t.inProgress}
+                              {ms.status === "upcoming" && <><Clock className="w-3 h-3 mr-1" />{t.upcoming}</>}
+                            </Badge>
+                          </div>
+                          <h3 className="text-lg sm:text-xl font-bold font-sans mb-2">{ms.title}</h3>
+                          <p className="text-sm text-muted-foreground leading-relaxed">{ms.desc}</p>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
           </div>
         </section>
