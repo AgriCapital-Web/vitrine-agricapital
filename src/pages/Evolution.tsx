@@ -75,6 +75,7 @@ const Evolution = () => {
       m1: { date: "November 19, 2025", title: "Field Operations Launch", desc: "Official start of AgriCapital with operational infrastructure installation and field activities." },
       m2: { date: "Nov – Dec 2025", title: "Daloa Nursery — 120 ha", desc: "Complete installation of the 120-hectare nursery in Daloa with autonomous irrigation and certified Tenera plants." },
       m3: { date: "August 1, 2026", title: "First local office opened — Gonaté", desc: "AgriCapital opened its first local office in Gonaté (Daloa department) with over 100 attendees: local authorities, landowners, technical partners, investors, clients, youth and women. It marks the official launch of the operational rollout of our agricultural asset creation and management model." },
+      m5: { date: "August 5, 2026", title: "First sales network training session", desc: "Eleven (11) sales advisors joined AgriCapital's first cohort. Beyond the offering, the session shared our history, vision, agricultural asset creation and management model, and the quality standards framing every commitment made to landowners and subscribers." },
       m4: { date: "Ongoing", title: "Commercial Deployment", desc: "Waitlist opening, active community prospecting and first client commitments." },
     },
   };
