@@ -718,6 +718,7 @@ export type Database = {
       dataroom_signatories: {
         Row: {
           access_code_hash: string
+          access_level: string
           country: string | null
           created_at: string
           email: string
@@ -739,6 +740,7 @@ export type Database = {
         }
         Insert: {
           access_code_hash: string
+          access_level?: string
           country?: string | null
           created_at?: string
           email: string
@@ -760,6 +762,7 @@ export type Database = {
         }
         Update: {
           access_code_hash?: string
+          access_level?: string
           country?: string | null
           created_at?: string
           email?: string

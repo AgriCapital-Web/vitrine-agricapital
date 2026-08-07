@@ -33,6 +33,7 @@ const WaitlistPage = lazy(() => import("./pages/WaitlistPage"));
 const Dataroom = lazy(() => import("./pages/Dataroom"));
 const DataroomVault = lazy(() => import("./pages/DataroomVault"));
 const AdminDataroom = lazy(() => import("./pages/admin/AdminDataroom"));
+const AdminDataroomLinks = lazy(() => import("./pages/admin/AdminDataroomLinks"));
 const AdminBrokenImages = lazy(() => import("./pages/admin/AdminBrokenImages"));
 
 // Lazy-loaded admin pages — vitrine: minimal & focused
@@ -126,6 +127,7 @@ const AppContent = () => {
         <Route path="/dataroom" element={<Dataroom />} />
         <Route path="/dataroom/vault" element={<DataroomVault />} />
         <Route path="/admin/dataroom" element={<AdminDataroom />} />
+        <Route path="/admin/dataroom-links" element={<AdminDataroomLinks />} />
         <Route path="/admin/broken-images" element={<AdminBrokenImages />} />
 
         {/* English aliases */}

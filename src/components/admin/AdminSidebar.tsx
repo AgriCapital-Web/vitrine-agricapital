@@ -2,7 +2,7 @@ import { Link, useLocation } from "react-router-dom";
 import {
   BarChart3, MessageSquare, Users, Handshake,
   Mail, Settings, Bell, Database,
-  Bot, UserCircle, Newspaper, Home, Shield, History, Image, Send, Upload, Cloud,
+  Bot, UserCircle, Newspaper, Home, Shield, History, Image, Send, Upload, Cloud, Link2,
 } from "lucide-react";
 const logoUrl = "/logo-agricapital.png";
 import { cn } from "@/lib/utils";
@@ -22,6 +22,7 @@ const menuItems: MenuItem[] = [
 
   { divider: true, label: "AgriCapital Cloud" },
   { icon: Cloud, label: "AgriCapital Cloud", path: "/admin/dataroom" },
+  { icon: Link2, label: "Liens de téléchargement", path: "/admin/dataroom-links" },
   { divider: true, label: "Contenu" },
   { icon: Newspaper, label: "Actualités", path: "/admin/news" },
   { icon: Image, label: "Galerie photo", path: "/admin/gallery" },
