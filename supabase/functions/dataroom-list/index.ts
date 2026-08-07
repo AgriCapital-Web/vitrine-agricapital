@@ -56,13 +56,13 @@ Deno.serve(async (req) => {
         ip_address: req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? null,
         user_agent: req.headers.get("user-agent") ?? null,
       });
-      await admin.rpc("increment_dataroom_view", { _publication_id: publication_id }).catch?.(() => {});
+      await admin.rpc("increment_dataroom_view", { _publication_id: publication_id });
       return json({ ok: true });
     }
 
     const { data: pubs, error } = await admin
       .from("dataroom_publications")
-      .select("id, type, title, description, category, cover_url, file_url, external_url, visibility, views_count, created_at")
+      .select("id, type, title, description, category, cover_url, file_url, platform_url, platform_login, platform_password, visibility, views_count, created_at")
       .eq("is_published", true)
       .eq("workflow_status", "published")
       .in("visibility", allowed)
@@ -77,7 +77,7 @@ Deno.serve(async (req) => {
         const { data: signed } = await admin.storage.from("dataroom").createSignedUrl(key, 900);
         preview_url = signed?.signedUrl ?? null;
       }
-      let inline_url: string | null = p.external_url ?? null;
+      let inline_url: string | null = p.platform_url ?? null;
       if (!inline_url && p.file_url && !/^https?:/i.test(p.file_url)) {
         const { data: signed } = await admin.storage.from("dataroom").createSignedUrl(p.file_url, 900);
         inline_url = signed?.signedUrl ?? null;
