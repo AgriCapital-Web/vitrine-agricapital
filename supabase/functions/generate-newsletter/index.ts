@@ -75,6 +75,30 @@ serve(async (req) => {
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
     const audience = audienceLabels[targetAudience] || audienceLabels.all;
+
+    // Contexte réel du site : dernières actualités publiées (évite les emails vides ou génériques)
+    const svc = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+    let newsItems: { title: string; excerpt: string; slug: string; date: string }[] = [];
+    try {
+      const { data: news } = await svc
+        .from("news")
+        .select("slug, title_fr, excerpt_fr, published_at")
+        .eq("is_published", true)
+        .order("published_at", { ascending: false })
+        .limit(5);
+      newsItems = (news ?? []).map((n: any) => ({
+        title: n.title_fr ?? "",
+        excerpt: stripHtml(n.excerpt_fr ?? "").slice(0, 320),
+        slug: n.slug,
+        date: n.published_at ? new Date(n.published_at).toLocaleDateString("fr-FR") : "",
+      }));
+    } catch (e) {
+      console.error("news context error", e);
+    }
+
+    const newsContext = newsItems.length
+      ? `\n\nActualités réelles AgriCapital à exploiter (ne rien inventer au-delà) :\n${newsItems.map((n) => `- ${n.date} — ${n.title} : ${n.excerpt} (${SITE_ORIGIN}/actualites/${n.slug})`).join("\n")}`
+      : "";
     const mediaInstruction = [
       includeImage ? "prévoir une image affichée directement dans l'email, jamais un texte 'voir ici'" : "ne pas insérer d'image",
       includeVideo ? "prévoir une vidéo affichée en aperçu directement dans l'email, jamais un lien ni bouton 'voir la vidéo'" : "ne pas insérer de vidéo",
