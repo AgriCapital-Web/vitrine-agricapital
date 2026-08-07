@@ -2,7 +2,7 @@ import { Link, useLocation } from "react-router-dom";
 import {
   BarChart3, MessageSquare, Users, Handshake,
   Mail, Settings, Bell, Database,
-  Bot, UserCircle, Newspaper, Home, Shield, History, Image, Send, Upload, Cloud,
+  Bot, UserCircle, Newspaper, Home, Shield, History, Image, Send, Upload, Cloud, Link2,
 } from "lucide-react";
 const logoUrl = "/logo-agricapital.png";
 import { cn } from "@/lib/utils";
