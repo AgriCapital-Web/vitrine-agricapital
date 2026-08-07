@@ -50,3 +50,6 @@ verify_jwt = false
 
 [functions.dataroom-download-link]
 verify_jwt = false
+
+[functions.dataroom-list]
+verify_jwt = false
