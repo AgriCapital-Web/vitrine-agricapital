@@ -136,7 +136,9 @@ Schéma JSON exact :
   "plainText": "version texte brut complète",
   "imageSuggestion": "description d'image si demandée, sinon chaîne vide",
   "videoSuggestion": "description ou lien vidéo si demandé, sinon chaîne vide"
-}`;
+}
+
+Obligations de complétude : chaque champ du schéma doit être rempli avec du contenu réel et utile. "sections" doit contenir 2 à 4 blocs complets, "trustElements" 3 éléments, "intro" et "closing" au moins deux phrases. Aucun champ vide, aucun texte de remplissage.${newsContext}`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
