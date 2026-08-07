@@ -83,10 +83,11 @@ const Evolution = () => {
   const t = texts[language as keyof typeof texts] || texts.fr;
 
   const milestones = [
-    { ...t.m1, status: "completed", icon: Target },
-    { ...t.m2, status: "completed", icon: Sprout },
-    { ...t.m3, status: "completed", icon: MapPin },
-    { ...t.m4, status: "in_progress", icon: Users },
+    { ...t.m1, status: "completed", icon: Target, year: "2025", image: "/inauguration/terrain-prospection.webp" },
+    { ...t.m2, status: "completed", icon: Sprout, year: "2025", image: "/inauguration/pepiniere-plants-palmier.webp" },
+    { ...t.m3, status: "completed", icon: MapPin, year: "2026", image: "/inauguration/bureau-gonate-enseigne.webp" },
+    { ...t.m5, status: "completed", icon: Users, year: "2026", image: "/formation/formation-groupe-cohorte.webp" },
+    { ...t.m4, status: "in_progress", icon: Users, year: "2026", image: "/inauguration/inauguration-accueil-client.webp" },
   ];
 
   const curatedPhotos = [
