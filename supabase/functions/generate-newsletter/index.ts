@@ -134,8 +134,16 @@ Schéma JSON exact :
     }
 
     const data = await response.json();
-    const content = data.choices?.[0]?.message?.content || "{}";
-    const campaign = JSON.parse(content.match(/\{[\s\S]*\}/)?.[0] || content);
+    const content = data.choices?.[0]?.message?.content || "";
+    let parsed: any = {};
+    try {
+      parsed = JSON.parse(content.match(/\{[\s\S]*\}/)?.[0] || content || "{}");
+    } catch (_e) {
+      console.error("Campaign JSON parse failed, using fallback structure");
+      parsed = {};
+    }
+
+    const campaign = normalizeCampaign(parsed, { prompt, audience, news: newsItems });
     const html = buildCampaignHtml(campaign, { includeImage, includeVideo });
     const mediaPreview = [
       ...(includeImage ? [{ type: "image", url: DEFAULT_IMAGE_URL, alt: campaign.imageSuggestion || "Plantation AgriCapital" }] : []),
