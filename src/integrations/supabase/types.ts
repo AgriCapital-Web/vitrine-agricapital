@@ -233,6 +233,57 @@ export type Database = {
         }
         Relationships: []
       }
+      contact_messages: {
+        Row: {
+          admin_reply: string | null
+          created_at: string
+          email: string
+          id: string
+          language: string | null
+          message: string
+          name: string
+          phone: string | null
+          read_at: string | null
+          replied_at: string | null
+          source: string | null
+          status: string
+          subject: string | null
+          updated_at: string
+        }
+        Insert: {
+          admin_reply?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          language?: string | null
+          message: string
+          name: string
+          phone?: string | null
+          read_at?: string | null
+          replied_at?: string | null
+          source?: string | null
+          status?: string
+          subject?: string | null
+          updated_at?: string
+        }
+        Update: {
+          admin_reply?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          language?: string | null
+          message?: string
+          name?: string
+          phone?: string | null
+          read_at?: string | null
+          replied_at?: string | null
+          source?: string | null
+          status?: string
+          subject?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       dataroom_access_logs: {
         Row: {
           action: string
@@ -749,6 +800,249 @@ export type Database = {
           },
         ]
       }
+      email_campaigns: {
+        Row: {
+          audience_type: string
+          batches_total: number
+          brevo_campaign_id: string | null
+          click_count: number
+          created_at: string
+          created_by: string | null
+          error_summary: string | null
+          html_content: string
+          id: string
+          image_url: string | null
+          include_image: boolean
+          include_video: boolean
+          last_sent_at: string | null
+          media_preview: Json
+          name: string
+          open_count: number
+          plain_text: string | null
+          preheader: string | null
+          provider: string
+          scheduled_at: string | null
+          source_prompt: string | null
+          status: string
+          subject: string
+          updated_at: string
+          validated_at: string | null
+          validated_by: string | null
+          video_url: string | null
+        }
+        Insert: {
+          audience_type?: string
+          batches_total?: number
+          brevo_campaign_id?: string | null
+          click_count?: number
+          created_at?: string
+          created_by?: string | null
+          error_summary?: string | null
+          html_content?: string
+          id?: string
+          image_url?: string | null
+          include_image?: boolean
+          include_video?: boolean
+          last_sent_at?: string | null
+          media_preview?: Json
+          name?: string
+          open_count?: number
+          plain_text?: string | null
+          preheader?: string | null
+          provider?: string
+          scheduled_at?: string | null
+          source_prompt?: string | null
+          status?: string
+          subject: string
+          updated_at?: string
+          validated_at?: string | null
+          validated_by?: string | null
+          video_url?: string | null
+        }
+        Update: {
+          audience_type?: string
+          batches_total?: number
+          brevo_campaign_id?: string | null
+          click_count?: number
+          created_at?: string
+          created_by?: string | null
+          error_summary?: string | null
+          html_content?: string
+          id?: string
+          image_url?: string | null
+          include_image?: boolean
+          include_video?: boolean
+          last_sent_at?: string | null
+          media_preview?: Json
+          name?: string
+          open_count?: number
+          plain_text?: string | null
+          preheader?: string | null
+          provider?: string
+          scheduled_at?: string | null
+          source_prompt?: string | null
+          status?: string
+          subject?: string
+          updated_at?: string
+          validated_at?: string | null
+          validated_by?: string | null
+          video_url?: string | null
+        }
+        Relationships: []
+      }
+      email_events: {
+        Row: {
+          campaign_id: string | null
+          created_at: string
+          event_type: string
+          id: string
+          ip_address: string | null
+          link_url: string | null
+          provider_event_id: string | null
+          recipient_email: string | null
+          send_id: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          campaign_id?: string | null
+          created_at?: string
+          event_type: string
+          id?: string
+          ip_address?: string | null
+          link_url?: string | null
+          provider_event_id?: string | null
+          recipient_email?: string | null
+          send_id?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          campaign_id?: string | null
+          created_at?: string
+          event_type?: string
+          id?: string
+          ip_address?: string | null
+          link_url?: string | null
+          provider_event_id?: string | null
+          recipient_email?: string | null
+          send_id?: string | null
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_events_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "email_campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_events_send_id_fkey"
+            columns: ["send_id"]
+            isOneToOne: false
+            referencedRelation: "newsletter_sends"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      email_logs: {
+        Row: {
+          body: string | null
+          created_at: string
+          email_type: string
+          error_message: string | null
+          id: string
+          metadata: Json
+          provider: string
+          recipient_email: string
+          status: string
+          subject: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          email_type?: string
+          error_message?: string | null
+          id?: string
+          metadata?: Json
+          provider?: string
+          recipient_email: string
+          status?: string
+          subject: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          email_type?: string
+          error_message?: string | null
+          id?: string
+          metadata?: Json
+          provider?: string
+          recipient_email?: string
+          status?: string
+          subject?: string
+        }
+        Relationships: []
+      }
+      email_signatures: {
+        Row: {
+          created_at: string
+          html_content: string
+          id: string
+          is_default: boolean
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          html_content: string
+          id?: string
+          is_default?: boolean
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          html_content?: string
+          id?: string
+          is_default?: boolean
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      email_templates: {
+        Row: {
+          created_at: string
+          html_content: string
+          id: string
+          is_active: boolean
+          key: string
+          name: string
+          subject: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          html_content: string
+          id?: string
+          is_active?: boolean
+          key: string
+          name: string
+          subject: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          html_content?: string
+          id?: string
+          is_active?: boolean
+          key?: string
+          name?: string
+          subject?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       media: {
         Row: {
           created_at: string
@@ -884,6 +1178,200 @@ export type Database = {
         }
         Relationships: []
       }
+      news_submissions: {
+        Row: {
+          author_email: string
+          author_name: string
+          author_phone: string | null
+          category: string | null
+          content: string
+          created_at: string
+          id: string
+          images: Json
+          language: string | null
+          organization: string | null
+          published_news_id: string | null
+          review_notes: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          source_url: string | null
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          author_email: string
+          author_name: string
+          author_phone?: string | null
+          category?: string | null
+          content: string
+          created_at?: string
+          id?: string
+          images?: Json
+          language?: string | null
+          organization?: string | null
+          published_news_id?: string | null
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          source_url?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          author_email?: string
+          author_name?: string
+          author_phone?: string | null
+          category?: string | null
+          content?: string
+          created_at?: string
+          id?: string
+          images?: Json
+          language?: string | null
+          organization?: string | null
+          published_news_id?: string | null
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          source_url?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      newsletter_sends: {
+        Row: {
+          audience_type: string
+          batches_completed: number
+          batches_total: number
+          campaign_id: string | null
+          click_count: number
+          completed_at: string | null
+          created_at: string
+          error_summary: string | null
+          failed_recipients: Json
+          html_content: string | null
+          html_preview: string | null
+          id: string
+          media_preview: Json
+          open_count: number
+          preheader: string | null
+          scheduled_at: string | null
+          sent_by: string | null
+          started_at: string | null
+          status: string
+          subject: string
+          total_failed: number
+          total_recipients: number
+          total_sent: number
+        }
+        Insert: {
+          audience_type?: string
+          batches_completed?: number
+          batches_total?: number
+          campaign_id?: string | null
+          click_count?: number
+          completed_at?: string | null
+          created_at?: string
+          error_summary?: string | null
+          failed_recipients?: Json
+          html_content?: string | null
+          html_preview?: string | null
+          id?: string
+          media_preview?: Json
+          open_count?: number
+          preheader?: string | null
+          scheduled_at?: string | null
+          sent_by?: string | null
+          started_at?: string | null
+          status?: string
+          subject: string
+          total_failed?: number
+          total_recipients?: number
+          total_sent?: number
+        }
+        Update: {
+          audience_type?: string
+          batches_completed?: number
+          batches_total?: number
+          campaign_id?: string | null
+          click_count?: number
+          completed_at?: string | null
+          created_at?: string
+          error_summary?: string | null
+          failed_recipients?: Json
+          html_content?: string | null
+          html_preview?: string | null
+          id?: string
+          media_preview?: Json
+          open_count?: number
+          preheader?: string | null
+          scheduled_at?: string | null
+          sent_by?: string | null
+          started_at?: string | null
+          status?: string
+          subject?: string
+          total_failed?: number
+          total_recipients?: number
+          total_sent?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "newsletter_sends_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "email_campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      newsletter_subscribers: {
+        Row: {
+          created_at: string
+          email: string
+          first_name: string | null
+          id: string
+          is_active: boolean
+          language: string
+          last_name: string | null
+          source: string
+          subscribed_at: string
+          unsubscribe_token: string
+          unsubscribed_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          first_name?: string | null
+          id?: string
+          is_active?: boolean
+          language?: string
+          last_name?: string | null
+          source?: string
+          subscribed_at?: string
+          unsubscribe_token?: string
+          unsubscribed_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          first_name?: string | null
+          id?: string
+          is_active?: boolean
+          language?: string
+          last_name?: string | null
+          source?: string
+          subscribed_at?: string
+          unsubscribe_token?: string
+          unsubscribed_at?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       page_visits: {
         Row: {
           city: string | null
@@ -914,6 +1402,84 @@ export type Database = {
           referrer?: string | null
           user_agent?: string | null
           visitor_id?: string
+        }
+        Relationships: []
+      }
+      partnership_requests: {
+        Row: {
+          category: string | null
+          city: string | null
+          company_logo_url: string | null
+          company_name: string | null
+          country: string | null
+          created_at: string
+          email: string
+          first_name: string | null
+          id: string
+          investment_amount: number | null
+          land_area_hectares: number | null
+          language: string | null
+          last_name: string | null
+          message: string | null
+          notes: string | null
+          partner_type: string
+          phone: string | null
+          photo_url: string | null
+          preferred_offer: string | null
+          request_type: string
+          status: string
+          updated_at: string
+          whatsapp: string | null
+        }
+        Insert: {
+          category?: string | null
+          city?: string | null
+          company_logo_url?: string | null
+          company_name?: string | null
+          country?: string | null
+          created_at?: string
+          email: string
+          first_name?: string | null
+          id?: string
+          investment_amount?: number | null
+          land_area_hectares?: number | null
+          language?: string | null
+          last_name?: string | null
+          message?: string | null
+          notes?: string | null
+          partner_type: string
+          phone?: string | null
+          photo_url?: string | null
+          preferred_offer?: string | null
+          request_type: string
+          status?: string
+          updated_at?: string
+          whatsapp?: string | null
+        }
+        Update: {
+          category?: string | null
+          city?: string | null
+          company_logo_url?: string | null
+          company_name?: string | null
+          country?: string | null
+          created_at?: string
+          email?: string
+          first_name?: string | null
+          id?: string
+          investment_amount?: number | null
+          land_area_hectares?: number | null
+          language?: string | null
+          last_name?: string | null
+          message?: string | null
+          notes?: string | null
+          partner_type?: string
+          phone?: string | null
+          photo_url?: string | null
+          preferred_offer?: string | null
+          request_type?: string
+          status?: string
+          updated_at?: string
+          whatsapp?: string | null
         }
         Relationships: []
       }
@@ -1174,6 +1740,36 @@ export type Database = {
           },
         ]
       }
+      site_settings: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          id: string
+          key: string
+          updated_at: string
+          value: Json
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          key: string
+          updated_at?: string
+          value?: Json
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          key?: string
+          updated_at?: string
+          value?: Json
+        }
+        Relationships: []
+      }
       testimonials: {
         Row: {
           approved: boolean
@@ -1237,6 +1833,42 @@ export type Database = {
         }
         Relationships: []
       }
+      visitor_contacts: {
+        Row: {
+          collected_via: string | null
+          created_at: string
+          email: string | null
+          first_name: string | null
+          id: string
+          language: string | null
+          last_name: string | null
+          phone: string | null
+          session_id: string
+        }
+        Insert: {
+          collected_via?: string | null
+          created_at?: string
+          email?: string | null
+          first_name?: string | null
+          id?: string
+          language?: string | null
+          last_name?: string | null
+          phone?: string | null
+          session_id: string
+        }
+        Update: {
+          collected_via?: string | null
+          created_at?: string
+          email?: string | null
+          first_name?: string | null
+          id?: string
+          language?: string | null
+          last_name?: string | null
+          phone?: string | null
+          session_id?: string
+        }
+        Relationships: []
+      }
       visitor_counters: {
         Row: {
           id: string
@@ -1258,6 +1890,60 @@ export type Database = {
           updated_at?: string
           week_started_at?: string
           weekly_visitors?: number
+        }
+        Relationships: []
+      }
+      waitlist_submissions: {
+        Row: {
+          created_at: string
+          desired_area_hectares: number | null
+          email: string
+          full_name: string
+          id: string
+          land_area_hectares: number | null
+          land_status: string | null
+          message: string | null
+          notes: string | null
+          phone: string | null
+          residence: string | null
+          source_page: string | null
+          status: string
+          updated_at: string
+          whatsapp: string | null
+        }
+        Insert: {
+          created_at?: string
+          desired_area_hectares?: number | null
+          email: string
+          full_name: string
+          id?: string
+          land_area_hectares?: number | null
+          land_status?: string | null
+          message?: string | null
+          notes?: string | null
+          phone?: string | null
+          residence?: string | null
+          source_page?: string | null
+          status?: string
+          updated_at?: string
+          whatsapp?: string | null
+        }
+        Update: {
+          created_at?: string
+          desired_area_hectares?: number | null
+          email?: string
+          full_name?: string
+          id?: string
+          land_area_hectares?: number | null
+          land_status?: string | null
+          message?: string | null
+          notes?: string | null
+          phone?: string | null
+          residence?: string | null
+          source_page?: string | null
+          status?: string
+          updated_at?: string
+          whatsapp?: string | null
         }
         Relationships: []
       }
