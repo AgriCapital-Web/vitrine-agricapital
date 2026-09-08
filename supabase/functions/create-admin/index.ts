@@ -94,10 +94,30 @@ serve(async (req) => {
       );
     }
 
-    // Check if admin user exists
+    // One-time setup only: if an admin role already exists, refuse.
+    const { data: existingAdminRoles, error: adminRoleError } = await supabase
+      .from("user_roles")
+      .select("id")
+      .eq("role", "admin")
+      .limit(1);
+
+    if (adminRoleError) {
+      console.error("Error checking existing admin roles:", adminRoleError);
+      throw adminRoleError;
+    }
+
+    if (existingAdminRoles && existingAdminRoles.length > 0) {
+      console.log("Setup already completed - refusing to run again");
+      return new Response(
+        JSON.stringify({ error: "Setup already completed", success: false }),
+        { status: 410, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Check if the admin auth user exists (without touching its credentials)
     console.log("Checking if admin exists...");
     const { data: existingUsers, error: listError } = await supabase.auth.admin.listUsers();
-    
+
     if (listError) {
       console.error("Error listing users:", listError);
       throw listError;
@@ -108,82 +128,36 @@ serve(async (req) => {
     );
 
     if (existingAdmin) {
-      console.log("Admin user exists, checking role and profile...");
-      const { error: updateUserError } = await supabase.auth.admin.updateUserById(existingAdmin.id, {
-        password: adminPassword,
-        email_confirm: true,
-        user_metadata: {
-          first_name: "Inocent",
-          last_name: "KOFFI",
-        },
-      });
+      console.log("Admin user exists, granting role only (no credential change)");
 
-      if (updateUserError) {
-        console.error("Error updating existing admin credentials:", updateUserError);
-        throw updateUserError;
-      }
-      
-      // Check if role exists
-      const { data: roleData, error: roleCheckError } = await supabase
+      const { error: roleInsertError } = await supabase
         .from("user_roles")
-        .select("id")
-        .eq("user_id", existingAdmin.id)
-        .eq("role", "admin")
-        .maybeSingle();
+        .insert({ user_id: existingAdmin.id, role: "admin" });
 
-      if (roleCheckError) {
-        console.error("Error checking role:", roleCheckError);
+      if (roleInsertError) {
+        console.error("Error inserting role:", roleInsertError);
+        throw roleInsertError;
       }
 
-      if (!roleData) {
-        console.log("Adding admin role to existing user...");
-        const { error: roleInsertError } = await supabase
-          .from("user_roles")
-          .insert({
-            user_id: existingAdmin.id,
-            role: "admin",
-          });
-
-        if (roleInsertError) {
-          console.error("Error inserting role:", roleInsertError);
-        }
-      }
-
-      // Check if profile exists
-      const { data: profileData, error: profileCheckError } = await supabase
+      const { data: profileData } = await supabase
         .from("profiles")
         .select("id")
         .eq("user_id", existingAdmin.id)
         .maybeSingle();
 
-      if (profileCheckError) {
-        console.error("Error checking profile:", profileCheckError);
-      }
-
       if (!profileData) {
-        console.log("Creating profile for existing user...");
-        const { error: profileInsertError } = await supabase
-          .from("profiles")
-          .insert({
-            user_id: existingAdmin.id,
-            first_name: "Inocent",
-            last_name: "KOFFI",
-            phone: "0759566087",
-          });
-
-        if (profileInsertError) {
-          console.error("Error inserting profile:", profileInsertError);
-        }
+        await supabase.from("profiles").insert({ user_id: existingAdmin.id });
       }
 
       return new Response(
-        JSON.stringify({ 
-          message: "Admin already exists and credentials were refreshed", 
+        JSON.stringify({
+          message: "Admin role granted to the existing account",
           success: true
         }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
+
 
     // Create new admin user
     console.log("Creating new admin user...");

@@ -17,7 +17,7 @@ import NotFound from "./pages/NotFound";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminResetPassword from "./pages/AdminResetPassword";
-import AdminSetup from "./pages/AdminSetup";
+
 
 // Lazy-loaded public pages
 const FAQ = lazy(() => import("./pages/FAQ"));
@@ -156,7 +156,7 @@ const AppContent = () => {
 
         {/* Admin — vitrine focused */}
         <Route path="/admin" element={<AdminLogin />} />
-        <Route path="/admin/setup" element={<AdminSetup />} />
+        
         <Route path="/admin/reset-password" element={<AdminResetPassword />} />
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
         <Route path="/admin/analytics" element={<AdminAnalytics />} />
