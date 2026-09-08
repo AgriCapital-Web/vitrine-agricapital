@@ -156,7 +156,7 @@ const AppContent = () => {
 
         {/* Admin — vitrine focused */}
         <Route path="/admin" element={<AdminLogin />} />
-        <Route path="/admin/setup" element={<AdminSetup />} />
+        
         <Route path="/admin/reset-password" element={<AdminResetPassword />} />
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
         <Route path="/admin/analytics" element={<AdminAnalytics />} />
