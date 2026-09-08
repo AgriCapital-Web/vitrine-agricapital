@@ -17,7 +17,7 @@ import NotFound from "./pages/NotFound";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminResetPassword from "./pages/AdminResetPassword";
-import AdminSetup from "./pages/AdminSetup";
+
 
 // Lazy-loaded public pages
 const FAQ = lazy(() => import("./pages/FAQ"));
