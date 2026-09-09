@@ -151,27 +151,11 @@ serve(async (req) => {
       audienceType = c.audience_type || "all";
       mediaPreview = Array.isArray(c.media_preview) ? c.media_preview : [];
     } else {
-      // Generate a fresh newsletter using AI
-      const gen = await fetch(`${Deno.env.get("SUPABASE_URL")}/functions/v1/generate-newsletter`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...serviceAuth.headers,
-          ...(cronSecret ? { "x-cron-secret": cronSecret } : {}),
-        },
-        body: JSON.stringify({
-          prompt: `Newsletter automatique AgriCapital (${trigger}) : nos actualités agricoles, projets fonciers et opportunités d'investissement.`,
-          targetAudience: "all",
-        }),
-      });
-      const genRaw = await gen.text();
-      let genData: any = {};
-      try { genData = JSON.parse(genRaw); } catch { /* noop */ }
-      if (!gen.ok) console.error(`generate-newsletter failed [${gen.status}]: ${genRaw.slice(0, 500)}`);
-      subject = genData.subject || "AgriCapital · L'actualité";
-      html = typeof genData.html === "string" ? genData.html : "";
-      preheader = genData.preheader || "Les nouvelles d'AgriCapital";
-      mediaPreview = Array.isArray(genData.mediaPreview) ? genData.mediaPreview : [];
+      // Aucune campagne validée : on ne diffuse jamais sans validation humaine.
+      return new Response(
+        JSON.stringify({ success: false, aborted: true, reason: "no_validated_campaign", trigger }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
     }
 
     // Garde-fou : ne jamais envoyer un email vide
