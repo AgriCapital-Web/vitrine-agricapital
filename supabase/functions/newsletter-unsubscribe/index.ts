@@ -30,25 +30,28 @@ serve(async (req) => {
   try {
     const url = new URL(req.url);
     let token = url.searchParams.get("token") || "";
-    let email = (url.searchParams.get("email") || "").toLowerCase().trim();
 
     if (req.method === "POST") {
       const body = await req.json().catch(() => ({}));
       token = token || String(body.token || "");
-      email = email || String(body.email || "").toLowerCase().trim();
     }
 
-    if (!token && !email) {
-      return new Response(htmlPage("Lien invalide", "<p>Aucun identifiant de désabonnement fourni.</p>"), {
+    // Un jeton unique est obligatoire : l'adresse e-mail seule ne prouve pas
+    // que le demandeur est bien le propriétaire de l'abonnement.
+    if (!token || token.length < 16) {
+      return new Response(htmlPage("Lien invalide", "<p>Ce lien de désabonnement est invalide ou incomplet. Merci d'utiliser le lien figurant en bas de nos emails.</p>"), {
         status: 400, headers: { ...corsHeaders, "Content-Type": "text/html; charset=utf-8" },
       });
     }
 
     const supabase = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
-    const query = supabase.from("newsletter_subscribers").update({ is_active: false, unsubscribed_at: new Date().toISOString() });
-    const { data, error } = token
-      ? await query.eq("unsubscribe_token", token).select("email").maybeSingle()
-      : await query.eq("email", email).select("email").maybeSingle();
+    const { data, error } = await supabase
+      .from("newsletter_subscribers")
+      .update({ is_active: false, unsubscribed_at: new Date().toISOString() })
+      .eq("unsubscribe_token", token)
+      .select("email")
+      .maybeSingle();
+
 
     if (error) throw error;
     if (!data) {
