@@ -63,11 +63,72 @@ serve(async (req) => {
     const supabase = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
     const serviceAuth = { headers: { Authorization: `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!}` } };
 
-    // Look for a ready-to-send campaign
+    const DRAFT_REVIEW_EMAIL = "agricapital.ci@gmail.com";
+    const BREVO_KEY = Deno.env.get("BREVO_API_KEY");
+
+    const generateCampaign = async (intent: string) => {
+      const gen = await fetch(`${Deno.env.get("SUPABASE_URL")}/functions/v1/generate-newsletter`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...serviceAuth.headers,
+          ...(cronSecret ? { "x-cron-secret": cronSecret } : {}),
+        },
+        body: JSON.stringify({ prompt: intent, targetAudience: "all", includeImage: true }),
+      });
+      const raw = await gen.text();
+      let parsed: any = {};
+      try { parsed = JSON.parse(raw); } catch { /* noop */ }
+      if (!gen.ok) console.error(`generate-newsletter failed [${gen.status}]: ${raw.slice(0, 500)}`);
+      return parsed;
+    };
+
+    // --- Mode brouillon (J-1) : génère, enregistre en 'draft' et n'envoie qu'un aperçu de validation ---
+    if (trigger === "daily-draft" || body?.mode === "draft") {
+      const genData = await generateCampaign(
+        "Brouillon de newsletter AgriCapital pour validation : avancées réelles et vérifiables du déploiement, orientée prospection.",
+      );
+      const draftHtml: string = typeof genData.html === "string" ? genData.html : "";
+      if (draftHtml.replace(/<[^>]+>/g, " ").trim().length < 120) {
+        return new Response(JSON.stringify({ success: false, reason: "empty_content" }), {
+          status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const { data: draft } = await supabase.from("email_campaigns").insert({
+        name: genData.name || `Brouillon auto ${new Date().toLocaleDateString("fr-FR")}`,
+        subject: genData.subject || "AgriCapital · L'actualité",
+        preheader: genData.preheader || "",
+        html_content: draftHtml,
+        plain_text: genData.plainText || "",
+        provider: "brevo",
+        audience_type: "all",
+        status: "draft",
+        media_preview: Array.isArray(genData.mediaPreview) ? genData.mediaPreview : [],
+      }).select("id").maybeSingle();
+
+      if (BREVO_KEY) {
+        await brevoFetch(BREVO_KEY, "/smtp/email", {
+          method: "POST",
+          body: JSON.stringify({
+            sender: { name: "AgriCapital", email: "contact@agricapital.ci" },
+            to: [{ email: DRAFT_REVIEW_EMAIL, name: "AgriCapital" }],
+            subject: `[BROUILLON À VALIDER] ${genData.subject || "Newsletter AgriCapital"}`,
+            htmlContent: draftHtml,
+          }),
+        });
+      }
+
+      return new Response(JSON.stringify({ success: true, mode: "draft", campaignId: draft?.id ?? null, previewSentTo: DRAFT_REVIEW_EMAIL }), {
+        status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Envoi réel : uniquement une campagne validée ('ready')
     const { data: campaigns } = await supabase
       .from("email_campaigns")
       .select("id, subject, preheader, html_content, audience_type, media_preview")
-      .in("status", ["ready", "draft"])
+      .in("status", ["ready"])
       .order("updated_at", { ascending: false })
       .limit(1);
 
@@ -90,27 +151,11 @@ serve(async (req) => {
       audienceType = c.audience_type || "all";
       mediaPreview = Array.isArray(c.media_preview) ? c.media_preview : [];
     } else {
-      // Generate a fresh newsletter using AI
-      const gen = await fetch(`${Deno.env.get("SUPABASE_URL")}/functions/v1/generate-newsletter`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...serviceAuth.headers,
-          ...(cronSecret ? { "x-cron-secret": cronSecret } : {}),
-        },
-        body: JSON.stringify({
-          prompt: `Newsletter automatique AgriCapital (${trigger}) : nos actualités agricoles, projets fonciers et opportunités d'investissement.`,
-          targetAudience: "all",
-        }),
-      });
-      const genRaw = await gen.text();
-      let genData: any = {};
-      try { genData = JSON.parse(genRaw); } catch { /* noop */ }
-      if (!gen.ok) console.error(`generate-newsletter failed [${gen.status}]: ${genRaw.slice(0, 500)}`);
-      subject = genData.subject || "AgriCapital · L'actualité";
-      html = typeof genData.html === "string" ? genData.html : "";
-      preheader = genData.preheader || "Les nouvelles d'AgriCapital";
-      mediaPreview = Array.isArray(genData.mediaPreview) ? genData.mediaPreview : [];
+      // Aucune campagne validée : on ne diffuse jamais sans validation humaine.
+      return new Response(
+        JSON.stringify({ success: false, aborted: true, reason: "no_validated_campaign", trigger }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
     }
 
     // Garde-fou : ne jamais envoyer un email vide

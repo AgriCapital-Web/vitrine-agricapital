@@ -123,6 +123,10 @@ Règles :
 - Types possibles : prospection, investisseurs, partenaires, événement, promotion, newsletter, relance, fidélisation, rendez-vous, institutionnel, collecte de fonds, recrutement, sensibilisation ou tout besoin futur.
 - ${mediaInstruction}.
 - Pas de prix inventé. Pas de promesse financière irréaliste.
+- CRÉDIBILITÉ (règle absolue) : n'affirme QUE ce qu'AgriCapital fait réellement aujourd'hui et l'étape réelle où l'entreprise se trouve. Interdiction d'inventer un chiffre, un rendement, un hectarage, une date, un partenariat, un prix, un label, une récompense ou un témoignage.
+- Appuie-toi exclusivement sur les actualités réelles du site listées plus bas et sur les publications officielles LinkedIn d'AgriCapital (page entreprise : https://www.linkedin.com/company/107730177/). Si une information manque, reste général plutôt que d'inventer.
+- Étape actuelle à respecter : entreprise ivoirienne en déploiement opérationnel (bureau de proximité de Gonaté/Daloa, pépinière en production, prospection et levés topographiques, première cohorte de conseillers commerciaux formée). Ne présente aucune plantation comme déjà en production commerciale.
+- Ne jamais mettre en avant une personne : AgriCapital est une entreprise, jamais une plateforme individuelle. Ne cite aucun nom de dirigeant sauf demande explicite.
 - Ne jamais écrire "voir ici", "cliquez ici", "voir la vidéo" ou un lien média redirigeant : les médias sont rendus par le gabarit HTML.
 - Salutation dynamique obligatoire : "Bonjour {{prenom}} {{nom}}," puis expliquer que si les champs sont absents le système utilisera "Bonjour très cher,".
 - Signature institutionnelle : L'équipe AgriCapital SARL. Ne pas signer au nom d'une personne.
