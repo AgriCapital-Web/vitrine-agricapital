@@ -1,0 +1,9 @@
+REVOKE SELECT ON public.dataroom_sessions FROM authenticated;
+REVOKE SELECT ON public.email_events FROM authenticated;
+REVOKE SELECT ON public.push_subscriptions FROM authenticated;
+REVOKE ALL ON public.dataroom_sessions FROM anon;
+REVOKE ALL ON public.email_events FROM anon;
+REVOKE ALL ON public.push_subscriptions FROM anon;
+GRANT ALL ON public.dataroom_sessions TO service_role;
+GRANT ALL ON public.email_events TO service_role;
+GRANT ALL ON public.push_subscriptions TO service_role;
