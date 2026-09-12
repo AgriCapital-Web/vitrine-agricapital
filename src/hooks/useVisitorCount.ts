@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
-const BASE_TOTAL = 3262; // 3234 + 28 visites de la semaine confirmées par l'admin
-const BASE_WEEKLY = 135; // 107 + 28 visites de la semaine confirmées par l'admin
+const BASE_TOTAL = 4126; // socle validé par l'administration, progression réelle ensuite
+const BASE_WEEKLY = 0; // progression hebdomadaire strictement réelle
 
 export const useVisitorCount = () => {
   const [totalVisitors, setTotalVisitors] = useState<number>(() => {
