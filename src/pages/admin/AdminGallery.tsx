@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,7 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Image, Loader2, Star, Trash2, Upload } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Archive, ArchiveRestore, Eye, EyeOff, Image, Loader2, RefreshCw, Star, Trash2, Upload } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -19,8 +20,12 @@ interface MediaItem {
   type: string;
   category: string | null;
   is_active: boolean;
+  is_archived: boolean;
+  storage_path: string | null;
   created_at: string;
 }
+
+type ViewFilter = "active" | "hidden" | "archived" | "all";
 
 const AdminGallery = () => {
   const [media, setMedia] = useState<MediaItem[]>([]);
@@ -28,6 +33,9 @@ const AdminGallery = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [title, setTitle] = useState("");
   const [comment, setComment] = useState("");
+  const [filter, setFilter] = useState<ViewFilter>("active");
+  const replaceInputRef = useRef<HTMLInputElement>(null);
+  const [replaceTarget, setReplaceTarget] = useState<MediaItem | null>(null);
 
   useEffect(() => {
     fetchMedia();
@@ -40,14 +48,23 @@ const AdminGallery = () => {
       .select('*')
       .in('category', ['gallery', 'gallery-featured'])
       .order('created_at', { ascending: false });
-    
+
     if (error) {
       toast.error("Erreur lors du chargement");
       console.error(error);
     } else {
-      setMedia(data || []);
+      setMedia((data || []) as MediaItem[]);
     }
     setIsLoading(false);
+  };
+
+  const uploadToStorage = async (file: File) => {
+    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "-");
+    const path = `gallery/${Date.now()}-${safeName}`;
+    const { error: uploadError } = await supabase.storage.from("media").upload(path, file);
+    if (uploadError) throw uploadError;
+    const { data } = supabase.storage.from("media").getPublicUrl(path);
+    return { path, url: data.publicUrl };
   };
 
   const handleUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -58,16 +75,12 @@ const AdminGallery = () => {
       return;
     }
     setIsUploading(true);
-    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "-");
-    const fileName = `gallery/${Date.now()}-${safeName}`;
     try {
-      const { error: uploadError } = await supabase.storage.from("media").upload(fileName, file);
-      if (uploadError) throw uploadError;
-      const { data } = supabase.storage.from("media").getPublicUrl(fileName);
-
+      const { path, url } = await uploadToStorage(file);
       const { error } = await supabase.from("site_media").insert({
         name: title || file.name,
-        url: data.publicUrl,
+        url,
+        storage_path: path,
         alt_text_fr: comment,
         alt_text_en: comment,
         type: "image",
@@ -87,6 +100,42 @@ const AdminGallery = () => {
     }
   };
 
+  const startReplace = (item: MediaItem) => {
+    setReplaceTarget(item);
+    replaceInputRef.current?.click();
+  };
+
+  const handleReplace = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    const target = replaceTarget;
+    event.target.value = "";
+    setReplaceTarget(null);
+    if (!file || !target) return;
+    if (!file.type.startsWith("image/")) {
+      toast.error("Veuillez choisir une image");
+      return;
+    }
+    setIsUploading(true);
+    try {
+      const { path, url } = await uploadToStorage(file);
+      const { error } = await supabase
+        .from("site_media")
+        .update({ url, storage_path: path })
+        .eq("id", target.id);
+      if (error) throw error;
+      if (target.storage_path) {
+        await supabase.storage.from("media").remove([target.storage_path]);
+      }
+      toast.success("Fichier remplacé");
+      fetchMedia();
+    } catch (error) {
+      toast.error("Erreur lors du remplacement");
+      console.error(error);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   const toggleFeatured = async (item: MediaItem) => {
     const { error } = await supabase
       .from('site_media')
@@ -96,25 +145,54 @@ const AdminGallery = () => {
     else { toast.success("Galerie mise à jour"); fetchMedia(); }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Êtes-vous sûr de vouloir supprimer ce média ?")) return;
+  const toggleVisibility = async (item: MediaItem) => {
+    const { error } = await supabase
+      .from('site_media')
+      .update({ is_active: !item.is_active })
+      .eq('id', item.id);
+    if (error) toast.error("Erreur lors du masquage");
+    else { toast.success(item.is_active ? "Fichier masqué du site" : "Fichier de nouveau visible"); fetchMedia(); }
+  };
+
+  const toggleArchive = async (item: MediaItem) => {
+    const archiving = !item.is_archived;
+    const { error } = await supabase
+      .from('site_media')
+      .update({ is_archived: archiving, is_active: archiving ? false : item.is_active })
+      .eq('id', item.id);
+    if (error) toast.error("Erreur lors de l'archivage");
+    else { toast.success(archiving ? "Fichier archivé" : "Fichier restauré"); fetchMedia(); }
+  };
+
+  const handleDelete = async (item: MediaItem) => {
+    if (!confirm("Êtes-vous sûr de vouloir supprimer définitivement ce média ?")) return;
 
     const { error } = await supabase
       .from('site_media')
       .delete()
-      .eq('id', id);
+      .eq('id', item.id);
 
     if (error) {
       toast.error("Erreur lors de la suppression");
     } else {
+      if (item.storage_path) await supabase.storage.from("media").remove([item.storage_path]);
       toast.success("Média supprimé");
       fetchMedia();
     }
   };
 
+  const visible = media.filter((m) => {
+    if (filter === "all") return true;
+    if (filter === "archived") return m.is_archived;
+    if (filter === "hidden") return !m.is_archived && !m.is_active;
+    return !m.is_archived && m.is_active;
+  });
+
   return (
-    <AdminLayout title="Galerie photo">
+    <AdminLayout title="Gestionnaire de fichiers">
       <div className="space-y-6">
+        <input ref={replaceInputRef} type="file" accept="image/*" className="hidden" onChange={handleReplace} />
+
         <Card>
           <CardContent className="p-5 grid gap-4 md:grid-cols-[1fr_1fr_auto] md:items-end">
             <div><Label>Titre bref</Label><Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Ex. Pépinière de Daloa" /></div>
@@ -123,35 +201,55 @@ const AdminGallery = () => {
           </CardContent>
         </Card>
 
+        <Tabs value={filter} onValueChange={(v) => setFilter(v as ViewFilter)}>
+          <TabsList>
+            <TabsTrigger value="active">Visibles</TabsTrigger>
+            <TabsTrigger value="hidden">Masqués</TabsTrigger>
+            <TabsTrigger value="archived">Archivés</TabsTrigger>
+            <TabsTrigger value="all">Tous</TabsTrigger>
+          </TabsList>
+        </Tabs>
+
         {isLoading ? (
           <div className="flex items-center justify-center py-12">
             <Loader2 className="w-8 h-8 animate-spin text-primary" />
           </div>
-        ) : media.length === 0 ? (
+        ) : visible.length === 0 ? (
           <Card>
             <CardContent className="py-12 text-center">
               <Image className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-              <p className="text-muted-foreground mb-4">Aucun média</p>
-              <p className="text-sm text-muted-foreground">Ajoutez vos premières images terrain depuis le bouton Ajouter.</p>
+              <p className="text-muted-foreground mb-4">Aucun fichier dans cette vue</p>
+              <p className="text-sm text-muted-foreground">Ajoutez vos images terrain depuis le bouton Ajouter.</p>
             </CardContent>
           </Card>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-            {media.map((item) => (
-                <Card key={item.id} className="overflow-hidden group">
-                  <div className="aspect-[4/3] relative bg-muted">
-                    <img src={item.url} alt={item.alt_text_fr || item.name} className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).src = "/placeholder.svg"; }} />
-                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                      <Button size="icon" variant="secondary" onClick={() => toggleFeatured(item)} title="Mettre à la une"><Star className="w-4 h-4" /></Button>
-                      <Button size="icon" variant="destructive" onClick={() => handleDelete(item.id)} title="Supprimer"><Trash2 className="w-4 h-4" /></Button>
-                    </div>
+            {visible.map((item) => (
+              <Card key={item.id} className="overflow-hidden group">
+                <div className="aspect-[4/3] relative bg-muted">
+                  <img src={item.url} alt={item.alt_text_fr || item.name} className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).src = "/placeholder.svg"; }} />
+                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-wrap items-center justify-center gap-2 p-2">
+                    <Button size="icon" variant="secondary" onClick={() => toggleFeatured(item)} title="Mettre à la une"><Star className="w-4 h-4" /></Button>
+                    <Button size="icon" variant="secondary" onClick={() => startReplace(item)} title="Remplacer le fichier"><RefreshCw className="w-4 h-4" /></Button>
+                    <Button size="icon" variant="secondary" onClick={() => toggleVisibility(item)} title={item.is_active ? "Masquer" : "Rendre visible"}>
+                      {item.is_active ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </Button>
+                    <Button size="icon" variant="secondary" onClick={() => toggleArchive(item)} title={item.is_archived ? "Restaurer" : "Archiver"}>
+                      {item.is_archived ? <ArchiveRestore className="w-4 h-4" /> : <Archive className="w-4 h-4" />}
+                    </Button>
+                    <Button size="icon" variant="destructive" onClick={() => handleDelete(item)} title="Supprimer"><Trash2 className="w-4 h-4" /></Button>
                   </div>
-                  <CardContent className="p-2">
-                    <p className="text-xs font-medium truncate">{item.name}</p>
-                    {item.alt_text_fr && <p className="text-[11px] text-muted-foreground line-clamp-2 mt-1">{item.alt_text_fr}</p>}
-                    {item.category === 'gallery-featured' && <Badge className="text-[10px] mt-1 bg-accent text-white">À la une</Badge>}
-                  </CardContent>
-                </Card>
+                </div>
+                <CardContent className="p-2">
+                  <p className="text-xs font-medium truncate">{item.name}</p>
+                  {item.alt_text_fr && <p className="text-[11px] text-muted-foreground line-clamp-2 mt-1">{item.alt_text_fr}</p>}
+                  <div className="flex flex-wrap gap-1 mt-1">
+                    {item.category === 'gallery-featured' && <Badge className="text-[10px] bg-accent text-accent-foreground">À la une</Badge>}
+                    {!item.is_active && !item.is_archived && <Badge variant="secondary" className="text-[10px]">Masqué</Badge>}
+                    {item.is_archived && <Badge variant="outline" className="text-[10px]">Archivé</Badge>}
+                  </div>
+                </CardContent>
+              </Card>
             ))}
           </div>
         )}
