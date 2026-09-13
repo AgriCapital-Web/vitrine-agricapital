@@ -1,17 +1,19 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, useLocation } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users, History, Send, Upload } from "lucide-react";
+import { Users, History, Send, Upload, FileEdit } from "lucide-react";
 import AdminNewsletter from "./AdminNewsletter";
 import AdminNewsletterHistory from "./AdminNewsletterHistory";
 import AdminEmailCampaigns from "./AdminEmailCampaigns";
 import AdminImportEmails from "./AdminImportEmails";
+import AdminNewsletterDrafts from "./AdminNewsletterDrafts";
 
-const TABS = ["abonnes", "campagnes", "historique", "import"] as const;
+const TABS = ["abonnes", "brouillons", "campagnes", "historique", "import"] as const;
 type TabKey = typeof TABS[number];
 
 const pathToTab: Record<string, TabKey> = {
   "/admin/newsletter": "abonnes",
+  "/admin/newsletter-drafts": "brouillons",
   "/admin/email-campaigns": "campagnes",
   "/admin/newsletter-history": "historique",
   "/admin/import-emails": "import",
