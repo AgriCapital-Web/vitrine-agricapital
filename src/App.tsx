@@ -170,6 +170,7 @@ const AppContent = () => {
         <Route path="/admin/contact-messages" element={<AdminContactMessages />} />
         <Route path="/admin/campagnes" element={<AdminCampagnes />} />
         <Route path="/admin/newsletter" element={<AdminCampagnes />} />
+        <Route path="/admin/newsletter-drafts" element={<AdminCampagnes />} />
         <Route path="/admin/newsletter-history" element={<AdminCampagnes />} />
         <Route path="/admin/email-campaigns" element={<AdminCampagnes />} />
         <Route path="/admin/import-emails" element={<AdminCampagnes />} />
