@@ -42,9 +42,12 @@ const AdminCampagnes = () => {
       </div>
 
       <Tabs value={tab} onValueChange={(v) => setTab(v as TabKey)} className="w-full">
-        <TabsList className="grid grid-cols-2 lg:grid-cols-4 w-full h-auto gap-1 p-1">
+        <TabsList className="grid grid-cols-2 lg:grid-cols-5 w-full h-auto gap-1 p-1">
           <TabsTrigger value="abonnes" className="flex items-center gap-2 py-2.5">
             <Users size={16} /> <span>Abonnés</span>
+          </TabsTrigger>
+          <TabsTrigger value="brouillons" className="flex items-center gap-2 py-2.5">
+            <FileEdit size={16} /> <span>Brouillons</span>
           </TabsTrigger>
           <TabsTrigger value="campagnes" className="flex items-center gap-2 py-2.5">
             <Send size={16} /> <span>Campagnes</span>
