@@ -63,6 +63,9 @@ const AdminCampagnes = () => {
         <TabsContent value="abonnes" className="mt-4 -mx-4 lg:-mx-6">
           <AdminNewsletter />
         </TabsContent>
+        <TabsContent value="brouillons" className="mt-4 -mx-4 lg:-mx-6">
+          <AdminNewsletterDrafts />
+        </TabsContent>
         <TabsContent value="campagnes" className="mt-4 -mx-4 lg:-mx-6">
           <AdminEmailCampaigns />
         </TabsContent>
