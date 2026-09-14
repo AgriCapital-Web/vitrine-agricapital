@@ -49,13 +49,18 @@ Deno.serve(async (req) => {
     const cleanCode = String(code).trim();
     const cleanEmail = String(email).trim().toLowerCase();
 
-    // Signatory MUST already exist (NDA rempli + email en base) — comparaison insensible à la casse
+    // Signatory MUST already exist (NDA rempli + email en base)
+    // Comparaison EXACTE insensible à la casse : les jokers % et _ sont échappés,
+    // donc une saisie du type "%" ne peut plus matcher d'autres comptes.
+    const escapedEmail = cleanEmail.replace(/([\\%_])/g, "\\$1");
     const { data: sigList } = await supabase
       .from("dataroom_signatories")
       .select("id, full_name, email, profile_type, access_code_hash")
-      .ilike("email", cleanEmail)
-      .limit(1);
-    const sig = sigList?.[0];
+      .ilike("email", escapedEmail)
+      .limit(2);
+    const sig = (sigList ?? []).find(
+      (s: { email: string | null }) => String(s.email ?? "").trim().toLowerCase() === cleanEmail,
+    );
 
     if (!sig) {
       return new Response(JSON.stringify({ error: "E-mail non enregistré. Veuillez d'abord remplir le NDA." }), {
