@@ -186,7 +186,7 @@ const InaugurationSection = () => {
 
             <div className="flex flex-col sm:flex-row gap-3">
               <Button asChild className="bg-gradient-accent border-0 text-white hover:opacity-90">
-                <Link to="/actualites/inauguration-bureau-gonate-daloa">{t.cta}</Link>
+                <Link to="/actualites/inauguration-bureau-proximite-gonate-dalora">{t.cta}</Link>
               </Button>
               <Button variant="outline" asChild>
                 <Link to="/#contact">{t.ctaAlt}</Link>
